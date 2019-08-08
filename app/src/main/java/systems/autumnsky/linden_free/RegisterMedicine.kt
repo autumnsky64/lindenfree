@@ -34,6 +34,7 @@ class RegisterMedicine : AppCompatActivity() {
         setContentView(R.layout.activity_medicine)
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        navView.selectedItemId = R.id.navigation_medicine
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 }

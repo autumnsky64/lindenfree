@@ -3,7 +3,7 @@
 
     <item
             android:id="@+id/navigation_medicine"
-            android:icon="@drawable/ic_event_note_black_24dp"
+            android:icon="@drawable/ic_capsule"
             android:title="@string/title_medicine"
             android:iconTint="#00FFFFFF"/>
 
