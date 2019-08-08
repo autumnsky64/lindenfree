@@ -41,46 +41,61 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.date_label).text = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
 
-        findViewById<Button>(R.id.awake_button).setOnClickListener(setTime())
+        findViewById<Button>(R.id.awake_button).setOnClickListener(SetTime())
+        findViewById<Button>(R.id.dose_button).setOnClickListener(SetTime())
+        findViewById<Button>(R.id.inbed_button).setOnClickListener(SetTime())
+        findViewById<Button>(R.id.sleep_button).setOnClickListener(SetTime())
+    }
 
-        }
-
-    private fun setTime(): (View) -> Unit {
-        return { view: View ->
-
+    private inner class SetTime : View.OnClickListener {
+        override fun onClick(view: View?) {
             val cal = Calendar.getInstance()
-            val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                cal.set(Calendar.HOUR_OF_DAY, hour)
-                cal.set(Calendar.MINUTE, min)
+            val button = view as Button
+            val labelMap: Map<String, String> = labelAttribute(button)
 
-                //db書込処理
+            if (labelMap["default"] == labelMap["current"]) {
+                //Logテーブルに insert
+                updateButton(button, SimpleDateFormat("HH:mm").format(cal.time))
 
-                // ボタン更新処理
-                val button = view as Button
-                val timeString = SimpleDateFormat("HH:mm").format(cal.time)
-                updateButton(button, timeString)
+            } else {
 
+                //TimePickerからセットするのは時刻入力済みの時のみ
+                val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                    cal.set(Calendar.HOUR_OF_DAY, hour)
+                    cal.set(Calendar.MINUTE, min)
+
+                    //Logテーブル 更新処理
+
+                    // ボタン更新処理
+                    val timeString = SimpleDateFormat("HH:mm").format(cal.time)
+                    updateButton(button, timeString)
+
+                }
+
+                TimePickerDialog(
+                    view.context,
+                    timeSetListener,
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                    true
+                ).show()
             }
+        }
 
-            TimePickerDialog(
-                this,
-                timeSetListener,
-                cal.get(Calendar.HOUR_OF_DAY),
-                cal.get(Calendar.MINUTE),
-                true
-            ).show()
+        private fun updateButton(button: Button, time: String) {
+            val event = labelAttribute(button)["default"]
+            val newLabel = "$event  $time"
+            button.text = newLabel
+            button.setBackgroundColor(getColor(R.color.colorPrimary))
+            button.setTextColor(getColor(R.color.primary_material_light))
+        }
+
+        private fun labelAttribute(button: Button): Map<String, String> {
+            val stringResName = "label_" + resources.getResourceEntryName(button.id)
+            val event = getString(resources.getIdentifier(stringResName, "string", packageName))
+            return mapOf("default" to event, "current" to button.getText().toString())
         }
     }
-
-    private fun updateButton ( button: Button, time: String)  {
-        val stringResName = "label_" + resources.getResourceEntryName(button.id)
-        val event = getString(resources.getIdentifier( stringResName, "string", packageName))
-        val newLabel = "$event  $time"
-        button.text = newLabel
-        button.setBackgroundColor(getColor(R.color.colorPrimary))
-        button.setTextColor(getColor(R.color.primary_material_light))
-    }
-
 }
 
 
