@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name" translatable="false">LindenFree</string>
+    <string name="title_home">Home</string>
+    <string name="title_log">Log</string>
+    <string name="title_medicine">Medicine</string>
+    <string name="title_activity_logview">logview</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_activity_medicine">medicine</string>
+    <string name="label_awake_button">Awake</string>
+    <string name="label_dose_button">Dose</string>
+    <string name="label_inbed_button">In Bed</string>
+    <string name="label_sleep_button">Sleep</string>
+</resources>
