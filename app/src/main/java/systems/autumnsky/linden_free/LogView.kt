@@ -1,5 +1,6 @@
 package systems.autumnsky.linden_free
 
+import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -7,15 +8,21 @@ import android.widget.TextView
 
 class LogView : AppCompatActivity() {
 
-    private lateinit var textMessage: TextView
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_home -> {
-                textMessage.setText(R.string.title_home)
+            R.id.navigation_log -> {
+                val intent = Intent(applicationContext, LogView::class.java)
+                startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_log -> {
-                textMessage.setText(R.string.title_log)
+            R.id.navigation_home -> {
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                startActivity(intent)
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_medicine -> {
+                val intent = Intent(applicationContext, RegisterMedicine::class.java)
+                startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -27,7 +34,6 @@ class LogView : AppCompatActivity() {
         setContentView(R.layout.activity_logview)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
-        textMessage = findViewById(R.id.message)
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 }

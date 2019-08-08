@@ -1,6 +1,7 @@
 package systems.autumnsky.linden_free
 
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -14,19 +15,21 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var textMessage: TextView
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_home -> {
-                textMessage.setText(R.string.title_home)
+            R.id.navigation_log -> {
+                val intent = Intent(applicationContext, LogView::class.java)
+                startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_log -> {
-                textMessage.setText(R.string.title_log)
+            R.id.navigation_home -> {
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_medicine -> {
-                textMessage.setText(R.string.title_medicine)
+                val intent = Intent(applicationContext, RegisterMedicine::class.java)
+                startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -38,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        navView.selectedItemId = R.id.navigation_home
+        navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
         findViewById<TextView>(R.id.date_label).text = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
 

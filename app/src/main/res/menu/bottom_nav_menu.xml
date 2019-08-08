@@ -4,12 +4,14 @@
     <item
             android:id="@+id/navigation_medicine"
             android:icon="@drawable/ic_event_note_black_24dp"
-            android:title="Medicine"/>
+            android:title="@string/title_medicine"
+            android:iconTint="#00FFFFFF"/>
 
     <item
             android:id="@+id/navigation_home"
             android:icon="@drawable/ic_home_black_24dp"
-            android:title="@string/title_home"/>
+            android:title="@string/title_home" android:checkable="false" android:checked="true"
+    />
 
     <item
             android:id="@+id/navigation_log"
