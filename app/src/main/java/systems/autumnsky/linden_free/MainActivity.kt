@@ -50,6 +50,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.dose_button).setOnClickListener(SetTime())
         findViewById<Button>(R.id.inbed_button).setOnClickListener(SetTime())
         findViewById<Button>(R.id.sleep_button).setOnClickListener(SetTime())
+
+        findViewById<Button>(R.id.awake_button).setOnLongClickListener(SetTimeByPicker())
+        findViewById<Button>(R.id.dose_button).setOnLongClickListener(SetTimeByPicker())
+        findViewById<Button>(R.id.inbed_button).setOnLongClickListener(SetTimeByPicker())
+        findViewById<Button>(R.id.sleep_button).setOnLongClickListener(SetTimeByPicker())
     }
 
     private inner class SetTime : View.OnClickListener {
@@ -60,46 +65,61 @@ class MainActivity : AppCompatActivity() {
 
             if (labelMap["default"] == labelMap["current"]) {
                 //Logテーブルに insert
+
                 updateButton(button, SimpleDateFormat("HH:mm").format(cal.time))
-
             } else {
-
                 //TimePickerからセットするのは時刻入力済みの時のみ
-                val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                    cal.set(Calendar.HOUR_OF_DAY, hour)
-                    cal.set(Calendar.MINUTE, min)
-
-                    //Logテーブル 更新処理
-
-                    // ボタン更新処理
-                    val timeString = SimpleDateFormat("HH:mm").format(cal.time)
-                    updateButton(button, timeString)
-
-                }
-
-                TimePickerDialog(
-                    view.context,
-                    timeSetListener,
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
-                    true
-                ).show()
+                timePicker(button)
             }
         }
+    }
 
-        private fun updateButton(button: Button, time: String) {
-            val event = labelAttribute(button)["default"]
-            val newLabel = "$event  $time"
-            button.text = newLabel
-            button.setBackgroundColor(getColor(R.color.colorPrimary))
-            button.setTextColor(getColor(R.color.primary_material_light))
+    private inner class SetTimeByPicker : View.OnLongClickListener {
+        override fun onLongClick(view: View?): Boolean {
+            val button = view as Button
+            timePicker(button)
+            return true
+        }
+    }
+
+    private fun updateButton(button: Button, time: String) {
+        val event = labelAttribute(button)["default"]
+        val newLabel = "$event  $time"
+        button.text = newLabel
+        button.setBackgroundColor(getColor(R.color.colorPrimary))
+        button.setTextColor(getColor(R.color.primary_material_light))
+    }
+
+    //buttonのIDから、初期のラベルを取得
+    private fun labelAttribute(button: Button): Map<String, String> {
+        val stringResName = "label_" + resources.getResourceEntryName(button.id)
+        val event = getString(resources.getIdentifier(stringResName, "string", packageName))
+        return mapOf("default" to event, "current" to button.getText().toString())
+    }
+
+    //タイムピッカーで指定した時刻でボタンを更新
+    private fun timePicker( button: Button ) {
+        val cal = Calendar.getInstance()
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
+
+            cal.set(Calendar.HOUR_OF_DAY, hour)
+            cal.set(Calendar.MINUTE, min)
+
+            //Logテーブル 更新処理
+
+            // ボタン更新処理
+            val timeString = SimpleDateFormat("HH:mm").format(cal.time)
+            updateButton(button, timeString)
+
         }
 
-        private fun labelAttribute(button: Button): Map<String, String> {
-            val stringResName = "label_" + resources.getResourceEntryName(button.id)
-            val event = getString(resources.getIdentifier(stringResName, "string", packageName))
-            return mapOf("default" to event, "current" to button.getText().toString())
-        }
+        TimePickerDialog(
+            button.context,
+            timeSetListener,
+            cal.get(Calendar.HOUR_OF_DAY),
+            cal.get(Calendar.MINUTE),
+            true
+        ).show()
     }
 }
 
