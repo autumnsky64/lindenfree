@@ -2,12 +2,15 @@ package systems.autumnsky.linden_free
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +38,10 @@ class RegisterMedicine : AppCompatActivity() {
         false
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.medicine_action_button, menu)
+        return true
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_medicine)
@@ -64,11 +71,13 @@ class RegisterMedicine : AppCompatActivity() {
     }
 
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var medicine: ConstraintLayout
         var name: TextView
         var quantity: TextView
         var step: TextView
 
         init {
+            medicine = itemView.findViewById(R.id.medicine)
             name = itemView.findViewById(R.id.medicine_name)
             quantity = itemView.findViewById(R.id.regular_quantity)
             step = itemView.findViewById(R.id.adjustment_step)
@@ -76,11 +85,11 @@ class RegisterMedicine : AppCompatActivity() {
     }
 
     private inner class rvAdapter( private val _listData: MutableList<MutableMap<String, Any>>): RecyclerView.Adapter<MedicineListHolder>() {
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
-            val inflater = LayoutInflater.from(applicationContext)
-            val row = inflater.inflate(R.layout.medicine_row, parent, false)
-            val holder = MedicineListHolder(row)
-            return holder
+
+            val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_row, parent, false)
+            return MedicineListHolder(row)
         }
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
@@ -89,6 +98,17 @@ class RegisterMedicine : AppCompatActivity() {
             holder.name.text = medicine["Name"] as String
             holder.quantity.text = medicine["RegularQuantity"].toString()
             holder.step.text = medicine["AdjustmentStep"].toString()
+
+            holder.medicine.setOnClickListener{
+                val bundle = Bundle()
+
+                bundle.putInt("MedicineId", holder.adapterPosition)
+
+                val dialog = EditMedicineFragment()
+                dialog.arguments = bundle
+
+                dialog.show(supportFragmentManager,"medicine")
+            }
         }
 
         override fun getItemCount(): Int {
