@@ -6,7 +6,7 @@
         android:id="@+id/medicine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".RegisterMedicine">
+        tools:context=".MedicineActivity">
 
 
     <TextView

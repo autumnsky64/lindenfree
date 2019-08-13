@@ -13,11 +13,11 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name="systems.autumnsky.linden_free.RegisterMedicine"
+                android:name="systems.autumnsky.linden_free.MedicineActivity"
                 android:label="@string/title_activity_medicine">
         </activity>
         <activity
-                android:name="systems.autumnsky.linden_free.LogView"
+                android:name="systems.autumnsky.linden_free.LogActivity"
                 android:label="@string/title_activity_logview">
         </activity>
         <activity

@@ -5,12 +5,12 @@ import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 
-class LogView : AppCompatActivity() {
+class LogActivity : AppCompatActivity() {
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_log -> {
-                val intent = Intent(applicationContext, LogView::class.java)
+                val intent = Intent(applicationContext, LogActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
@@ -20,7 +20,7 @@ class LogView : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_medicine -> {
-                val intent = Intent(applicationContext, RegisterMedicine::class.java)
+                val intent = Intent(applicationContext, MedicineActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }

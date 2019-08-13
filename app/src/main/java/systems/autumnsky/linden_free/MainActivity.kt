@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_log -> {
-                val intent = Intent(applicationContext, LogView::class.java)
+                val intent = Intent(applicationContext, LogActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_medicine -> {
-                val intent = Intent(applicationContext, RegisterMedicine::class.java)
+                val intent = Intent(applicationContext, MedicineActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
