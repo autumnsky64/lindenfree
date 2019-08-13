@@ -4,10 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -46,6 +43,16 @@ class MedicineActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.medicine_action_button, menu)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when( item?.itemId ){
+            R.id.add_medicine -> {
+                val dialog = EditMedicineFragment()
+                dialog.show(supportFragmentManager,"medicine")
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
