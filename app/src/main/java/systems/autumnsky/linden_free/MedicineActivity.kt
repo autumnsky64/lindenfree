@@ -3,19 +3,19 @@ package systems.autumnsky.linden_free
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.Button
-import android.widget.EditText
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.edit_medicine.*
+import io.realm.OrderedRealmCollection
+import io.realm.Realm
+import io.realm.RealmRecyclerViewAdapter
 
 class MedicineActivity : AppCompatActivity() {
 
@@ -46,7 +46,7 @@ class MedicineActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when( item?.itemId ){
+        when( item.itemId ){
             R.id.add_medicine -> {
                 val dialog = EditMedicineFragment()
                 dialog.show(supportFragmentManager,"medicine")
@@ -59,11 +59,24 @@ class MedicineActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_medicine)
 
-        // 登録している薬一覧
+        // 薬テーブルにダミーデータを入れる
+        var medicines = Realm.getDefaultInstance()
+
+        medicines.executeTransaction{
+            var dummy = mutableListOf<Medicine>()
+            dummy.add(Medicine(1, "ロヒプノール", 1.5 ,0.5))
+            it.copyToRealmOrUpdate(dummy)
+        }
+
+        // 登録している薬一覧を表示
         val medicineListView = findViewById<RecyclerView>(R.id.medicine_list)
+
         val layout = LinearLayoutManager(applicationContext)
         medicineListView.layoutManager = layout
-        medicineListView.adapter = rvAdapter(createMedicineList())
+
+        val allMedicines = medicines.where(Medicine::class.java).findAll()
+
+        medicineListView.adapter = RealmAdapter(medicineListView, allMedicines, autoUpdate = true)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         // 下部ナビゲーション
@@ -73,19 +86,6 @@ class MedicineActivity : AppCompatActivity() {
     }
 
     // 薬テーブルの一覧表示
-    private fun createMedicineList(): MutableList<MutableMap<String, Any>> {
-        val medicineList: MutableList<MutableMap<String, Any>> = mutableListOf()
-        var medicine = mutableMapOf<String, Any>("ID" to 1 ,"Name" to "ロヒプノール", "RegularQuantity" to 1.5 ,"AdjustmentStep" to 0.5)
-        medicineList.add(medicine)
-
-        medicine = mutableMapOf<String, Any>("ID" to 4, "Name" to "ロラメット", "RegularQuantity" to 2 ,"AdjustmentStep" to 1)
-        medicineList.add(medicine)
-        medicine = mutableMapOf<String, Any>("ID" to 9, "Name" to "サインバルタ", "RegularQuantity" to 30 ,"AdjustmentStep" to 0.5)
-        medicineList.add(medicine)
-
-        return medicineList
-    }
-
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var medicine: ConstraintLayout
         var name: TextView
@@ -100,7 +100,8 @@ class MedicineActivity : AppCompatActivity() {
         }
     }
 
-    private inner class rvAdapter( private val _listData: MutableList<MutableMap<String, Any>>): RecyclerView.Adapter<MedicineListHolder>() {
+    private inner class RealmAdapter( private val view:View, private val medicines: OrderedRealmCollection<Medicine>, private val autoUpdate: Boolean)
+        : RealmRecyclerViewAdapter<Medicine, MedicineListHolder>(medicines, autoUpdate) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
 
@@ -109,23 +110,19 @@ class MedicineActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
-            val medicine = _listData[position]
+            val medicine = medicines[position]
 
-            holder.name.text = medicine["Name"] as String
-            holder.quantity.text = medicine["RegularQuantity"].toString()
-            holder.step.text = medicine["AdjustmentStep"].toString()
+            holder.name.text = medicine?.name
+            holder.quantity.text = medicine?.regular_quantity.toString()
+            holder.step.text = medicine?.adjustment_step.toString()
 
             // リスナー
             holder.medicine.setOnClickListener{
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
                 val bundle = Bundle()
-                bundle.putInt("MedicineId", medicine["ID"] as Int)
-                bundle.putString("Name", medicine["Name"] as String)
-
-                // 暫定でMap<String, Any>を使っているので文字列→ 倍精度とキャスト
-                val regularQuantity = medicine["RegularQuantity"].toString().toDouble()
-                val stepQuantity = medicine["AdjustmentStep"].toString().toDouble()
-                bundle.putDoubleArray("Quantity", doubleArrayOf(regularQuantity, stepQuantity))
+                bundle.putInt("MedicineId", medicine?.id?:0)
+                bundle.putString("Name", medicine?.name?:"")
+                bundle.putDoubleArray("Quantity", doubleArrayOf(medicine?.regular_quantity?:0.0, medicine?.adjustment_step?:0.0))
 
                 val dialog = EditMedicineFragment()
                 dialog.arguments = bundle
@@ -136,7 +133,7 @@ class MedicineActivity : AppCompatActivity() {
             holder.medicine.setOnLongClickListener {
                  // 薬の削除は長押しでAlertDialogを表示してから
                 AlertDialog.Builder(this@MedicineActivity)
-                    .setTitle("Delete " + medicine["Name"] + "?")
+                    .setTitle("Delete " + medicine?.name + "?")
                     .setPositiveButton("Yes", DialogInterface.OnClickListener { _: DialogInterface, _: Int ->
                         // medicine tableからの削除処理
 
@@ -149,7 +146,7 @@ class MedicineActivity : AppCompatActivity() {
         }
 
         override fun getItemCount(): Int {
-            return _listData.size
+            return medicines.size
         }
     }
 }

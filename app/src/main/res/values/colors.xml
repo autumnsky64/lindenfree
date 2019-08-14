@@ -3,7 +3,4 @@
     <color name="colorPrimary">#8BC34A</color>
     <color name="colorPrimaryDark">#628246</color>
     <color name="colorAccent">#FFC107</color>
-    <color name="MainText">#1976D2</color>
-    <color name="Off">#7FD0D0D0</color>
-    <color name="On">#42A5F5</color>
 </resources>

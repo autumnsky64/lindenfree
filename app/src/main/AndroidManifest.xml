@@ -12,7 +12,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
-            android:name="LindenFreeApp">
+            android:name=".LindenFreeApp">
         <activity
                 android:name="systems.autumnsky.linden_free.MedicineActivity"
                 android:label="@string/title_activity_medicine">
