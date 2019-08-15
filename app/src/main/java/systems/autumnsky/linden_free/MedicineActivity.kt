@@ -3,6 +3,7 @@ package systems.autumnsky.linden_free
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -59,14 +60,7 @@ class MedicineActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_medicine)
 
-        // 薬テーブルにダミーデータを入れる
         var medicines = Realm.getDefaultInstance()
-
-        medicines.executeTransaction{
-            var dummy = mutableListOf<Medicine>()
-            dummy.add(Medicine(1, "ロヒプノール", 1.5 ,0.5))
-            it.copyToRealmOrUpdate(dummy)
-        }
 
         // 登録している薬一覧を表示
         val medicineListView = findViewById<RecyclerView>(R.id.medicine_list)
@@ -111,18 +105,18 @@ class MedicineActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
             val medicine = medicines[position]
-
             holder.name.text = medicine?.name
-            holder.quantity.text = medicine?.regular_quantity.toString()
-            holder.step.text = medicine?.adjustment_step.toString()
+            holder.quantity.text = medicine?.regular_quantity?.toString()?:"0"
+            holder.step.text = medicine?.adjustment_step?.toString()?:"0"
 
             // リスナー
             holder.medicine.setOnClickListener{
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
                 val bundle = Bundle()
-                bundle.putInt("MedicineId", medicine?.id?:0)
-                bundle.putString("Name", medicine?.name?:"")
-                bundle.putDoubleArray("Quantity", doubleArrayOf(medicine?.regular_quantity?:0.0, medicine?.adjustment_step?:0.0))
+                bundle.putString("MedicineId", medicine?.id)
+                bundle.putString("Name", medicine?.name)
+                bundle.putDouble("Quantity", medicine?.regular_quantity?:0.0)
+                bundle.putDouble("Step", medicine?.adjustment_step?:0.0)
 
                 val dialog = EditMedicineFragment()
                 dialog.arguments = bundle
@@ -135,8 +129,13 @@ class MedicineActivity : AppCompatActivity() {
                 AlertDialog.Builder(this@MedicineActivity)
                     .setTitle("Delete " + medicine?.name + "?")
                     .setPositiveButton("Yes", DialogInterface.OnClickListener { _: DialogInterface, _: Int ->
-                        // medicine tableからの削除処理
-
+                        // medicine tableからの削除
+                        val realm = Realm.getDefaultInstance()
+                        val targetMedicine = realm.where(Medicine::class.java).equalTo("id",medicine?.id).findFirst()
+                        realm.executeTransaction {
+                            targetMedicine?.deleteFromRealm()
+                        }
+                        realm.close()
                     })
                     .setNegativeButton("No", null)
                     .show()

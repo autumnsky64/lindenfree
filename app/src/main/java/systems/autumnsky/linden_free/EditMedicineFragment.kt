@@ -1,69 +1,80 @@
 package systems.autumnsky.linden_free
 
 
-import android.content.Context
 import android.os.Bundle
-
 import android.util.Log
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.*
-import kotlinx.android.synthetic.main.activity_main.*
+import io.realm.Realm
+import java.util.*
 
 
 class EditMedicineFragment : DialogFragment() {
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.edit_medicine, container, false)
 
-        //TODO:何かいいNullチェックの方法がないか メニューから追加の場合argumentsはNull
+        // 薬の一覧から呼び出されたら、薬情報を予め入力しておく
         if( arguments != null ) {
-            val quantity: DoubleArray? = arguments?.getDoubleArray("Quantity")
-
+            view.findViewById<TextView>(R.id.id_container).setText(arguments?.getString("MedicineId"))
             view.findViewById<EditText>(R.id.input_medicine_name).setText(arguments?.getString("Name"))
-            view.findViewById<EditText>(R.id.input_regular_quantity).setText(quantity!![0].toString())
-            view.findViewById<EditText>(R.id.input_adjustment_quantity).setText(quantity!![1].toString())
+
+            val quantity: Double? = arguments?.getDouble("Quantity")?:0.0
+            val step: Double? = arguments?.getDouble("Step")?:0.0
+            view.findViewById<EditText>(R.id.input_regular_quantity).setText(quantity.toString())
+            view.findViewById<EditText>(R.id.input_adjustment_quantity).setText(step.toString())
         }
 
-        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(InsertMedicine())
-        view.findViewById<Button>(R.id.cancel_medicine).setOnClickListener( View.OnClickListener { dismiss() })
+        // 下部のCancel/Saveボタン
+        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(insertMedicine())
+        view.findViewById<Button>(R.id.cancel_medicine).setOnClickListener{ dismiss() }
+
         return view
     }
-
-    inner class InsertMedicine() : View.OnClickListener{
+    private inner class insertMedicine: View.OnClickListener {
         override fun onClick(view: View?) {
+            val medicineDialog = view?.parent as View
 
-            val medicine = view?.parent as View
+            val id : String =  medicineDialog.findViewById<TextView>(R.id.id_container).text.toString()
+            val name: String? = medicineDialog.findViewById<EditText>(R.id.input_medicine_name).text?.toString()
+            val quantity : Double? = medicineDialog.findViewById<EditText>(R.id.input_regular_quantity).text?.toString()?.toDoubleOrNull()
+            val step : Double? = medicineDialog.findViewById<EditText>(R.id.input_adjustment_quantity).text?.toString()?.toDoubleOrNull()
 
-            // Medicineテーブルへ書込
-            val id = arguments?.getInt("MedicineId")
+            // 薬名の空欄チェック
+            if( name.equals("") ) { return }
 
-            // ToDo:2項目は必須、Nullチェックを行う
-            val name = medicine.findViewById<EditText>(R.id.input_medicine_name).text.toString()
-            val quantity = medicine.findViewById<EditText>(R.id.input_regular_quantity).text.toString()
+            val realm = Realm.getDefaultInstance()
 
-            // 空欄でもよい、空なら量を調整しない薬
-            val step = medicine.findViewById<EditText>(R.id.input_adjustment_quantity).text.toString()
+            realm.beginTransaction()
 
-            if( id != null){
-                //Medicineテーブルのアップデート
-                try {
-                    Log.d("Medicine", "$id $name $quantity mg adjust step $step mg")
-                    dismiss()
-                } catch (e: NullPointerException) {
-                    Log.d("Medicine", "どれかのEditTextが空")
+            when (id) {
+                // idが初期値の時はアクションバーの追加ボタンから呼ばれた → 追加
+                "MedicineId" -> {
+                    val medicine = realm.createObject(Medicine::class.java, UUID.randomUUID().toString())
+                    medicine.name = name
+                    medicine.regular_quantity = quantity
+                    medicine.adjustment_step = step
+                    realm.copyToRealm(medicine)
                 }
-            }else {
-                //Medicineテーブルへインサート
-                Log.d("Medicine", "新規 $name $quantity mg adjust step $step mg")
-                dismiss()
+                else -> {
+                    // そうでない場合はIdに一致するレコードを更新
+                    val medicine = realm.where(Medicine::class.java).equalTo("id",id).findFirst()
+                    medicine?.name = name
+                    medicine?.regular_quantity = quantity
+                    medicine?.adjustment_step = step
+                }
             }
-        }
-    }
 
+            realm.commitTransaction()
+            realm.close()
+
+            dismiss()
+        }
+
+    }
 }
