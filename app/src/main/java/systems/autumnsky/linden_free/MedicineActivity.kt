@@ -133,7 +133,7 @@ class MedicineActivity : AppCompatActivity() {
                         val realm = Realm.getDefaultInstance()
 
                         val targetMedicine = realm.where(Medicine::class.java).equalTo("id",medicine?.id).findFirst()
-                        val targetEvent = realm.where(Event::class.java).equalTo("medicine", targetMedicine?.id).findAll()
+                        val targetEvent = realm.where(Event::class.java).equalTo("medicine.id", targetMedicine?.id).findAll()
 
                         realm.executeTransaction {
                             targetEvent?.deleteAllFromRealm()

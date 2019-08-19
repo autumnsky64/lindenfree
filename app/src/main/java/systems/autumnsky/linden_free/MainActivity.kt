@@ -3,11 +3,23 @@ package systems.autumnsky.linden_free
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import io.realm.OrderedRealmCollection
+import io.realm.Realm
+import io.realm.RealmRecyclerViewAdapter
+import io.realm.kotlin.createObject
+import io.realm.kotlin.where
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -55,6 +67,42 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.dose_button).setOnLongClickListener(SetTimeByPicker())
         findViewById<Button>(R.id.inbed_button).setOnLongClickListener(SetTimeByPicker())
         findViewById<Button>(R.id.sleep_button).setOnLongClickListener(SetTimeByPicker())
+
+        val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+        val layout = LinearLayoutManager(applicationContext)
+        medicineListView.layoutManager = layout
+
+        var realm = Realm.getDefaultInstance()
+        val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
+
+        medicineListView.adapter = RealmAdapter(medicineListView, medicineEvents, autoUpdate = true)
+        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+    }
+
+    private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+        var medicine: ConstraintLayout
+        var name: TextView
+
+        init{
+                medicine = itemView.findViewById(R.id.medicine_with_spinner)
+                name = itemView.findViewById(R.id.medicine_name_with_spinner)
+        }
+    }
+    private inner class RealmAdapter(private val view:View, private val medicineEvents: OrderedRealmCollection<Event>, private val autoUpdate: Boolean)
+        : RealmRecyclerViewAdapter<Event, MedicineListHolder>(medicineEvents, autoUpdate){
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
+            val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_contain_spinner, parent, false)
+            return MedicineListHolder(row)
+        }
+
+        override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
+            val medicine = medicineEvents[position]
+            holder.name.text = medicine?.name
+        }
+
+        override fun getItemCount(): Int {
+            return medicineEvents.size
+        }
     }
 
     private inner class SetTime : View.OnClickListener {
