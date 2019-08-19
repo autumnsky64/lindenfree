@@ -60,6 +60,11 @@ class EditMedicineFragment : DialogFragment() {
                     medicine.regular_quantity = quantity
                     medicine.adjustment_step = step
                     realm.copyToRealm(medicine)
+
+                    val event = realm.createObject(Event::class.java, UUID.randomUUID().toString())
+                    event.name = name
+                    event.medicine = medicine
+                    realm.copyToRealm(event)
                 }
                 else -> {
                     // そうでない場合はIdに一致するレコードを更新

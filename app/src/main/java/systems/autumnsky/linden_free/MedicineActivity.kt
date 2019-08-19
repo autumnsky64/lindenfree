@@ -131,8 +131,12 @@ class MedicineActivity : AppCompatActivity() {
                     .setPositiveButton("Yes", DialogInterface.OnClickListener { _: DialogInterface, _: Int ->
                         // medicine tableからの削除
                         val realm = Realm.getDefaultInstance()
+
                         val targetMedicine = realm.where(Medicine::class.java).equalTo("id",medicine?.id).findFirst()
+                        val targetEvent = realm.where(Event::class.java).equalTo("medicine", targetMedicine?.id).findAll()
+
                         realm.executeTransaction {
+                            targetEvent?.deleteAllFromRealm()
                             targetMedicine?.deleteFromRealm()
                         }
                         realm.close()
