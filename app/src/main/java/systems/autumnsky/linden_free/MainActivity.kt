@@ -3,6 +3,7 @@ package systems.autumnsky.linden_free
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,12 +61,12 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.awake_button).setOnClickListener(SetTime())
         findViewById<Button>(R.id.dose_button).setOnClickListener(SetTime())
-        findViewById<Button>(R.id.inbed_button).setOnClickListener(SetTime())
+        findViewById<Button>(R.id.in_bed_button).setOnClickListener(SetTime())
         findViewById<Button>(R.id.sleep_button).setOnClickListener(SetTime())
 
         findViewById<Button>(R.id.awake_button).setOnLongClickListener(SetTimeByPicker())
         findViewById<Button>(R.id.dose_button).setOnLongClickListener(SetTimeByPicker())
-        findViewById<Button>(R.id.inbed_button).setOnLongClickListener(SetTimeByPicker())
+        findViewById<Button>(R.id.in_bed_button).setOnLongClickListener(SetTimeByPicker())
         findViewById<Button>(R.id.sleep_button).setOnLongClickListener(SetTimeByPicker())
 
         val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
@@ -140,7 +141,9 @@ class MainActivity : AppCompatActivity() {
 
     //buttonのIDから、初期のラベルを取得
     private fun labelAttribute(button: Button): Map<String, String> {
-        val stringResName = "label_" + resources.getResourceEntryName(button.id)
+        val stringResName = resources.getResourceEntryName(button.id).replace("_button","")
+        Log.d( "button", stringResName)
+        Log.d( "button", resources.getIdentifier(stringResName, "string", packageName).toString())
         val event = getString(resources.getIdentifier(stringResName, "string", packageName))
         return mapOf("default" to event, "current" to button.getText().toString())
     }
