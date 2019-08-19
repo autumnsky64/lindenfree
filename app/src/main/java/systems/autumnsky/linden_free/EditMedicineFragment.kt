@@ -2,8 +2,6 @@ package systems.autumnsky.linden_free
 
 
 import android.os.Bundle
-import android.util.Log
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +19,7 @@ class EditMedicineFragment : DialogFragment() {
 
         // 薬の一覧から呼び出されたら、薬情報を予め入力しておく
         if( arguments != null ) {
-            view.findViewById<TextView>(R.id.id_container).setText(arguments?.getString("MedicineId"))
+            view.findViewById<TextView>(R.id.id_container).text = arguments?.getString("MedicineId")
             view.findViewById<EditText>(R.id.input_medicine_name).setText(arguments?.getString("Name"))
 
             val quantity: Double? = arguments?.getDouble("Quantity")?:0.0

@@ -3,23 +3,20 @@ package systems.autumnsky.linden_free
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
-import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -142,10 +139,8 @@ class MainActivity : AppCompatActivity() {
     //buttonのIDから、初期のラベルを取得
     private fun labelAttribute(button: Button): Map<String, String> {
         val stringResName = resources.getResourceEntryName(button.id).replace("_button","")
-        Log.d( "button", stringResName)
-        Log.d( "button", resources.getIdentifier(stringResName, "string", packageName).toString())
         val event = getString(resources.getIdentifier(stringResName, "string", packageName))
-        return mapOf("default" to event, "current" to button.getText().toString())
+        return mapOf("default" to event, "current" to button.text.toString())
     }
 
     //タイムピッカーで指定した時刻でボタンを更新

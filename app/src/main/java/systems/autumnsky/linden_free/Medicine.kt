@@ -2,8 +2,6 @@ package systems.autumnsky.linden_free
 
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
-import io.realm.annotations.Required
-import java.util.*
 
 open class Medicine (
     @PrimaryKey open var id: String? = null,

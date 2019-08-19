@@ -1,7 +1,6 @@
 package systems.autumnsky.linden_free
 
 import android.app.Application
-import android.util.Log
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import java.util.*
@@ -30,7 +29,6 @@ class LindenFreeApp : Application() {
 
             var event = realm.createObject(Event::class.java, UUID.randomUUID().toString())
             event.name = it
-            Log.d( "DefaultEvent", it)
 
             realm.copyToRealm(event)
             realm.commitTransaction()
