@@ -5,8 +5,8 @@ import io.realm.annotations.PrimaryKey
 import java.util.*
 
 open class Log (
-    @PrimaryKey open var id: String? = null,
-    open var time: Calendar? = null,
+    @PrimaryKey open var id: Long? = null,
+    open var time: Date? = null,
     open var event_name: String? = null,
     open var quantity: Double? = null
 ): RealmObject()

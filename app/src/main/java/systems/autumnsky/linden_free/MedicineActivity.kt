@@ -58,7 +58,7 @@ class MedicineActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_medicine)
 
-        var medicines = Realm.getDefaultInstance()
+        var realm = Realm.getDefaultInstance()
 
         // 登録している薬一覧を表示
         val medicineListView = findViewById<RecyclerView>(R.id.medicine_list)
@@ -66,11 +66,12 @@ class MedicineActivity : AppCompatActivity() {
         val layout = LinearLayoutManager(applicationContext)
         medicineListView.layoutManager = layout
 
-        val allMedicines = medicines.where(Medicine::class.java).findAll()
+        val allMedicines = realm.where(Medicine::class.java).findAll()
 
         medicineListView.adapter = RealmAdapter(medicineListView, allMedicines, autoUpdate = true)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
+        realm.close()
         // 下部ナビゲーション
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_medicine

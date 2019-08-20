@@ -1,6 +1,7 @@
 package systems.autumnsky.linden_free
 
 import android.app.TimePickerDialog
+import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
+import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -88,6 +90,7 @@ class MainActivity : AppCompatActivity() {
     }
     private inner class RealmAdapter(private val view:View, private val medicineEvents: OrderedRealmCollection<Event>, private val autoUpdate: Boolean)
         : RealmRecyclerViewAdapter<Event, MedicineListHolder>(medicineEvents, autoUpdate){
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
             val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_contain_spinner, parent, false)
             return MedicineListHolder(row)
@@ -110,11 +113,9 @@ class MainActivity : AppCompatActivity() {
             val labelMap: Map<String, String> = labelAttribute(button)
 
             if (labelMap["default"] == labelMap["current"]) {
-                //Logテーブルに insert
-
                 updateButton(button, SimpleDateFormat("HH:mm").format(cal.time))
+                insertLog(labelMap["default"]?:"some event", cal)
             } else {
-                //TimePickerからセットするのは時刻入力済みの時のみ
                 timePicker(button)
             }
         }
@@ -146,17 +147,24 @@ class MainActivity : AppCompatActivity() {
     //タイムピッカーで指定した時刻でボタンを更新
     private fun timePicker( button: Button ) {
         val cal = Calendar.getInstance()
-        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
+        val timeSetListener = OnTimeSetListener { _, hour, min ->
 
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
 
-            //Logテーブル 更新処理
+            val labelMap: Map<String, String> = labelAttribute(button)
+            if (labelMap["default"] == labelMap["current"]){
+                insertLog( labelMap["default"], cal )
+            }else{
+                val timeString = labelMap["current"]?.replace("${labelMap["default"]}", " ")
+                val dateString = findViewById<TextView>(R.id.date_label).text
+                val sdf = SimpleDateFormat("yyyy/MM/dd hh:mm")
+                val oldDate: Date? = sdf.parse("$dateString $timeString")
+                updateLog( labelMap["default"], oldDate, cal  )
+            }
 
-            // ボタン更新処理
             val timeString = SimpleDateFormat("HH:mm").format(cal.time)
             updateButton(button, timeString)
-
         }
 
         TimePickerDialog(
@@ -167,6 +175,57 @@ class MainActivity : AppCompatActivity() {
             true
         ).show()
     }
+
+    private fun insertLog(event: String?, cal: Calendar) {
+        val realm = Realm.getDefaultInstance()
+        var id = realm.where<Log>().count() + 1
+        var time: Date = cal.time
+        when (event) {
+            "dose" -> {
+                val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
+                medicineEvents.forEach {
+                    realm.beginTransaction()
+                    val log = realm.createObject<Log>(id)
+                    log.time = time
+                    log.event_name = it.name
+                    realm.copyToRealm(log)
+                    realm.commitTransaction()
+                    id += 1
+                }
+            } else -> {
+                realm.beginTransaction()
+                val log = realm.createObject<Log>(id)
+                log.time = time
+                log.event_name = event
+
+                realm.copyToRealm(log)
+                realm.commitTransaction()
+            }
+        }
+
+    }
+
+    private fun  updateLog(event: String?, oldDate: Date?, newCal: Calendar) {
+        val realm = Realm.getDefaultInstance()
+        var time: Date = newCal.time
+        when (event) {
+            "dose" -> {
+                val medicineEvents = realm.where<Log>().equalTo("time", oldDate).isNotNull("medicine").findAll()
+                medicineEvents.forEach {
+                    realm.beginTransaction()
+                    it.time = newCal.time
+                    realm.commitTransaction()
+                }
+            } else -> {
+                realm.beginTransaction()
+                val log = realm.where<Log>().equalTo("time", oldDate).equalTo("event_name", event).findFirst()
+                log?.time = time
+                realm.commitTransaction()
+            }
+        }
+
+    }
+
 }
 
 
