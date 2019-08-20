@@ -20,6 +20,7 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         navView.selectedItemId = R.id.navigation_home
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
+        // 日付ラベル
         findViewById<TextView>(R.id.date_label).text = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
 
         findViewById<Button>(R.id.awake_button).setOnClickListener(SetTime())
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.in_bed_button).setOnLongClickListener(SetTimeByPicker())
         findViewById<Button>(R.id.sleep_button).setOnLongClickListener(SetTimeByPicker())
 
+        // 薬のリスト
         val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
         val layout = LinearLayoutManager(applicationContext)
         medicineListView.layoutManager = layout
@@ -77,6 +80,14 @@ class MainActivity : AppCompatActivity() {
 
         medicineListView.adapter = RealmAdapter(medicineListView, medicineEvents, autoUpdate = true)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+
+        // 既にDBに時刻が登録済みなら、ボタンのラベルなど書換
+        val currentDate = SimpleDateFormat("yyyy/MM/dd").parse(findViewById<TextView>(R.id.date_label).text.toString())
+        val awake = realm.where<Log>().greaterThanOrEqualTo("time", currentDate).equalTo("event_name","Awake").findFirst()
+        val awakeTime = awake?.time
+        if ( awakeTime != null ){
+                updateButton(findViewById<Button>(R.id.awake_button), SimpleDateFormat("HH:mm").format(awakeTime))
+            }
     }
 
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
@@ -158,9 +169,8 @@ class MainActivity : AppCompatActivity() {
             }else{
                 val timeString = labelMap["current"]?.replace("${labelMap["default"]}", " ")
                 val dateString = findViewById<TextView>(R.id.date_label).text
-                val sdf = SimpleDateFormat("yyyy/MM/dd hh:mm")
-                val oldDate: Date? = sdf.parse("$dateString $timeString")
-                updateLog( labelMap["default"], oldDate, cal  )
+                val oldDate: Date? = SimpleDateFormat("yyyy/MM/dd hh:mm").parse("$dateString $timeString")
+                if (oldDate != null){ updateLog( labelMap["default"], oldDate, cal  ) }
             }
 
             val timeString = SimpleDateFormat("HH:mm").format(cal.time)
@@ -181,7 +191,7 @@ class MainActivity : AppCompatActivity() {
         var id = realm.where<Log>().count() + 1
         var time: Date = cal.time
         when (event) {
-            "dose" -> {
+            "Dose" -> {
                 val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
                 medicineEvents.forEach {
                     realm.beginTransaction()
@@ -205,12 +215,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun  updateLog(event: String?, oldDate: Date?, newCal: Calendar) {
+    private fun  updateLog(event: String?, oldDate: Date, newCal: Calendar) {
         val realm = Realm.getDefaultInstance()
         var time: Date = newCal.time
         when (event) {
-            "dose" -> {
-                val medicineEvents = realm.where<Log>().equalTo("time", oldDate).isNotNull("medicine").findAll()
+            "Dose" -> {
+                val medicineEvents = realm.where<Log>().greaterThanOrEqualTo("time", oldDate).isNotNull("medicine").findAll()
                 medicineEvents.forEach {
                     realm.beginTransaction()
                     it.time = newCal.time
@@ -218,7 +228,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } else -> {
                 realm.beginTransaction()
-                val log = realm.where<Log>().equalTo("time", oldDate).equalTo("event_name", event).findFirst()
+                val log = realm.where<Log>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
                 log?.time = time
                 realm.commitTransaction()
             }
