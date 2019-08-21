@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         var realm = Realm.getDefaultInstance()
         val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
 
-        medicineListView.adapter = RealmAdapter(medicineListView, medicineEvents, autoUpdate = true)
+        medicineListView.adapter = RealmAdapter(medicineListView, medicineEvents, autoUpdate = false)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         // 既にDBに時刻が登録済みなら、ボタンのラベルなど書換

@@ -10,6 +10,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import io.realm.Realm
+import io.realm.kotlin.createObject
+import io.realm.kotlin.where
 import java.util.*
 
 
@@ -53,23 +55,27 @@ class EditMedicineFragment : DialogFragment() {
             when (id) {
                 // idが初期値の時はアクションバーの追加ボタンから呼ばれた → 追加
                 "MedicineId" -> {
-                    val medicine = realm.createObject(Medicine::class.java, UUID.randomUUID().toString())
+                    val medicine = realm.createObject<Medicine>(UUID.randomUUID().toString())
                     medicine.name = name
                     medicine.regular_quantity = quantity
                     medicine.adjustment_step = step
                     realm.copyToRealm(medicine)
 
-                    val event = realm.createObject(Event::class.java, UUID.randomUUID().toString())
+                    val event = realm.createObject<Event>(UUID.randomUUID().toString())
                     event.name = name
                     event.medicine = medicine
                     realm.copyToRealm(event)
                 }
                 else -> {
                     // そうでない場合はIdに一致するレコードを更新
-                    val medicine = realm.where(Medicine::class.java).equalTo("id",id).findFirst()
+                    val medicine = realm.where<Medicine>().equalTo("id",id).findFirst()
                     medicine?.name = name
                     medicine?.regular_quantity = quantity
                     medicine?.adjustment_step = step
+
+                    val event = realm.where<Event>().equalTo("medicine.id",id).findFirst()
+                    event?.medicine = medicine
+                    event?.name = name
                 }
             }
 
