@@ -5,11 +5,11 @@
       android:layout_height="match_parent">
 
     <item
-            android:id="@+id/add_medicine"
+            android:id="@+id/dl_log"
             app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_add_black_24dp"
-            android:title="Add Medicine"
-            android:tooltipText="Add Medicine for Record"
-            android:iconTint="#FFFFFF">
+            android:icon="@drawable/ic_archive_black_24dp"
+            android:title="Download log file"
+            android:tooltipText="Download log file"
+            >
     </item>
 </menu>
