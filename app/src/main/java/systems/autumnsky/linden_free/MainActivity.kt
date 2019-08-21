@@ -82,12 +82,39 @@ class MainActivity : AppCompatActivity() {
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         // 既にDBに時刻が登録済みなら、ボタンのラベルなど書換
+        // TODO: ボタン個別の実装をしない
+        // TODO: null判定をスマートに
+        // TODO: 日付判定が数日前にさかのぼるとできなくなると思う
         val currentDate = SimpleDateFormat("yyyy/MM/dd").parse(findViewById<TextView>(R.id.date_label).text.toString())
-        val awake = realm.where<Log>().greaterThanOrEqualTo("time", currentDate).equalTo("event_name","Awake").findFirst()
-        val awakeTime = awake?.time
-        if ( awakeTime != null ){
+        if (currentDate != null){
+            val log = realm.where<Log>().greaterThanOrEqualTo("time", currentDate)
+
+            // TODO: イベントネームの照合はEventsのStringリソースを使う
+            val awake = log.equalTo("event_name","Awake").findFirst()
+            val awakeTime = awake?.time
+            if ( awakeTime != null ){
                 updateButton(findViewById<Button>(R.id.awake_button), SimpleDateFormat("HH:mm").format(awakeTime))
             }
+
+            val dose = log.equalTo("event_name","Dose").findFirst()
+            val doseTime = dose?.time
+            if ( doseTime != null ){
+                updateButton(findViewById<Button>(R.id.dose_button), SimpleDateFormat("HH:mm").format(doseTime))
+            }
+
+            val inBed = log.equalTo("event_name","Awake").findFirst()
+            val inBedTime = inBed?.time
+            if ( inBedTime != null ){
+                updateButton(findViewById<Button>(R.id.in_bed_button), SimpleDateFormat("HH:mm").format(inBedTime))
+            }
+
+            val sleep = log.equalTo("event_name","Awake").findFirst()
+            val sleepTime = sleep?.time
+            if ( sleepTime != null ){
+                updateButton(findViewById<Button>(R.id.sleep_button), SimpleDateFormat("HH:mm").format(sleepTime))
+            }
+        }
+
     }
 
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
