@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -20,7 +22,6 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
-import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -120,10 +121,12 @@ class MainActivity : AppCompatActivity() {
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         var medicine: ConstraintLayout
         var name: TextView
+        var quantitySpinner: Spinner
 
         init{
                 medicine = itemView.findViewById(R.id.medicine_with_spinner)
                 name = itemView.findViewById(R.id.medicine_name_with_spinner)
+                quantitySpinner = itemView.findViewById(R.id.adjust_spinner)
         }
     }
     private inner class RealmAdapter(private val view:View, private val medicineEvents: OrderedRealmCollection<Event>, private val autoUpdate: Boolean)
@@ -135,12 +138,32 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
-            val medicine = medicineEvents[position]
-            holder.name.text = medicine?.name
+            val medicineEvent = medicineEvents[position]
+            holder.name.text = medicineEvent?.name
+            setupSpinner(holder.quantitySpinner, medicineEvent?.medicine?.regular_quantity, medicineEvent?.medicine?.adjustment_step )
         }
 
         override fun getItemCount(): Int {
             return medicineEvents.size
+        }
+
+        private fun setupSpinner(spinner: Spinner, default: Double?, adjust: Double?){
+            val qtyList = mutableListOf<Double>()
+            if ( default != null && adjust != null){
+                val min = default - (adjust * 2)
+
+                // 増減は上下2ステップ、レンジにstepが使えるのはint/longのみ（言語仕様では0.1刻みも可能らしいが）
+                for ( i in 0..4){
+                    qtyList.add( min + (adjust * i ))
+                }
+            } else if (default != null){
+                qtyList.add(default)
+                }
+
+            val adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, qtyList)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+            spinner.setSelection(2)
         }
     }
 
