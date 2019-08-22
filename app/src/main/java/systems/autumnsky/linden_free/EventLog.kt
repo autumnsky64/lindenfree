@@ -4,7 +4,7 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import java.util.*
 
-open class Log (
+open class EventLog (
     @PrimaryKey open var id: Long? = null,
     open var time: Date? = null,
     open var event_name: String? = null,

@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -88,28 +89,33 @@ class MainActivity : AppCompatActivity() {
         // TODO: 日付判定が数日前にさかのぼるとできなくなると思う
         val currentDate = SimpleDateFormat("yyyy/MM/dd").parse(findViewById<TextView>(R.id.date_label).text.toString())
         if (currentDate != null){
-            val log = realm.where<Log>().greaterThanOrEqualTo("time", currentDate)
+            val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", currentDate)
 
             // TODO: イベントネームの照合はEventsのStringリソースを使う
-            val awake = log.equalTo("event_name","Awake").findFirst()
+            val awake = eventLog.equalTo("event_name","Awake").findFirst()
             val awakeTime = awake?.time
             if ( awakeTime != null ){
                 updateButton(findViewById<Button>(R.id.awake_button), SimpleDateFormat("HH:mm").format(awakeTime))
             }
 
-            val dose = log.equalTo("event_name","Dose").findFirst()
+            val medicine = realm.where<Medicine>().isNotNull("id").findFirst()
+            val dose = realm.where<EventLog>()
+                .greaterThanOrEqualTo("time", currentDate)
+                .equalTo("event_name",medicine?.name)
+                .findFirst()
             val doseTime = dose?.time
+
             if ( doseTime != null ){
                 updateButton(findViewById<Button>(R.id.dose_button), SimpleDateFormat("HH:mm").format(doseTime))
             }
 
-            val inBed = log.equalTo("event_name","Awake").findFirst()
+            val inBed = eventLog.equalTo("event_name","Awake").findFirst()
             val inBedTime = inBed?.time
             if ( inBedTime != null ){
                 updateButton(findViewById<Button>(R.id.in_bed_button), SimpleDateFormat("HH:mm").format(inBedTime))
             }
 
-            val sleep = log.equalTo("event_name","Awake").findFirst()
+            val sleep = eventLog.equalTo("event_name","Sleep").findFirst()
             val sleepTime = sleep?.time
             if ( sleepTime != null ){
                 updateButton(findViewById<Button>(R.id.sleep_button), SimpleDateFormat("HH:mm").format(sleepTime))
@@ -237,24 +243,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun insertLog(event: String?, cal: Calendar) {
+
         val realm = Realm.getDefaultInstance()
-        var id = realm.where<Log>().count() + 1
+        var id = realm.where<EventLog>().count() + 1
         var time: Date = cal.time
         when (event) {
             "Dose" -> {
                 val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
+                val qtyList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+
+                // リサイクルビューのポジションカウンタ
+                var j = 0
                 medicineEvents.forEach {
+
                     realm.beginTransaction()
-                    val log = realm.createObject<Log>(id)
-                    log.time = time
-                    log.event_name = it.name
-                    realm.copyToRealm(log)
+                    val eventLog = realm.createObject<EventLog>(id)
+                    eventLog.time = time
+                    eventLog.event_name = it.name
+
+                    val v: RecyclerView.ViewHolder? = qtyList.findViewHolderForLayoutPosition(j)
+                    if( v != null){
+                        val qty = v.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem.toString()
+                        eventLog.quantity = qty.toDoubleOrNull()
+                        Log.d("qty",qty)
+                    }
+                    j++
+
+                    realm.copyToRealm(eventLog)
                     realm.commitTransaction()
                     id += 1
                 }
             } else -> {
                 realm.beginTransaction()
-                val log = realm.createObject<Log>(id)
+                val log = realm.createObject<EventLog>(id)
                 log.time = time
                 log.event_name = event
 
@@ -270,15 +291,10 @@ class MainActivity : AppCompatActivity() {
         var time: Date = newCal.time
         when (event) {
             "Dose" -> {
-                val medicineEvents = realm.where<Log>().greaterThanOrEqualTo("time", oldDate).isNotNull("medicine").findAll()
-                medicineEvents.forEach {
-                    realm.beginTransaction()
-                    it.time = newCal.time
-                    realm.commitTransaction()
-                }
+                val medicineEvents = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate)
             } else -> {
                 realm.beginTransaction()
-                val log = realm.where<Log>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
+                val log = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
                 log?.time = time
                 realm.commitTransaction()
             }

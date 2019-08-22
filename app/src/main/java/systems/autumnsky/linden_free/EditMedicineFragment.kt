@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import java.text.DecimalFormat
 import java.util.*
 
 
@@ -26,9 +27,9 @@ class EditMedicineFragment : DialogFragment() {
 
             val quantity: Double? = arguments?.getDouble("Quantity")?:0.0
             val step: Double? = arguments?.getDouble("Step")?:0.0
-            view.findViewById<EditText>(R.id.input_regular_quantity).setText(quantity.toString())
-            view.findViewById<EditText>(R.id.input_adjustment_quantity).setText(step.toString())
-        }
+            view.findViewById<EditText>(R.id.input_regular_quantity).setText(DecimalFormat("#.##").format(quantity?:0))
+            view.findViewById<EditText>(R.id.input_adjustment_quantity).setText(DecimalFormat("#.##").format(step?:0))
+            }
 
         // 下部のCancel/Saveボタン
         view.findViewById<Button>(R.id.save_medicine).setOnClickListener(insertMedicine())

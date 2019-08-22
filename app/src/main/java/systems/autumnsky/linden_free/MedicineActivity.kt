@@ -15,6 +15,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
+import io.realm.kotlin.where
+import java.text.DecimalFormat
 
 class MedicineActivity : AppCompatActivity() {
 
@@ -105,8 +107,8 @@ class MedicineActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
             val medicine = medicines[position]
             holder.name.text = medicine?.name
-            holder.quantity.text = medicine?.regular_quantity?.toString()?:"0"
-            holder.step.text = medicine?.adjustment_step?.toString()?:"0"
+            holder.quantity.text = DecimalFormat("#.##").format(medicine?.regular_quantity?:"0")
+            holder.step.text = DecimalFormat("#.##").format(medicine?.adjustment_step?:"0")
 
             // リスナー
             holder.medicine.setOnClickListener{
@@ -131,8 +133,8 @@ class MedicineActivity : AppCompatActivity() {
                         // medicine tableからの削除
                         val realm = Realm.getDefaultInstance()
 
-                        val targetMedicine = realm.where(Medicine::class.java).equalTo("id",medicine?.id).findFirst()
-                        val targetEvent = realm.where(Event::class.java).equalTo("medicine.id", targetMedicine?.id).findAll()
+                        val targetMedicine = realm.where<Medicine>().equalTo("id",medicine?.id).findFirst()
+                        val targetEvent = realm.where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
 
                         realm.executeTransaction {
                             targetEvent?.deleteAllFromRealm()
