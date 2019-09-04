@@ -11,7 +11,6 @@ class LindenFreeApp : Application() {
         super.onCreate()
         Realm.init(this)
         val config = RealmConfiguration.Builder().schemaVersion(1).build()
-        Realm.deleteRealm(config)
         Realm.setDefaultConfiguration(config)
 
         //薬以外の必須イベントをEventモデルに追加

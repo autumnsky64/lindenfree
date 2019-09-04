@@ -29,7 +29,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_log -> {
@@ -49,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         false
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
