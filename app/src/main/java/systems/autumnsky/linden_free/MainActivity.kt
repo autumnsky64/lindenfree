@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
+import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import java.text.SimpleDateFormat
@@ -62,40 +64,24 @@ class MainActivity : AppCompatActivity() {
         // 日付ラベル
         findViewById<TextView>(R.id.date_label).text = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
 
-        findViewById<Button>(R.id.awake_button).setOnClickListener(SetTime())
         findViewById<Button>(R.id.dose_button).setOnClickListener(SetTime())
-        findViewById<Button>(R.id.in_bed_button).setOnClickListener(SetTime())
-        findViewById<Button>(R.id.sleep_button).setOnClickListener(SetTime())
-
-        findViewById<Button>(R.id.awake_button).setOnLongClickListener(SetTimeByPicker())
         findViewById<Button>(R.id.dose_button).setOnLongClickListener(SetTimeByPicker())
-        findViewById<Button>(R.id.in_bed_button).setOnLongClickListener(SetTimeByPicker())
-        findViewById<Button>(R.id.sleep_button).setOnLongClickListener(SetTimeByPicker())
 
         // 薬のリスト
         val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
         val layout = LinearLayoutManager(applicationContext)
         medicineListView.layoutManager = layout
 
-        var realm = Realm.getDefaultInstance()
+        val realm = Realm.getDefaultInstance()
         val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
 
         medicineListView.adapter = RealmAdapter(medicineListView, medicineEvents, autoUpdate = false)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
-        // 既にDBに時刻が登録済みなら、ボタンのラベルなど書換
-        // TODO: ボタン個別の実装をしない
-        // TODO: null判定をスマートに
-        // TODO: 日付判定が数日前にさかのぼるとできなくなると思う
+        // Doseボタンの日時表示
         val currentDate = SimpleDateFormat("yyyy/MM/dd").parse(findViewById<TextView>(R.id.date_label).text.toString())
-        if (currentDate != null){
-            val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", currentDate)
 
-            val awake = eventLog.equalTo("event_name", getString(R.string.awake)).findFirst()
-            val awakeTime = awake?.time
-            if ( awakeTime != null ){
-                updateButton(findViewById<Button>(R.id.awake_button), SimpleDateFormat("HH:mm").format(awakeTime))
-            }
+        if (currentDate != null){
 
             val medicine = realm.where<Medicine>().isNotNull("id").findFirst()
             val dose = realm.where<EventLog>()
@@ -107,20 +93,34 @@ class MainActivity : AppCompatActivity() {
             if ( doseTime != null ){
                 updateButton(findViewById<Button>(R.id.dose_button), SimpleDateFormat("HH:mm").format(doseTime))
             }
-
-            val inBed = eventLog.equalTo("event_name", getString(R.string.in_bed)).findFirst()
-            val inBedTime = inBed?.time
-            if ( inBedTime != null ){
-                updateButton(findViewById<Button>(R.id.in_bed_button), SimpleDateFormat("HH:mm").format(inBedTime))
-            }
-
-            val sleep = eventLog.equalTo("event_name",getString(R.string.sleep)).findFirst()
-            val sleepTime = sleep?.time
-            if ( sleepTime != null ){
-                updateButton(findViewById<Button>(R.id.sleep_button), SimpleDateFormat("HH:mm").format(sleepTime))
-            }
         }
 
+        // Sleepボタン
+        findViewById<Button>(R.id.sleep_button).setOnClickListener{
+            insertLog( getString(R.string.sleep), Calendar.getInstance())
+            showSleepingDialog()
+        }
+
+        // イベントログの最後のレコードが、スリープの時
+        val lastEvent = realm.where<EventLog>().sort("time", Sort.DESCENDING).findFirst()
+        if( lastEvent?.event_name == getString(R.string.sleep)){
+            val lastSleepTime = lastEvent.time
+            if ( lastSleepTime != null) {
+                val lastSleep = DateFormat.format("hh:mm", lastSleepTime) as String
+                showSleepingDialog(lastSleep)
+            }
+        }
+    }
+
+    private fun showSleepingDialog( inSleepTime: String = DateFormat.format("hh:mm", Calendar.getInstance()) as String ) {
+        val sleepingDialog = InSleepFragment()
+        val bundle = Bundle()
+
+        bundle.putString("InSleepTime", inSleepTime)
+
+        sleepingDialog.isCancelable = false
+        sleepingDialog.arguments = bundle
+        sleepingDialog.show(supportFragmentManager, "InSleep")
     }
 
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
@@ -245,13 +245,14 @@ class MainActivity : AppCompatActivity() {
 
         val realm = Realm.getDefaultInstance()
         var id = realm.where<EventLog>().count() + 1
-        var time: Date = cal.time
+        val time: Date = cal.time
         when (event) {
             "Dose" -> {
                 val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
                 val qtyList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
 
                 // リサイクルビューのポジションカウンタ
+                // TODO:良くない気配がする
                 var j = 0
                 medicineEvents.forEach {
 
@@ -282,12 +283,12 @@ class MainActivity : AppCompatActivity() {
                 realm.commitTransaction()
             }
         }
-
+        realm.close()
     }
 
     private fun  updateLog(event: String?, oldDate: Date, newCal: Calendar) {
         val realm = Realm.getDefaultInstance()
-        var time: Date = newCal.time
+        val time: Date = newCal.time
         when (event) {
             "Dose" -> {
                 val medicineEvents = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate)
@@ -298,9 +299,8 @@ class MainActivity : AppCompatActivity() {
                 realm.commitTransaction()
             }
         }
-
+        realm.close()
     }
-
 }
 
 

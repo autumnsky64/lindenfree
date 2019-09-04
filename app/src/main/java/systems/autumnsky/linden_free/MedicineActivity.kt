@@ -107,8 +107,16 @@ class MedicineActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
             val medicine = medicines[position]
             holder.name.text = medicine?.name
-            holder.quantity.text = DecimalFormat("#.##").format(medicine?.regular_quantity?:"0")
-            holder.step.text = DecimalFormat("#.##").format(medicine?.adjustment_step?:"0")
+
+            val regQty = medicine?.regular_quantity
+            if ( regQty != null){
+                holder.quantity.text = DecimalFormat("#.##").format(regQty)
+            }
+
+            val stepQty = medicine?.adjustment_step
+            if ( stepQty != null ){
+                holder.step.text = DecimalFormat("#.##").format(stepQty)
+            }
 
             // リスナー
             holder.medicine.setOnClickListener{
