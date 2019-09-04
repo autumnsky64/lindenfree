@@ -261,9 +261,9 @@ class MainActivity : AppCompatActivity() {
                     eventLog.time = time
                     eventLog.event_name = it.name
 
-                    val v: RecyclerView.ViewHolder? = qtyList.findViewHolderForLayoutPosition(j)
-                    if( v != null){
-                        val qty = v.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem.toString()
+                    val viewHolder: RecyclerView.ViewHolder? = qtyList.findViewHolderForLayoutPosition(j)
+                    if( viewHolder != null){
+                        val qty = viewHolder.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem.toString()
                         eventLog.quantity = qty.toDoubleOrNull()
                         Log.d("qty",qty)
                     }

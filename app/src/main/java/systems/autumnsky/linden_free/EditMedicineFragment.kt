@@ -28,23 +28,23 @@ class EditMedicineFragment : DialogFragment() {
             val quantity: Double? = arguments?.getDouble("Quantity")?:0.0
             val step: Double? = arguments?.getDouble("Step")?:0.0
             view.findViewById<EditText>(R.id.input_regular_quantity).setText(DecimalFormat("#.##").format(quantity?:0))
-            view.findViewById<EditText>(R.id.input_adjustment_quantity).setText(DecimalFormat("#.##").format(step?:0))
+            view.findViewById<EditText>(R.id.input_adjustment_step).setText(DecimalFormat("#.##").format(step?:0))
             }
 
         // 下部のCancel/Saveボタン
-        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(insertMedicine())
+        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(InsertMedicine())
         view.findViewById<Button>(R.id.cancel_medicine).setOnClickListener{ dismiss() }
 
         return view
     }
-    private inner class insertMedicine: View.OnClickListener {
+    private inner class InsertMedicine: View.OnClickListener {
         override fun onClick(view: View?) {
             val medicineDialog = view?.parent as View
 
             val id : String =  medicineDialog.findViewById<TextView>(R.id.id_container).text.toString()
             val name: String? = medicineDialog.findViewById<EditText>(R.id.input_medicine_name).text?.toString()
             val quantity : Double? = medicineDialog.findViewById<EditText>(R.id.input_regular_quantity).text?.toString()?.toDoubleOrNull()
-            val step : Double? = medicineDialog.findViewById<EditText>(R.id.input_adjustment_quantity).text?.toString()?.toDoubleOrNull()
+            val step : Double? = medicineDialog.findViewById<EditText>(R.id.input_adjustment_step).text?.toString()?.toDoubleOrNull()
 
             // 薬名の空欄チェック
             if( name.equals("") ) { return }
