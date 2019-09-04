@@ -91,8 +91,7 @@ class MainActivity : AppCompatActivity() {
         if (currentDate != null){
             val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", currentDate)
 
-            // TODO: イベントネームの照合はEventsのStringリソースを使う
-            val awake = eventLog.equalTo("event_name","Awake").findFirst()
+            val awake = eventLog.equalTo("event_name", getString(R.string.awake)).findFirst()
             val awakeTime = awake?.time
             if ( awakeTime != null ){
                 updateButton(findViewById<Button>(R.id.awake_button), SimpleDateFormat("HH:mm").format(awakeTime))
@@ -109,13 +108,13 @@ class MainActivity : AppCompatActivity() {
                 updateButton(findViewById<Button>(R.id.dose_button), SimpleDateFormat("HH:mm").format(doseTime))
             }
 
-            val inBed = eventLog.equalTo("event_name","Awake").findFirst()
+            val inBed = eventLog.equalTo("event_name", getString(R.string.in_bed)).findFirst()
             val inBedTime = inBed?.time
             if ( inBedTime != null ){
                 updateButton(findViewById<Button>(R.id.in_bed_button), SimpleDateFormat("HH:mm").format(inBedTime))
             }
 
-            val sleep = eventLog.equalTo("event_name","Sleep").findFirst()
+            val sleep = eventLog.equalTo("event_name",getString(R.string.sleep)).findFirst()
             val sleepTime = sleep?.time
             if ( sleepTime != null ){
                 updateButton(findViewById<Button>(R.id.sleep_button), SimpleDateFormat("HH:mm").format(sleepTime))

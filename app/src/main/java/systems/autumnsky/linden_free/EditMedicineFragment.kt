@@ -32,12 +32,12 @@ class EditMedicineFragment : DialogFragment() {
             }
 
         // 下部のCancel/Saveボタン
-        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(InsertMedicine())
+        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(AddMedicine())
         view.findViewById<Button>(R.id.cancel_medicine).setOnClickListener{ dismiss() }
 
         return view
     }
-    private inner class InsertMedicine: View.OnClickListener {
+    private inner class AddMedicine: View.OnClickListener {
         override fun onClick(view: View?) {
             val medicineDialog = view?.parent as View
 
