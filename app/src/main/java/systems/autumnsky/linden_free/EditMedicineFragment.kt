@@ -25,10 +25,11 @@ class EditMedicineFragment : DialogFragment() {
             view.findViewById<TextView>(R.id.id_container).text = arguments?.getString("MedicineId")
             view.findViewById<EditText>(R.id.input_medicine_name).setText(arguments?.getString("Name"))
 
-            val quantity: Double? = arguments?.getDouble("Quantity")?:0.0
-            val step: Double? = arguments?.getDouble("Step")?:0.0
-            view.findViewById<EditText>(R.id.input_regular_quantity).setText(DecimalFormat("#.##").format(quantity?:0))
-            view.findViewById<EditText>(R.id.input_adjustment_step).setText(DecimalFormat("#.##").format(step?:0))
+            val quantity: Double? = arguments?.getDouble("Quantity")
+            val step: Double? = arguments?.getDouble("Step")
+
+            if ( quantity != 0.0 ){ view.findViewById<EditText>(R.id.input_regular_quantity).setText(DecimalFormat("#.##").format(quantity))}
+            if ( step != 0.0 ){ view.findViewById<EditText>(R.id.input_adjustment_step).setText(DecimalFormat("#.##").format(step)) }
             }
 
         // 下部のCancel/Saveボタン

@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
             showSleepingDialog()
         }
 
-        // イベントログの最後のレコードが、スリープの時
+        // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
         val lastEvent = realm.where<EventLog>().sort("time", Sort.DESCENDING).findFirst()
         if( lastEvent?.event_name == getString(R.string.sleep)){
             val lastSleepTime = lastEvent.time

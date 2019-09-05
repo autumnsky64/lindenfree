@@ -60,7 +60,7 @@ class MedicineActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_medicine)
 
-        var realm = Realm.getDefaultInstance()
+        val realm = Realm.getDefaultInstance()
 
         // 登録している薬一覧を表示
         val medicineListView = findViewById<RecyclerView>(R.id.medicine_list)
@@ -87,11 +87,20 @@ class MedicineActivity : AppCompatActivity() {
         var quantity: TextView
         var step: TextView
 
+        var regularUnitLabel: TextView
+
+        var adjustmentLabel: TextView
+        var adjustmentUnitLabel: TextView
+
         init {
             medicine = itemView.findViewById(R.id.medicine)
             name = itemView.findViewById(R.id.medicine_name)
             quantity = itemView.findViewById(R.id.regular_quantity)
             step = itemView.findViewById(R.id.adjustment_step)
+
+            regularUnitLabel = itemView.findViewById(R.id.regular_unit_label)
+            adjustmentLabel = itemView.findViewById(R.id.adjustment_label)
+            adjustmentUnitLabel = itemView.findViewById(R.id.adjustment_unit)
         }
     }
 
@@ -111,11 +120,21 @@ class MedicineActivity : AppCompatActivity() {
             val regQty = medicine?.regular_quantity
             if ( regQty != null){
                 holder.quantity.text = DecimalFormat("#.##").format(regQty)
+                holder.regularUnitLabel.visibility = View.VISIBLE
+            } else {
+                holder.quantity.text = ""
+                holder.regularUnitLabel.visibility = View.INVISIBLE
             }
 
             val stepQty = medicine?.adjustment_step
             if ( stepQty != null ){
                 holder.step.text = DecimalFormat("#.##").format(stepQty)
+                holder.adjustmentLabel.visibility = View.VISIBLE
+                holder.adjustmentUnitLabel.visibility = View.VISIBLE
+            } else {
+                holder.step.text = ""
+                holder.adjustmentLabel.visibility = View.INVISIBLE
+                holder.adjustmentUnitLabel.visibility = View.INVISIBLE
             }
 
             // リスナー
