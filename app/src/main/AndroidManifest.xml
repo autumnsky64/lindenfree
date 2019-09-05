@@ -19,7 +19,7 @@
         </activity>
         <activity
                 android:name="systems.autumnsky.linden_free.LogActivity"
-                android:label="@string/title_activity_logview">
+                android:label="@string/title_activity_log_view">
         </activity>
         <activity
                 android:name="systems.autumnsky.linden_free.MainActivity"

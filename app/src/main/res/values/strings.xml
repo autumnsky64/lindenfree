@@ -5,7 +5,7 @@
     <string name="title_log">Log</string>
     <string name="title_medicine">Medicine</string>
 
-    <string name="title_activity_logview">Log View</string>
+    <string name="title_activity_log_view">Log View</string>
     <string name="title_activity_medicine">Register Medicine</string>
 
     <string name="label_regular_quantity">Regular Quantity</string>

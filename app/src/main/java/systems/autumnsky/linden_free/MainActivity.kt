@@ -15,6 +15,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -127,11 +128,13 @@ class MainActivity : AppCompatActivity() {
         var medicine: ConstraintLayout
         var name: TextView
         var quantitySpinner: Spinner
+        var unitLabel: TextView
 
         init{
-                medicine = itemView.findViewById(R.id.medicine_with_spinner)
-                name = itemView.findViewById(R.id.medicine_name_with_spinner)
-                quantitySpinner = itemView.findViewById(R.id.adjust_spinner)
+            medicine = itemView.findViewById(R.id.medicine_with_spinner)
+            name = itemView.findViewById(R.id.medicine_name_with_spinner)
+            quantitySpinner = itemView.findViewById(R.id.adjust_spinner)
+            unitLabel = itemView.findViewById(R.id.adjust_spinner_unit_label)
         }
     }
     private inner class RealmAdapter(private val view:View, private val medicineEvents: OrderedRealmCollection<Event>, private val autoUpdate: Boolean)
@@ -145,14 +148,15 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
             val medicineEvent = medicineEvents[position]
             holder.name.text = medicineEvent?.name
-            setupSpinner(holder.quantitySpinner, medicineEvent?.medicine?.regular_quantity, medicineEvent?.medicine?.adjustment_step )
+
+            setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineEvent?.medicine?.regular_quantity, medicineEvent?.medicine?.adjustment_step )
         }
 
         override fun getItemCount(): Int {
             return medicineEvents.size
         }
 
-        private fun setupSpinner(spinner: Spinner, default: Double?, adjust: Double?){
+        private fun setupSpinner(spinner: Spinner, unitLabel: TextView, default: Double?, adjust: Double?){
             val qtyList = mutableListOf<Double>()
             if ( default != null && adjust != null){
                 val min = default - (adjust * 2)
@@ -163,7 +167,10 @@ class MainActivity : AppCompatActivity() {
                 }
             } else if (default != null){
                 qtyList.add(default)
-                }
+            } else {
+                spinner.visibility = View.INVISIBLE
+                unitLabel.visibility = View.INVISIBLE
+            }
 
             val adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, qtyList)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

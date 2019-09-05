@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("systems.autumnsky.lindenfree", appContext.packageName)
+        assertEquals("systems.autumnsky.linden_free", appContext.packageName)
     }
 }
