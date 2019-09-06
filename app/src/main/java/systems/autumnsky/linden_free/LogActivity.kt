@@ -62,7 +62,7 @@ class LogActivity : AppCompatActivity() {
         val layout = LinearLayoutManager(applicationContext)
         logTable.layoutManager = layout
 
-        var realm = Realm.getDefaultInstance()
+        val realm = Realm.getDefaultInstance()
         val eventLog = realm.where<EventLog>().findAll()
 
         logTable.adapter = RealmAdapter(logTable, eventLog, autoUpdate = false)

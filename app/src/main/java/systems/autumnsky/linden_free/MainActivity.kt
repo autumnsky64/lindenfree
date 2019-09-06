@@ -15,7 +15,6 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +25,7 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import kotlinx.android.synthetic.main.edit_medicine.*
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity() {
         sleepingDialog.show(supportFragmentManager, "InSleep")
     }
 
+    //薬の一覧
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         var medicine: ConstraintLayout
         var name: TextView
@@ -252,44 +253,45 @@ class MainActivity : AppCompatActivity() {
 
         val realm = Realm.getDefaultInstance()
         var id = realm.where<EventLog>().count() + 1
+
         val time: Date = cal.time
+
         when (event) {
             "Dose" -> {
-                val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
-                val qtyList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+                val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
 
-                // リサイクルビューのポジションカウンタ
-                // TODO:良くない気配がする
-                var j = 0
-                medicineEvents.forEach {
+                for (i in 0..medicineList.childCount) {
 
-                    realm.beginTransaction()
-                    val eventLog = realm.createObject<EventLog>(id)
-                    eventLog.time = time
-                    eventLog.event_name = it.name
+                    val row: RecyclerView.ViewHolder? = medicineList.findViewHolderForLayoutPosition(i)
 
-                    val viewHolder: RecyclerView.ViewHolder? = qtyList.findViewHolderForLayoutPosition(j)
-                    if( viewHolder != null){
-                        val qty = viewHolder.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem.toString()
-                        eventLog.quantity = qty.toDoubleOrNull()
-                        Log.d("qty",qty)
+                    if (row === null) {
+                        continue
                     }
-                    j++
 
-                    realm.copyToRealm(eventLog)
-                    realm.commitTransaction()
+                    val name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                    val qty = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
+
+                    realm.executeTransaction {
+                        val eventLog = realm.createObject<EventLog>(id)
+                        eventLog.time = time
+                        eventLog.event_name = name
+                        if (qty != null){ eventLog.quantity = qty }
+                        realm.copyToRealm(eventLog)
+                    }
                     id += 1
                 }
-            } else -> {
-                realm.beginTransaction()
-                val log = realm.createObject<EventLog>(id)
-                log.time = time
-                log.event_name = event
+            }
+            else -> {
+                realm.executeTransaction {
+                    val log = realm.createObject<EventLog>(id)
+                    log.time = time
+                    log.event_name = event
 
-                realm.copyToRealm(log)
-                realm.commitTransaction()
+                    realm.copyToRealm(log)
+                }
             }
         }
+
         realm.close()
     }
 
@@ -297,8 +299,33 @@ class MainActivity : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
         val time: Date = newCal.time
         when (event) {
+            //TODO: 仮でinsert、本来はUpdate
             "Dose" -> {
-                val medicineEvents = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate)
+                val realm = Realm.getDefaultInstance()
+                var id = realm.where<EventLog>().count() + 1
+
+                val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+
+                for (i in 0..medicineList.childCount) {
+
+                    val row: RecyclerView.ViewHolder? = medicineList.findViewHolderForLayoutPosition(i)
+
+                    if (row === null) {
+                        continue
+                    }
+
+                    val name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                    val qty = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
+
+                    realm.executeTransaction {
+                        val eventLog = realm.createObject<EventLog>(id)
+                        eventLog.time = time
+                        eventLog.event_name = name
+                        if (qty != null){ eventLog.quantity = qty }
+                        realm.copyToRealm(eventLog)
+                    }
+                    id += 1
+                }
             } else -> {
                 realm.beginTransaction()
                 val log = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
