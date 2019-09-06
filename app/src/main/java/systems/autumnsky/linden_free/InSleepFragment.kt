@@ -18,8 +18,8 @@ class InSleepFragment : DialogFragment() {
         val sleepingDialog = inflater.inflate(R.layout.in_sleep_dialog, container, false)
 
         //入眠時刻を表示
-        if( arguments != null ) {
-            sleepingDialog.findViewById<TextView>(R.id.in_sleep_time).text = arguments?.getString("InSleepTime")
+        arguments?.let{
+            sleepingDialog.findViewById<TextView>(R.id.in_sleep_time).text = it.getString("InSleepTime")
         }
 
         //起床ボタンをタップで時刻を入力、長押しでタイムピッカーから入力して終了
@@ -30,11 +30,10 @@ class InSleepFragment : DialogFragment() {
 
             realm.executeTransaction {
                 val id = realm.where<EventLog>().count() + 1
-                val log = realm.createObject<EventLog>(id)
-
-                log.event_name = getString(R.string.awake)
-                log.time = Calendar.getInstance().time
-
+                val log = realm.createObject<EventLog>(id).apply{
+                    event_name = getString(R.string.awake)
+                    time = Calendar.getInstance().time
+                }
                 realm.copyToRealmOrUpdate(log)
             }
 

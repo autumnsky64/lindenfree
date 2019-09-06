@@ -2,6 +2,7 @@ package systems.autumnsky.linden_free
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,6 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.where
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
 
 class LogActivity : AppCompatActivity() {
 
@@ -58,15 +58,15 @@ class LogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_logview)
 
-        val logTable = findViewById<RecyclerView>(R.id.log_table)
         val layout = LinearLayoutManager(applicationContext)
-        logTable.layoutManager = layout
+        val eventLog = Realm.getDefaultInstance().where<EventLog>().findAll()
 
-        val realm = Realm.getDefaultInstance()
-        val eventLog = realm.where<EventLog>().findAll()
+        findViewById<RecyclerView>(R.id.log_table).run{
+            layoutManager = layout
+            adapter = RealmAdapter(this, eventLog, autoUpdate = false)
+            addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+        }
 
-        logTable.adapter = RealmAdapter(logTable, eventLog, autoUpdate = false)
-        logTable.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
             navView.selectedItemId = R.id.navigation_log
@@ -96,18 +96,13 @@ class LogActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: LogHolder, position: Int) {
             val logRow = log[position]
-
-            val date = logRow.time
-            if( date != null){
-                holder.time.text =  SimpleDateFormat("yy/MM/dd HH:mm").format(date)
+            holder.run {
+                time.text =  logRow.time?.let{ DateFormat.format("yy/MM/dd kk:mm", it)}
+                event.text = logRow.event_name
+                quantity.text = logRow.quantity?.let{ DecimalFormat("#.##").format(it) + "mg" }
             }
 
-            holder.event.text = logRow.event_name
-
-            val qty = logRow.quantity
-            if( qty != null)
-                holder.quantity.text = DecimalFormat("#.##").format(qty) + "mg"
-            }
+        }
 
         override fun getItemCount(): Int {
             return log.size

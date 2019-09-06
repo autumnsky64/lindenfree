@@ -154,7 +154,7 @@
             android:text="MedicineId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/id_container"
+            android:id="@+id/medicine_id"
             android:visibility="invisible"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp"

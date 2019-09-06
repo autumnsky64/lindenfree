@@ -251,9 +251,7 @@ class MainActivity : AppCompatActivity() {
     private fun insertLog(event: String?, cal: Calendar) {
 
         val realm = Realm.getDefaultInstance()
-        var id = realm.where<EventLog>().count() + 1
-
-        val time: Date = cal.time
+        var id = realm.where<EventLog>().max("id")?.toLong()?:0 + 1
 
         when (event) {
             "Dose" -> {
@@ -263,18 +261,15 @@ class MainActivity : AppCompatActivity() {
 
                     val row: RecyclerView.ViewHolder? = medicineList.findViewHolderForLayoutPosition(i)
 
-                    if (row === null) {
-                        continue
-                    }
-
-                    val name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                    val qty = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
+                    // 薬リストに登録がない場合をチェック
+                    if (row === null) { continue }
 
                     realm.executeTransaction {
-                        val eventLog = realm.createObject<EventLog>(id)
-                        eventLog.time = time
-                        eventLog.event_name = name
-                        if (qty != null){ eventLog.quantity = qty }
+                        val eventLog = realm.createObject<EventLog>(id).apply{
+                            time = cal.time
+                            event_name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                            quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
+                        }
                         realm.copyToRealm(eventLog)
                     }
                     id += 1
@@ -282,49 +277,51 @@ class MainActivity : AppCompatActivity() {
             }
             else -> {
                 realm.executeTransaction {
-                    val log = realm.createObject<EventLog>(id)
-                    log.time = time
-                    log.event_name = event
-
-                    realm.copyToRealm(log)
+                    val eventLog = realm.createObject<EventLog>(id).apply{
+                        time = cal.time
+                        event_name = event
+                    }
+                    realm.copyToRealm(eventLog)
                 }
             }
         }
-
         realm.close()
     }
 
     private fun  updateLog(event: String?, oldDate: Date, newCal: Calendar) {
         val realm = Realm.getDefaultInstance()
-        val time: Date = newCal.time
         when (event) {
-            //TODO: 仮でinsert、本来はUpdate
             "Dose" -> {
                 val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
 
                 for (i in 0..medicineList.childCount) {
 
                     val row: RecyclerView.ViewHolder? = medicineList.findViewHolderForLayoutPosition(i)
+                    if (row === null) { continue }
 
-                    if (row === null) {
-                        continue
-                    }
-
-                    val name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                    val qty = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
-
+                    val name =  row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
                     realm.executeTransaction {
-                        val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", name).findFirst()
-                        eventLog?.time = time
-                        if (qty != null){ eventLog?.quantity = qty }
-                        if (eventLog != null ){ realm.copyToRealm(eventLog) }
+                        realm.where<EventLog>()
+                            .greaterThanOrEqualTo("time", oldDate)
+                            .equalTo("event_name", name)
+                            .findFirst()?.apply{
+
+                                time = newCal.time
+                                quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
+
+                            }
+                        }
                     }
-                }
             } else -> {
                 realm.executeTransaction{
-                    val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
-                    eventLog?.time = time
-                    if (eventLog != null ){ realm.copyToRealm(eventLog) }
+                    realm.where<EventLog>()
+                        .greaterThanOrEqualTo("time", oldDate)
+                        .equalTo("event_name", event)
+                        .findFirst()?.apply {
+
+                            time = newCal.time
+
+                    }
                 }
             }
         }

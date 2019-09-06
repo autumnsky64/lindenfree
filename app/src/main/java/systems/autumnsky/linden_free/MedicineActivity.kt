@@ -63,17 +63,16 @@ class MedicineActivity : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
 
         // 登録している薬一覧を表示
-        val medicineListView = findViewById<RecyclerView>(R.id.medicine_list)
-
         val layout = LinearLayoutManager(applicationContext)
-        medicineListView.layoutManager = layout
+        val allMedicines = realm.where<Medicine>().findAll()
 
-        val allMedicines = realm.where(Medicine::class.java).findAll()
-
-        medicineListView.adapter = RealmAdapter(medicineListView, allMedicines, autoUpdate = true)
-        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
-
+        findViewById<RecyclerView>(R.id.medicine_list).run {
+            layoutManager = layout
+            adapter = RealmAdapter(this , allMedicines, autoUpdate = true)
+            addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+        }
         realm.close()
+
         // 下部ナビゲーション
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_medicine
@@ -117,46 +116,57 @@ class MedicineActivity : AppCompatActivity() {
             val medicine = medicines[position]
             holder.name.text = medicine?.name
 
+            // 量の表示 0の時はラベルとかも非表示
             val regQty = medicine?.regular_quantity
             if ( regQty != null){
-                holder.quantity.text = DecimalFormat("#.##").format(regQty)
-                holder.regularUnitLabel.visibility = View.VISIBLE
+                holder.run{
+                    quantity.text = DecimalFormat("#.##").format(regQty)
+                    regularUnitLabel.visibility = View.VISIBLE
+                }
+
             } else {
-                holder.quantity.text = ""
-                holder.regularUnitLabel.visibility = View.INVISIBLE
+                holder.run{
+                    quantity.text = ""
+                    regularUnitLabel.visibility = View.INVISIBLE
+                }
             }
 
             val stepQty = medicine?.adjustment_step
             if ( stepQty != null ){
-                holder.step.text = DecimalFormat("#.##").format(stepQty)
-                holder.adjustmentLabel.visibility = View.VISIBLE
-                holder.adjustmentUnitLabel.visibility = View.VISIBLE
+                holder.run{
+                    step.text = DecimalFormat("#.##").format(stepQty)
+                    adjustmentLabel.visibility = View.VISIBLE
+                    adjustmentUnitLabel.visibility = View.VISIBLE
+                }
             } else {
-                holder.step.text = ""
-                holder.adjustmentLabel.visibility = View.INVISIBLE
-                holder.adjustmentUnitLabel.visibility = View.INVISIBLE
+                holder.run{
+                    step.text = ""
+                    adjustmentLabel.visibility = View.INVISIBLE
+                    adjustmentUnitLabel.visibility = View.INVISIBLE
+                }
             }
 
             // リスナー
             holder.medicine.setOnClickListener{
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
-                val bundle = Bundle()
-                bundle.putString("MedicineId", medicine?.id)
-                bundle.putString("Name", medicine?.name)
-                bundle.putDouble("Quantity", medicine?.regular_quantity?:0.0)
-                bundle.putDouble("Step", medicine?.adjustment_step?:0.0)
+                val bundle = Bundle().apply {
+                    putString("MedicineId", medicine?.id)
+                    putString("Name", medicine?.name)
+                    putDouble("Quantity", medicine?.regular_quantity?:0.0)
+                    putDouble("Step", medicine?.adjustment_step?:0.0)
+                }
 
-                val dialog = EditMedicineFragment()
-                dialog.arguments = bundle
-
-                dialog.show(supportFragmentManager,"medicine")
+                EditMedicineFragment().run {
+                    arguments = bundle
+                    show(supportFragmentManager,"medicine")
+                }
             }
 
             holder.medicine.setOnLongClickListener {
                  // 薬の削除は長押しでAlertDialogを表示してから
                 AlertDialog.Builder(this@MedicineActivity)
                     .setTitle("Delete " + medicine?.name + "?")
-                    .setPositiveButton("Yes", DialogInterface.OnClickListener { _: DialogInterface, _: Int ->
+                    .setPositiveButton("Yes"){ _, _ ->
                         // medicine tableからの削除
                         val realm = Realm.getDefaultInstance()
 
@@ -168,12 +178,11 @@ class MedicineActivity : AppCompatActivity() {
                             targetMedicine?.deleteFromRealm()
                         }
                         realm.close()
-                    })
+                    }
                     .setNegativeButton("No", null)
                     .show()
                 return@setOnLongClickListener true
             }
-
         }
 
         override fun getItemCount(): Int {

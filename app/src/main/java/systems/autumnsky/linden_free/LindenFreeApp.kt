@@ -24,13 +24,12 @@ class LindenFreeApp : Application() {
         val realm = Realm.getDefaultInstance()
 
         defaultEvents.forEach {
-            realm.beginTransaction()
-
-            var event = realm.createObject(Event::class.java, UUID.randomUUID().toString())
-            event.name = it
-
-            realm.copyToRealm(event)
-            realm.commitTransaction()
+            val name = it
+            realm.executeTransaction {
+                var event = realm.createObject(Event::class.java, UUID.randomUUID().toString())
+                event.name = name
+                realm.copyToRealm(event)
+            }
         }
 
         realm.close()
