@@ -230,9 +230,8 @@ class MainActivity : AppCompatActivity() {
             if (labelMap["default"] == labelMap["current"]){
                 insertLog( labelMap["default"], cal )
             }else{
-                val timeString = labelMap["current"]?.replace("${labelMap["default"]}", " ")
                 val dateString = findViewById<TextView>(R.id.date_label).text
-                val oldDate: Date? = SimpleDateFormat("yyyy/MM/dd hh:mm").parse("$dateString $timeString")
+                val oldDate: Date? = SimpleDateFormat("yyyy/MM/dd").parse(dateString.toString())
                 if (oldDate != null){ updateLog( labelMap["default"], oldDate, cal  ) }
             }
 
@@ -301,9 +300,6 @@ class MainActivity : AppCompatActivity() {
         when (event) {
             //TODO: 仮でinsert、本来はUpdate
             "Dose" -> {
-                val realm = Realm.getDefaultInstance()
-                var id = realm.where<EventLog>().count() + 1
-
                 val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
 
                 for (i in 0..medicineList.childCount) {
@@ -318,23 +314,20 @@ class MainActivity : AppCompatActivity() {
                     val qty = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
 
                     realm.executeTransaction {
-                        val eventLog = realm.createObject<EventLog>(id)
-                        eventLog.time = time
-                        eventLog.event_name = name
-                        if (qty != null){ eventLog.quantity = qty }
-                        realm.copyToRealm(eventLog)
+                        val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", name).findFirst()
+                        eventLog?.time = time
+                        if (qty != null){ eventLog?.quantity = qty }
+                        if (eventLog != null ){ realm.copyToRealm(eventLog) }
                     }
-                    id += 1
                 }
             } else -> {
-                realm.beginTransaction()
-                val log = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
-                log?.time = time
-                realm.commitTransaction()
+                realm.executeTransaction{
+                    val eventLog = realm.where<EventLog>().greaterThanOrEqualTo("time", oldDate).equalTo("event_name", event).findFirst()
+                    eventLog?.time = time
+                    if (eventLog != null ){ realm.copyToRealm(eventLog) }
+                }
             }
         }
         realm.close()
     }
 }
-
-
