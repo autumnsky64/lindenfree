@@ -251,8 +251,8 @@ class MainActivity : AppCompatActivity() {
     private fun insertLog(event: String?, cal: Calendar) {
 
         val realm = Realm.getDefaultInstance()
-        var id = realm.where<EventLog>().max("id")?.toLong()?:0 + 1
-
+        var id: Long = realm.where<EventLog>().max("id")?.toLong()?:0
+        id += 1
         when (event) {
             "Dose" -> {
                 val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
