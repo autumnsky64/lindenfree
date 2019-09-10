@@ -63,7 +63,7 @@ class LogActivity : AppCompatActivity() {
 
         findViewById<RecyclerView>(R.id.log_table).run{
             layoutManager = layout
-            adapter = RealmAdapter(this, eventLog, autoUpdate = false)
+            adapter = RealmAdapter(eventLog)
             addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
         }
 
@@ -86,8 +86,8 @@ class LogActivity : AppCompatActivity() {
             quantity = itemView.findViewById(R.id.qty_cell)
         }
     }
-    private inner class RealmAdapter(private val view: View, private val log: OrderedRealmCollection<EventLog>, private val autoUpdate: Boolean)
-        : RealmRecyclerViewAdapter<EventLog, LogHolder>(log, autoUpdate){
+    private inner class RealmAdapter(private val log: OrderedRealmCollection<EventLog>)
+        : RealmRecyclerViewAdapter<EventLog, LogHolder>(log, true){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder {
             val row = LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)

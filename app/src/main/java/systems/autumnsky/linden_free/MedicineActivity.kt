@@ -1,6 +1,5 @@
 package systems.autumnsky.linden_free
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -64,12 +63,12 @@ class MedicineActivity : AppCompatActivity() {
 
         // 登録している薬一覧を表示
         val layout = LinearLayoutManager(applicationContext)
-        val allMedicines = realm.where<Medicine>().findAll()
-
-        findViewById<RecyclerView>(R.id.medicine_list).run {
-            layoutManager = layout
-            adapter = RealmAdapter(this , allMedicines, autoUpdate = true)
-            addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+        realm.where<Medicine>().findAll()?.let {
+            findViewById<RecyclerView>(R.id.medicine_list).run {
+                layoutManager = layout
+                adapter = RealmAdapter(it)
+                addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+            }
         }
         realm.close()
 
@@ -103,8 +102,8 @@ class MedicineActivity : AppCompatActivity() {
         }
     }
 
-    private inner class RealmAdapter( private val view:View, private val medicines: OrderedRealmCollection<Medicine>, private val autoUpdate: Boolean)
-        : RealmRecyclerViewAdapter<Medicine, MedicineListHolder>(medicines, autoUpdate) {
+    private inner class RealmAdapter(private val medicines: OrderedRealmCollection<Medicine>)
+        : RealmRecyclerViewAdapter<Medicine, MedicineListHolder>(medicines, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
 

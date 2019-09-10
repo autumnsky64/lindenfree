@@ -3,9 +3,9 @@ package systems.autumnsky.linden_free
 import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
+import android.icu.text.DateFormat.getDateInstance
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,10 +25,6 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
-import kotlinx.android.synthetic.main.edit_medicine.*
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -63,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
         // 日付ラベル
-        findViewById<TextView>(R.id.date_label).text = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+        findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
 
         findViewById<Button>(R.id.dose_button).setOnClickListener(SetTime())
         findViewById<Button>(R.id.dose_button).setOnLongClickListener(SetTimeByPicker())
@@ -76,25 +72,20 @@ class MainActivity : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
         val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
 
-        medicineListView.adapter = RealmAdapter(medicineListView, medicineEvents, autoUpdate = false)
+        medicineListView.adapter = RealmAdapter(medicineEvents)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         // Doseボタンの日時表示
-        val currentDate = SimpleDateFormat("yyyy/MM/dd").parse(findViewById<TextView>(R.id.date_label).text.toString())
+        val currentDate = getDateInstance().parse(findViewById<TextView>(R.id.date_label).text.toString())
 
-        if (currentDate != null){
-
+        val doseTime = currentDate?.let {
             val medicine = realm.where<Medicine>().isNotNull("id").findFirst()
-            val dose = realm.where<EventLog>()
-                .greaterThanOrEqualTo("time", currentDate)
+            return@let realm.where<EventLog>()
+                .greaterThanOrEqualTo("time", it)
                 .equalTo("event_name",medicine?.name)
-                .findFirst()
-            val doseTime = dose?.time
-
-            if ( doseTime != null ){
-                updateButton(findViewById<Button>(R.id.dose_button), SimpleDateFormat("HH:mm").format(doseTime))
-            }
+                .findFirst()?.time
         }
+        if( doseTime != null){ updateButton(findViewById(R.id.dose_button), DateFormat.format( "HH:mm", doseTime).toString()) }
 
         // Sleepボタン
         findViewById<Button>(R.id.sleep_button).setOnClickListener{
@@ -105,10 +96,8 @@ class MainActivity : AppCompatActivity() {
         // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
         val lastEvent = realm.where<EventLog>().sort("time", Sort.DESCENDING).findFirst()
         if( lastEvent?.event_name == getString(R.string.sleep)){
-            val lastSleepTime = lastEvent.time
-            if ( lastSleepTime != null) {
-                val lastSleep = DateFormat.format("hh:mm", lastSleepTime) as String
-                showSleepingDialog(lastSleep)
+            lastEvent.time?.let {
+                showSleepingDialog(DateFormat.format("hh:mm", it) as String)
             }
         }
     }
@@ -138,8 +127,8 @@ class MainActivity : AppCompatActivity() {
             unitLabel = itemView.findViewById(R.id.adjust_spinner_unit_label)
         }
     }
-    private inner class RealmAdapter(private val view:View, private val medicineEvents: OrderedRealmCollection<Event>, private val autoUpdate: Boolean)
-        : RealmRecyclerViewAdapter<Event, MedicineListHolder>(medicineEvents, autoUpdate){
+    private inner class RealmAdapter(private val medicineEvents: OrderedRealmCollection<Event>)
+        : RealmRecyclerViewAdapter<Event, MedicineListHolder>(medicineEvents, false){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
             val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_contain_spinner, parent, false)
@@ -187,7 +176,7 @@ class MainActivity : AppCompatActivity() {
             val labelMap: Map<String, String> = labelAttribute(button)
 
             if (labelMap["default"] == labelMap["current"]) {
-                updateButton(button, SimpleDateFormat("HH:mm").format(cal.time))
+                updateButton(button, DateFormat.format("HH:mm" ,cal.time).toString())
                 insertLog(labelMap["default"]?:"some event", cal)
             } else {
                 timePicker(button)
@@ -208,7 +197,7 @@ class MainActivity : AppCompatActivity() {
         val newLabel = "$event  $time"
         button.text = newLabel
         button.setBackgroundColor(getColor(R.color.colorPrimary))
-        button.setTextColor(getColor(R.color.primary_material_light))
+        button.setTextColor(getColor(R.color.materialLight))
     }
 
     //buttonのIDから、初期のラベルを取得
@@ -230,13 +219,10 @@ class MainActivity : AppCompatActivity() {
             if (labelMap["default"] == labelMap["current"]){
                 insertLog( labelMap["default"], cal )
             }else{
-                val dateString = findViewById<TextView>(R.id.date_label).text
-                val oldDate: Date? = SimpleDateFormat("yyyy/MM/dd").parse(dateString.toString())
-                if (oldDate != null){ updateLog( labelMap["default"], oldDate, cal  ) }
+                getDateInstance().parse( findViewById<TextView>(R.id.date_label).text.toString())?.let{ updateLog( labelMap["default"], it, cal) }
             }
 
-            val timeString = SimpleDateFormat("HH:mm").format(cal.time)
-            updateButton(button, timeString)
+            updateButton( button, DateFormat.format("HH:mm", cal.time).toString() )
         }
 
         TimePickerDialog(
