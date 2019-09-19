@@ -29,8 +29,10 @@ class InSleepFragment : DialogFragment() {
             val realm = Realm.getDefaultInstance()
 
             realm.executeTransaction {
-                val id = realm.where<EventLog>().count() + 1
-                val log = realm.createObject<EventLog>(id).apply{
+                val maxId = realm.where<EventLog>().max("id")?.toLong()?:0
+                val newId = maxId + 1
+
+                val log = realm.createObject<EventLog>(newId).apply{
                     event_name = getString(R.string.awake)
                     time = Calendar.getInstance().time
                 }
