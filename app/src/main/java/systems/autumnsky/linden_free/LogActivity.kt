@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.*
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -126,9 +127,9 @@ class LogActivity : AppCompatActivity() {
             }
 
             holder.time.setOnClickListener {
-                val cal = Calendar.getInstance()
-                cal.time = logRecord.time!!
+                val cal = Calendar.getInstance().apply{ time = logRecord.time!! }
 
+                //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
                 DatePickerDialog(
                     this@LogActivity,
                     DatePickerDialog.OnDateSetListener{ _, year, month, day ->
@@ -148,6 +149,7 @@ class LogActivity : AppCompatActivity() {
                                 realm.executeTransaction {
                                     logRecord.time = cal.time
                                 }
+                                realm.close()
                             },
                             cal.get(Calendar.HOUR_OF_DAY),
                             cal.get(Calendar.MINUTE),
@@ -158,6 +160,20 @@ class LogActivity : AppCompatActivity() {
                     cal.get(Calendar.MONTH),
                     cal.get(Calendar.DAY_OF_MONTH)
                 ).show()
+            }
+
+            val quantity = logRecord.quantity
+            if( quantity != null ){
+                holder.quantity.setOnClickListener {
+                    EditQuantityLogFragment().run {
+                        arguments = Bundle().apply {
+                            putString("Id", logRecord.id!!.toString())
+                            putString("MedicineName", logRecord.event_name )
+                            putString("Quantity", quantity.toString())
+                        }
+                        show( supportFragmentManager, "EditQuantity" )
+                    }
+                }
             }
         }
 

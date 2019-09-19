@@ -148,15 +148,13 @@ class MedicineActivity : AppCompatActivity() {
             // リスナー
             holder.medicine.setOnClickListener{
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
-                val bundle = Bundle().apply {
-                    putString("MedicineId", medicine?.id)
-                    putString("Name", medicine?.name)
-                    putDouble("Quantity", medicine?.regular_quantity?:0.0)
-                    putDouble("Step", medicine?.adjustment_step?:0.0)
-                }
-
                 EditMedicineFragment().run {
-                    arguments = bundle
+                    arguments =Bundle().apply {
+                        putString("MedicineId", medicine?.id)
+                        putString("Name", medicine?.name)
+                        putDouble("Quantity", medicine?.regular_quantity?:0.0)
+                        putDouble("Step", medicine?.adjustment_step?:0.0)
+                    }
                     show(supportFragmentManager,"medicine")
                 }
             }

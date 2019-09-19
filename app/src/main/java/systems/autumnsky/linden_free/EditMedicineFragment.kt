@@ -33,6 +33,7 @@ class EditMedicineFragment : DialogFragment() {
             }
 
         // 下部のCancel/Saveボタン
+        // Todo: builderでsetPositive/cancelに変更する
         view.findViewById<Button>(R.id.save_medicine).setOnClickListener(AddMedicine())
         view.findViewById<Button>(R.id.cancel_medicine).setOnClickListener{ dismiss() }
 
