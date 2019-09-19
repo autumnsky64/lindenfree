@@ -1,5 +1,7 @@
 package systems.autumnsky.linden_free
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -16,6 +18,7 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.where
 import java.text.DecimalFormat
+import java.util.*
 
 class LogActivity : AppCompatActivity() {
 
@@ -95,13 +98,67 @@ class LogActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: LogHolder, position: Int) {
-            val logRow = log[position]
+            val logRecord = log[position]
             holder.run {
-                time.text =  logRow.time?.let{ DateFormat.format("yy/MM/dd kk:mm", it)}
-                event.text = logRow.event_name
-                quantity.text = logRow.quantity?.let{ DecimalFormat("#.##").format(it) + "mg" }
+                time.text =  logRecord.time?.let{ DateFormat.format("yy/MM/dd kk:mm", it)}
+                event.text = logRecord.event_name
+                quantity.text = logRecord.quantity?.let{ DecimalFormat("#.##").format(it) + "mg" }
             }
 
+            holder.logRow.setOnLongClickListener {
+                AlertDialog.Builder(this@LogActivity).apply {
+                    setTitle("Delete this record?")
+                    setMessage( "${holder.time.text} ${holder.event.text} ${holder.quantity.text}" )
+                    setPositiveButton("Yes"){ _, _ ->
+
+                        // log tableからの削除
+                        val realm = Realm.getDefaultInstance()
+                        realm.executeTransaction {
+                            val targetLog = realm.where<EventLog>().equalTo("id",logRecord?.id).findAll()
+                            targetLog.deleteAllFromRealm()
+                        }
+                        realm.close()
+                    }
+                    setNegativeButton("No", null)
+                    show()
+                }
+                return@setOnLongClickListener true
+            }
+
+            holder.time.setOnClickListener {
+                val cal = Calendar.getInstance()
+                cal.time = logRecord.time!!
+
+                DatePickerDialog(
+                    this@LogActivity,
+                    DatePickerDialog.OnDateSetListener{ _, year, month, day ->
+                        cal.apply {
+                            set(Calendar.YEAR, year)
+                            set(Calendar.MONTH, month)
+                            set(Calendar.DAY_OF_MONTH, day)
+                        }
+                        TimePickerDialog(
+                            this@LogActivity,
+                            TimePickerDialog.OnTimeSetListener{ _, hour, min ->
+                                cal.apply{
+                                    set(Calendar.HOUR_OF_DAY, hour)
+                                    set(Calendar.MINUTE, min)
+                                }
+                                val realm = Realm.getDefaultInstance()
+                                realm.executeTransaction {
+                                    logRecord.time = cal.time
+                                }
+                            },
+                            cal.get(Calendar.HOUR_OF_DAY),
+                            cal.get(Calendar.MINUTE),
+                            true
+                        ).show()
+                    },
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            }
         }
 
         override fun getItemCount(): Int {
