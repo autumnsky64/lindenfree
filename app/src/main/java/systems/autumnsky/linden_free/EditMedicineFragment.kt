@@ -22,7 +22,6 @@ class EditMedicineFragment : DialogFragment() {
 
         // 薬の一覧から呼び出されたら、薬情報を予め入力しておく
         arguments?.let{
-            view.findViewById<TextView>(R.id.medicine_id).text = it.getString("MedicineId")
             view.findViewById<EditText>(R.id.input_medicine_name).setText(it.getString("Name"))
 
             val quantity: Double? = it.getDouble("Quantity")
@@ -30,19 +29,19 @@ class EditMedicineFragment : DialogFragment() {
 
             if ( quantity != 0.0 ){ view.findViewById<EditText>(R.id.input_regular_quantity).setText(DecimalFormat("#.##").format(quantity))}
             if ( step != 0.0 ){ view.findViewById<EditText>(R.id.input_adjustment_step).setText(DecimalFormat("#.##").format(step)) }
+
             }
 
         // 下部のCancel/Saveボタン
-        // Todo: builderでsetPositive/cancelに変更する
-        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(AddMedicine())
+        view.findViewById<Button>(R.id.save_medicine).setOnClickListener(AddMedicine(arguments?.getString("MedicineId")))
         view.findViewById<Button>(R.id.cancel_medicine).setOnClickListener{ dismiss() }
 
         return view
     }
-    private inner class AddMedicine: View.OnClickListener {
+    private inner class AddMedicine( targetId: String? ): View.OnClickListener {
+        val targetId: String? = targetId
         override fun onClick(view: View?) {
             val medicineDialog = view?.parent as View
-            val id = medicineDialog.findViewById<TextView>(R.id.medicine_id).text?.toString()
             val editedName = medicineDialog.findViewById<TextView>(R.id.input_medicine_name).text?.toString()
             val editedQuantity = medicineDialog.findViewById<EditText>(R.id.input_regular_quantity).text?.toString()?.toDoubleOrNull()
             val editedStep = medicineDialog.findViewById<EditText>(R.id.input_adjustment_step).text?.toString()?.toDoubleOrNull()
@@ -52,45 +51,40 @@ class EditMedicineFragment : DialogFragment() {
 
             val realm = Realm.getDefaultInstance()
 
-            when ( id ) {
-                // idが初期値の時はアクションバーの追加ボタンから呼ばれた → Insert
-                "MedicineId" -> {
-                    realm.executeTransaction{
-                        val editedMedicine = realm.createObject<Medicine>(UUID.randomUUID().toString()).apply{
-                            name = editedName
-                            regular_quantity = editedQuantity
-                            adjustment_step = editedStep
-                        }
-                        realm.copyToRealm(editedMedicine)
+            if ( targetId != null ) {
+                realm.executeTransaction{
+                    val targetMedicine = realm.where<Medicine>().equalTo("id", targetId).findFirst()
+                    targetMedicine?.apply {
+                        name = editedName
+                        regular_quantity = editedQuantity
+                        adjustment_step = editedStep
+                    }
 
-                        val event = realm.createObject<Event>(UUID.randomUUID().toString()).apply {
-                            name = editedName
-                            medicine = editedMedicine
-                        }
-                        realm.copyToRealm(event)
-
+                    realm.where<Event>().equalTo("medicine.id", targetId.toString()).findFirst()?.apply {
+                        medicine = targetMedicine
+                        name = editedName
                     }
                 }
-                else -> {
-                    // そうでない場合はIdに一致するレコードを更新
-                    realm.executeTransaction{
-                        val targetMedicine = realm.where<Medicine>().equalTo("id",id).findFirst()
-                        targetMedicine?.apply {
+            } else {
+                // idがnullならaddボタンからの追加 → Insert
+                realm.executeTransaction {
+                    val editedMedicine =
+                        realm.createObject<Medicine>(UUID.randomUUID().toString()).apply {
                             name = editedName
                             regular_quantity = editedQuantity
                             adjustment_step = editedStep
-                            }
-
-                        realm.where<Event>().equalTo("medicine.id",id).findFirst()?.apply {
-                            medicine = targetMedicine
-                            name = editedName
                         }
+                    realm.copyToRealm(editedMedicine)
+
+                    val event = realm.createObject<Event>(UUID.randomUUID().toString()).apply {
+                        name = editedName
+                        medicine = editedMedicine
                     }
+                    realm.copyToRealm(event)
+
                 }
             }
-
             realm.close()
-
             dismiss()
         }
 
