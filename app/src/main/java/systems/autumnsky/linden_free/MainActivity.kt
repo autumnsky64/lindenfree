@@ -237,8 +237,8 @@ class MainActivity : AppCompatActivity() {
     private fun insertLog(event: String?, cal: Calendar) {
 
         val realm = Realm.getDefaultInstance()
-        var id: Long = realm.where<EventLog>().max("id")?.toLong()?:0
-        id += 1
+        var newId: Long = realm.where<EventLog>().max("id")?.toLong()?:0 + 1
+
         when (event) {
             "Dose" -> {
                 val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
@@ -251,19 +251,19 @@ class MainActivity : AppCompatActivity() {
                     if (row === null) { continue }
 
                     realm.executeTransaction {
-                        val eventLog = realm.createObject<EventLog>(id).apply{
+                        val eventLog = realm.createObject<EventLog>(newId).apply{
                             time = cal.time
                             event_name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
                             quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
                         }
                         realm.copyToRealm(eventLog)
                     }
-                    id += 1
+                    newId += 1
                 }
             }
             else -> {
                 realm.executeTransaction {
-                    val eventLog = realm.createObject<EventLog>(id).apply{
+                    val eventLog = realm.createObject<EventLog>(newId).apply{
                         time = cal.time
                         event_name = event
                     }
