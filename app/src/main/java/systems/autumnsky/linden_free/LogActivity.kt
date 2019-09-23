@@ -1,15 +1,19 @@
 package systems.autumnsky.linden_free
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,26 +27,27 @@ import java.util.*
 
 class LogActivity : AppCompatActivity() {
 
-    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_log -> {
-                val intent = Intent(applicationContext, LogActivity::class.java)
-                startActivity(intent)
-                return@OnNavigationItemSelectedListener true
+    private val onNavigationItemSelectedListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_log -> {
+                    val intent = Intent(applicationContext, LogActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_home -> {
+                    val intent = Intent(applicationContext, MainActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_medicine -> {
+                    val intent = Intent(applicationContext, MedicineActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
             }
-            R.id.navigation_home -> {
-                val intent = Intent(applicationContext, MainActivity::class.java)
-                startActivity(intent)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_medicine -> {
-                val intent = Intent(applicationContext, MedicineActivity::class.java)
-                startActivity(intent)
-                return@OnNavigationItemSelectedListener true
-            }
+            false
         }
-        false
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.log_action_button, menu)
@@ -50,12 +55,24 @@ class LogActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when( item.itemId ){
+        when (item.itemId) {
             R.id.dl_log -> {
                 // TODO: ログファイルの保存処理
+                if (ActivityCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE )
+                    != PackageManager.PERMISSION_GRANTED
+                ) {
+                    val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    ActivityCompat.requestPermissions(this, permissions, 1000)
+                }
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>, grantResults: IntArray ) {
+        if (requestCode == 1000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(applicationContext, "CSV 出力！", Toast.LENGTH_LONG)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +82,7 @@ class LogActivity : AppCompatActivity() {
         val layout = LinearLayoutManager(applicationContext)
         val eventLog = Realm.getDefaultInstance().where<EventLog>().findAll()
 
-        findViewById<RecyclerView>(R.id.log_table).run{
+        findViewById<RecyclerView>(R.id.log_table).run {
             layoutManager = layout
             adapter = RealmAdapter(eventLog)
             addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
@@ -73,49 +90,51 @@ class LogActivity : AppCompatActivity() {
 
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
-            navView.selectedItemId = R.id.navigation_log
-            navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+        navView.selectedItemId = R.id.navigation_log
+        navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
-    private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var logRow: ConstraintLayout
         var time: TextView
         var event: TextView
         var quantity: TextView
 
-        init{
+        init {
             logRow = itemView.findViewById(R.id.log_row)
             time = itemView.findViewById(R.id.time_cell)
             event = itemView.findViewById(R.id.event_cell)
             quantity = itemView.findViewById(R.id.qty_cell)
         }
     }
-    private inner class RealmAdapter(private val log: OrderedRealmCollection<EventLog>)
-        : RealmRecyclerViewAdapter<EventLog, LogHolder>(log, true){
+
+    private inner class RealmAdapter(private val log: OrderedRealmCollection<EventLog>) :
+        RealmRecyclerViewAdapter<EventLog, LogHolder>(log, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder {
-            val row = LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
+            val row =
+                LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
             return LogHolder(row)
         }
 
         override fun onBindViewHolder(holder: LogHolder, position: Int) {
             val logRecord = log[position]
             holder.run {
-                time.text =  logRecord.time?.let{ DateFormat.format("yy/MM/dd kk:mm", it)}
+                time.text = logRecord.time?.let { DateFormat.format("yy/MM/dd kk:mm", it) }
                 event.text = logRecord.event_name
-                quantity.text = logRecord.quantity?.let{ DecimalFormat("#.##").format(it) + "mg" }
+                quantity.text = logRecord.quantity?.let { DecimalFormat("#.##").format(it) + "mg" }
             }
 
             holder.logRow.setOnLongClickListener {
                 AlertDialog.Builder(this@LogActivity).apply {
                     setTitle("Delete this record?")
-                    setMessage( "${holder.time.text} ${holder.event.text} ${holder.quantity.text}" )
-                    setPositiveButton("Yes"){ _, _ ->
+                    setMessage("${holder.time.text} ${holder.event.text} ${holder.quantity.text}")
+                    setPositiveButton("Yes") { _, _ ->
 
                         // log tableからの削除
                         val realm = Realm.getDefaultInstance()
                         realm.executeTransaction {
-                            val targetLog = realm.where<EventLog>().equalTo("id",logRecord?.id).findAll()
+                            val targetLog = realm.where<EventLog>().equalTo("id", logRecord?.id).findAll()
                             targetLog.deleteAllFromRealm()
                         }
                         realm.close()
@@ -127,12 +146,12 @@ class LogActivity : AppCompatActivity() {
             }
 
             holder.time.setOnClickListener {
-                val cal = Calendar.getInstance().apply{ time = logRecord.time!! }
+                val cal = Calendar.getInstance().apply { time = logRecord.time!! }
 
                 //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
                 DatePickerDialog(
                     this@LogActivity,
-                    DatePickerDialog.OnDateSetListener{ _, year, month, day ->
+                    DatePickerDialog.OnDateSetListener { _, year, month, day ->
                         cal.apply {
                             set(Calendar.YEAR, year)
                             set(Calendar.MONTH, month)
@@ -140,8 +159,8 @@ class LogActivity : AppCompatActivity() {
                         }
                         TimePickerDialog(
                             this@LogActivity,
-                            TimePickerDialog.OnTimeSetListener{ _, hour, min ->
-                                cal.apply{
+                            TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                                cal.apply {
                                     set(Calendar.HOUR_OF_DAY, hour)
                                     set(Calendar.MINUTE, min)
                                 }
@@ -163,15 +182,15 @@ class LogActivity : AppCompatActivity() {
             }
 
             val quantity = logRecord.quantity
-            if( quantity != null ){
+            if (quantity != null) {
                 holder.quantity.setOnClickListener {
                     EditQuantityLogFragment().run {
                         arguments = Bundle().apply {
                             putString("Id", logRecord.id!!.toString())
-                            putString("MedicineName", logRecord.event_name )
+                            putString("MedicineName", logRecord.event_name)
                             putString("Quantity", quantity.toString())
                         }
-                        show( supportFragmentManager, "EditQuantity" )
+                        show(supportFragmentManager, "EditQuantity")
                     }
                 }
             }
