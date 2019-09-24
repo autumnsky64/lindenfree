@@ -8,9 +8,6 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import io.realm.Realm
-import io.realm.kotlin.createObject
-import io.realm.kotlin.where
 import java.util.*
 
 class InSleepFragment : DialogFragment() {
@@ -24,22 +21,10 @@ class InSleepFragment : DialogFragment() {
 
         //起床ボタンをタップで時刻を入力、長押しでタイムピッカーから入力して終了
         val awakeButton = sleepingDialog.findViewById<Button>(R.id.awake_button)
+        val event = awakeButton.text.toString()
 
         awakeButton.setOnClickListener {
-            val realm = Realm.getDefaultInstance()
-
-            realm.executeTransaction {
-                val maxId = realm.where<EventLog>().max("id")?.toLong()?:0
-                val newId = maxId + 1
-
-                val log = realm.createObject<EventLog>(newId).apply{
-                    event_name = getString(R.string.awake)
-                    time = Calendar.getInstance().time
-                }
-                realm.copyToRealmOrUpdate(log)
-            }
-
-            realm.close()
+            MainActivity().insertLog( event, Calendar.getInstance() )
 
             Toast.makeText(
                 context,

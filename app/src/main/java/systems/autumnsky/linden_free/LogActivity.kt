@@ -117,8 +117,7 @@ class LogActivity : AppCompatActivity() {
         RealmRecyclerViewAdapter<EventLog, LogHolder>(log, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder {
-            val row =
-                LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
+            val row = LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
             return LogHolder(row)
         }
 
@@ -174,6 +173,7 @@ class LogActivity : AppCompatActivity() {
                                     logRecord.time = cal.time
                                 }
                                 realm.close()
+
                             },
                             cal.get(Calendar.HOUR_OF_DAY),
                             cal.get(Calendar.MINUTE),

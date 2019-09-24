@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         false
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +84,9 @@ class MainActivity : AppCompatActivity() {
                 .equalTo("event_name",medicine?.name)
                 .findFirst()?.time
         }
-        if( doseTime != null){ updateButton(findViewById(R.id.dose_button), DateFormat.format( "HH:mm", doseTime).toString()) }
+        if( doseTime != null){
+            updateButton(findViewById(R.id.dose_button), DateFormat.format( "HH:mm", doseTime).toString())
+        }
 
         // Sleepボタン
         findViewById<Button>(R.id.sleep_button).setOnClickListener{
@@ -234,10 +235,10 @@ class MainActivity : AppCompatActivity() {
         ).show()
     }
 
-    private fun insertLog(event: String?, cal: Calendar) {
+    fun insertLog(event: String?, cal: Calendar) {
 
         val realm = Realm.getDefaultInstance()
-        var newId: Long = realm.where<EventLog>().max("id")?.toLong()?:0 + 1
+        var newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
 
         when (event) {
             "Dose" -> {
