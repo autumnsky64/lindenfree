@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
@@ -27,8 +27,7 @@ import java.util.*
 
 class LogActivity : AppCompatActivity() {
 
-    private val onNavigationItemSelectedListener =
-        BottomNavigationView.OnNavigationItemSelectedListener { item ->
+    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_log -> {
                     val intent = Intent(applicationContext, LogActivity::class.java)
@@ -63,7 +62,9 @@ class LogActivity : AppCompatActivity() {
                 ) {
                     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     ActivityCompat.requestPermissions(this, permissions, 1000)
+
                 }
+                writeCsv()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -71,8 +72,12 @@ class LogActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>, grantResults: IntArray ) {
         if (requestCode == 1000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(applicationContext, "CSV 出力！", Toast.LENGTH_LONG)
+            writeCsv()
         }
+    }
+
+    private fun writeCsv(){
+        Snackbar.make(findViewById(R.id.snack_bar_container), "CSV 出力！", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +87,7 @@ class LogActivity : AppCompatActivity() {
         val layout = LinearLayoutManager(applicationContext)
         val eventLog = Realm.getDefaultInstance().where<EventLog>().findAll()
 
-        findViewById<RecyclerView>(R.id.log_table).run {
+        findViewById<RecyclerView>(R.id.log_table_body).run {
             layoutManager = layout
             adapter = RealmAdapter(eventLog)
             addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
