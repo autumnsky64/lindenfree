@@ -66,7 +66,6 @@ class LogActivity : AppCompatActivity() {
                     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     ActivityCompat.requestPermissions(this, permissions, 1000)
                 }
-                createCsv()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -78,12 +77,12 @@ class LogActivity : AppCompatActivity() {
         }
     }
 
-    private val WRITE_REQUEST_CODE: Int = 43
+    private val WRITE_REQUEST_CODE: Int = 563
     private fun createCsv(){
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "text/txt"
-            putExtra(Intent.EXTRA_TITLE, "linden_free_log.text")
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TITLE, "linden_free_log.txt")
         }
         startActivityForResult(intent, WRITE_REQUEST_CODE)
     }
