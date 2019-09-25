@@ -156,8 +156,10 @@ class MainActivity : AppCompatActivity() {
                 for ( i in 0..4){
                     qtyList.add( min + (adjust * i ))
                 }
+                spinner.setSelection(2)
             } else if (default != null){
                 qtyList.add(default)
+                spinner.setSelection(0)
             } else {
                 spinner.visibility = View.INVISIBLE
                 unitLabel.visibility = View.INVISIBLE
@@ -166,7 +168,6 @@ class MainActivity : AppCompatActivity() {
             val adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, qtyList)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spinner.adapter = adapter
-            spinner.setSelection(2)
         }
     }
 
