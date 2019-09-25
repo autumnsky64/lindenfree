@@ -65,6 +65,8 @@ class LogActivity : AppCompatActivity() {
                 ) {
                     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     ActivityCompat.requestPermissions(this, permissions, 1000)
+                }else{
+                    createCsv()
                 }
             }
         }
