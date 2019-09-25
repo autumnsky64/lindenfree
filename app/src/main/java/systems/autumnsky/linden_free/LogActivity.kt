@@ -97,14 +97,17 @@ class LogActivity : AppCompatActivity() {
                     val buffer = BufferedOutputStream(it, Context.MODE_APPEND)
                     buffer.write(header.toByteArray())
 
-                    Realm.getDefaultInstance().where<EventLog>().sort("id", Sort.ASCENDING).findAll().forEach {
-                        buffer.write("${it.time}\t${it.event_name}\t${it.quantity}\n".toByteArray())
+                    Realm.getDefaultInstance().where<EventLog>().sort("id", Sort.ASCENDING).findAll().forEach { record ->
+                        val timeString = DateFormat.format("yyyy/MM/dd kk:mm", record.time )
+                        val quantityString = if( record.quantity != null ) DecimalFormat("#.##").format(record.quantity!!) else ""
+
+                        buffer.write("${timeString}\t${record.event_name}\t${quantityString}\n".toByteArray())
                     }
 
                     buffer.flush()
                     buffer.close()
 
-                    Snackbar.make(findViewById(R.id.snack_bar_container), "CSV 出力！", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(findViewById(R.id.snack_bar_container), "Log text file has been saved. ", Snackbar.LENGTH_LONG).show()
                 }
             }
         }
