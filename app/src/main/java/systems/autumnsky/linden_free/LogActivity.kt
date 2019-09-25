@@ -1,8 +1,10 @@
 package systems.autumnsky.linden_free
 
 import android.Manifest
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -21,7 +23,9 @@ import com.google.android.material.snackbar.Snackbar
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
+import io.realm.Sort
 import io.realm.kotlin.where
+import java.io.BufferedOutputStream
 import java.text.DecimalFormat
 import java.util.*
 
@@ -56,15 +60,13 @@ class LogActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.dl_log -> {
-                // TODO: ログファイルの保存処理
                 if (ActivityCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE )
                     != PackageManager.PERMISSION_GRANTED
                 ) {
                     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     ActivityCompat.requestPermissions(this, permissions, 1000)
-
                 }
-                writeCsv()
+                createCsv()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -72,12 +74,42 @@ class LogActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>, grantResults: IntArray ) {
         if (requestCode == 1000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            writeCsv()
+            createCsv()
         }
     }
 
-    private fun writeCsv(){
-        Snackbar.make(findViewById(R.id.snack_bar_container), "CSV 出力！", Snackbar.LENGTH_LONG).show()
+    private val WRITE_REQUEST_CODE: Int = 43
+    private fun createCsv(){
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "text/txt"
+            putExtra(Intent.EXTRA_TITLE, "linden_free_log.text")
+        }
+        startActivityForResult(intent, WRITE_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK ){
+            data?.data?.let{ fileUri ->
+                val stream = contentResolver.openOutputStream( fileUri, "wa" )
+                stream?.let{
+                    val header = "Time\tEvent\tQuantity\n"
+                    val buffer = BufferedOutputStream(it, Context.MODE_APPEND)
+                    buffer.write(header.toByteArray())
+
+                    Realm.getDefaultInstance().where<EventLog>().sort("id", Sort.ASCENDING).findAll().forEach {
+                        buffer.write("${it.time}\t${it.event_name}\t${it.quantity}\n".toByteArray())
+                    }
+
+                    buffer.flush()
+                    buffer.close()
+
+                    Snackbar.make(findViewById(R.id.snack_bar_container), "CSV 出力！", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
