@@ -90,29 +90,35 @@ class LogActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK ){
-            data?.data?.let{ fileUri ->
-                val stream = contentResolver.openOutputStream( fileUri, "wa" )
-                stream?.let{
-                    val header = "Time\tEvent\tQuantity\n"
-                    val buffer = BufferedOutputStream(it, Context.MODE_APPEND)
-                    buffer.write(header.toByteArray())
 
-                    Realm.getDefaultInstance().where<EventLog>().sort("id", Sort.ASCENDING).findAll().forEach { record ->
-                        val timeString = DateFormat.format("yyyy/MM/dd kk:mm", record.time )
-                        val quantityString = if( record.quantity != null ) DecimalFormat("#.##").format(record.quantity!!) else ""
-
-                        buffer.write("${timeString}\t${record.event_name}\t${quantityString}\n".toByteArray())
-                    }
-
-                    buffer.flush()
-                    buffer.close()
-
-                    Snackbar.make(findViewById(R.id.snack_bar_container), "Log text file has been saved. ", Snackbar.LENGTH_LONG).show()
-                }
-            }
+        if (requestCode != WRITE_REQUEST_CODE || resultCode != Activity.RESULT_OK ) {
+            super.onActivityResult(requestCode, resultCode, data)
+            return
         }
 
+        data?.data?.let{ fileUri ->
+            contentResolver.openOutputStream( fileUri, "wa" )?.let{
+
+                BufferedOutputStream(it, Context.MODE_APPEND).run {
+                    val header = "Time\tEvent\tQuantity\n"
+                    write(header.toByteArray())
+
+                    Realm.getDefaultInstance().where<EventLog>()
+                        .sort("id", Sort.ASCENDING)
+                        .findAll()
+                        .forEach { record ->
+                            val timeString = DateFormat.format("yyyy/MM/dd kk:mm", record.time )
+                            val quantityString = if( record.quantity != null ) DecimalFormat("#.##").format(record.quantity!!) else ""
+
+                            write("${timeString}\t${record.event_name}\t${quantityString}\n".toByteArray())
+                        }
+                    flush()
+                    close()
+                }
+
+                Snackbar.make(findViewById(R.id.snack_bar_container), "Log text file has been saved. ", Snackbar.LENGTH_LONG).show()
+            }
+        }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
