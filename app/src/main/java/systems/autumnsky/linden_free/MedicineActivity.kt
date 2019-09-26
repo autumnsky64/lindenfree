@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -15,6 +16,7 @@ import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.where
+import kotlinx.android.synthetic.main.medicine_row.view.*
 import java.text.DecimalFormat
 
 class MedicineActivity : AppCompatActivity() {
@@ -62,15 +64,46 @@ class MedicineActivity : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
 
         // 登録している薬一覧を表示
+        val medicineList = findViewById<RecyclerView>(R.id.medicine_list)
         val layout = LinearLayoutManager(applicationContext)
         realm.where<Medicine>().findAll()?.let {
-            findViewById<RecyclerView>(R.id.medicine_list).run {
+            medicineList.run {
                 layoutManager = layout
                 adapter = RealmAdapter(it)
                 addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
             }
         }
         realm.close()
+
+        val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT){
+            override fun onMove( recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                AlertDialog.Builder(this@MedicineActivity)
+                    .setTitle("Delete " + "?")
+                    .setPositiveButton("Yes"){ _, _ ->
+                        // medicine tableからの削除
+                        val id = viewHolder.itemView.medicine_id.text.toString()
+                        Realm.getDefaultInstance().apply{
+                            val targetMedicine = where<Medicine>().equalTo("id", id).findFirst()
+                            val targetEvent = where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
+                            executeTransaction {
+                                targetEvent?.deleteAllFromRealm()
+                                targetMedicine?.deleteFromRealm()
+                            }
+                        }.also { it.close() }
+                    }
+                    .setNegativeButton("No"){ _ , _ ->
+                        //スワイプで行表示が消えたままになるので何も変わってないが再描画
+                        medicineList.adapter?.notifyDataSetChanged()
+                    }
+                    .show()
+            }
+        })
+        helper.attachToRecyclerView(medicineList)
+        medicineList.addItemDecoration(helper)
 
         // 下部ナビゲーション
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
@@ -81,6 +114,7 @@ class MedicineActivity : AppCompatActivity() {
     // 薬テーブルの一覧表示
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var medicine: ConstraintLayout
+        var medicine_id : TextView
         var name: TextView
         var quantity: TextView
         var step: TextView
@@ -92,6 +126,7 @@ class MedicineActivity : AppCompatActivity() {
 
         init {
             medicine = itemView.findViewById(R.id.medicine)
+            medicine_id = itemView.findViewById(R.id.medicine_id)
             name = itemView.findViewById(R.id.medicine_name)
             quantity = itemView.findViewById(R.id.regular_quantity)
             step = itemView.findViewById(R.id.adjustment_step)
@@ -113,6 +148,7 @@ class MedicineActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
             val medicine = medicines[position]
+            holder.medicine_id.text = medicine?.id
             holder.name.text = medicine?.name
 
             // 量の表示 0の時はラベルとかも非表示
@@ -145,7 +181,7 @@ class MedicineActivity : AppCompatActivity() {
                 }
             }
 
-            // リスナー
+            // タップで編集
             holder.medicine.setOnClickListener{
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
                 EditMedicineFragment().run {
@@ -158,32 +194,11 @@ class MedicineActivity : AppCompatActivity() {
                     show(supportFragmentManager,"medicine")
                 }
             }
-
-            holder.medicine.setOnLongClickListener {
-                 // 薬の削除は長押しでAlertDialogを表示してから
-                AlertDialog.Builder(this@MedicineActivity)
-                    .setTitle("Delete " + medicine?.name + "?")
-                    .setPositiveButton("Yes"){ _, _ ->
-                        // medicine tableからの削除
-                        val realm = Realm.getDefaultInstance()
-
-                        val targetMedicine = realm.where<Medicine>().equalTo("id",medicine?.id).findFirst()
-                        val targetEvent = realm.where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
-
-                        realm.executeTransaction {
-                            targetEvent?.deleteAllFromRealm()
-                            targetMedicine?.deleteFromRealm()
-                        }
-                        realm.close()
-                    }
-                    .setNegativeButton("No", null)
-                    .show()
-                return@setOnLongClickListener true
-            }
         }
 
         override fun getItemCount(): Int {
             return medicines.size
         }
     }
+
 }

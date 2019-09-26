@@ -237,13 +237,7 @@ class LogOutputTest {
 
         val appCompatButton5 = onView(
             allOf(
-                withId(R.id.dose_button), withText("Dose"), childAtPosition(
-                    allOf(
-                        withId(R.id.constraintLayout), childAtPosition(
-                            withId(R.id.medicine), 3
-                        )
-                    ), 0
-                ), isDisplayed()
+                withId(R.id.dose_button) , isDisplayed()
             )
         )
         appCompatButton5.perform(click())
@@ -261,44 +255,27 @@ class LogOutputTest {
         )
         spinner.perform(click())
 
-        val bottomNavigationItemView3 = onView(
+        val appCompatButton6 =onView(
             allOf(
-                withId(R.id.navigation_log), withContentDescription("Log"), childAtPosition(
-                    childAtPosition(
-                        withId(R.id.nav_view), 0
-                    ), 2
-                ), isDisplayed()
-            )
-        )
-        bottomNavigationItemView3.perform(click())
-
-        val bottomNavigationItemView4 = onView(
-            allOf(
-                withId(R.id.navigation_home), withContentDescription("Home"), childAtPosition(
-                    childAtPosition(
-                        withId(R.id.nav_view), 0
-                    ), 1
-                ), isDisplayed()
-            )
-        )
-        bottomNavigationItemView4.perform(click())
-
-        val appCompatButton6 = onView(
-            allOf(
-                withId(R.id.sleep_button), withText("Sleep"), childAtPosition(
+                withId(R.id.sleep_button), withText("Sleep"),
+                childAtPosition(
                     allOf(
-                        withId(R.id.medicine), childAtPosition(
-                            withId(android.R.id.content), 0
+                        withId(R.id.medicine),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
                         )
-                    ), 2
-                ), isDisplayed()
+                    ),
+                    2
+                ),
+                isDisplayed()
             )
         )
         appCompatButton6.perform(click())
 
         val appCompatButton7 = onView(
             allOf(
-                withId(R.id.awake_button), withText("Awake"), childAtPosition(
+                withId(R.id.awake_button), childAtPosition(
                     allOf(
                         withId(R.id.in_sleep_fragment), childAtPosition(
                             withId(android.R.id.content), 0

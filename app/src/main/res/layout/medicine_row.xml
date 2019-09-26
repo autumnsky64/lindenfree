@@ -10,7 +10,7 @@
 
 
     <TextView
-            android:text="ロヒプノール"
+            android:text="Medicine Name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/medicine_name"
@@ -83,5 +83,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/medicine_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="@+id/medicine_name"
+        app:layout_constraintTop_toTopOf="@+id/constraintLayout2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
