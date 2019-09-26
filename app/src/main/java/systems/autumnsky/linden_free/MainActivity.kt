@@ -290,18 +290,32 @@ class MainActivity : AppCompatActivity() {
                     if (row === null) { continue }
 
                     val name =  row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                    realm.executeTransaction {
-                        realm.where<EventLog>()
-                            .greaterThanOrEqualTo("time", oldDate)
-                            .equalTo("event_name", name)
-                            .findFirst()?.apply{
+                    val targetRecord = realm.where<EventLog>()
+                        .greaterThanOrEqualTo("time", oldDate)
+                        .equalTo("event_name", name)
+                        .findFirst()
 
+                    if ( targetRecord != null) {
+                        //update
+                        realm.executeTransaction {
+                            targetRecord.apply {
                                 time = newCal.time
                                 quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
-
+                            }
+                        }
+                    } else {
+                        //insert
+                        realm.executeTransaction {
+                            val newId = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
+                            realm.createObject<EventLog>(newId).apply {
+                                event_name = name
+                                time = newCal.time
+                                quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
                             }
                         }
                     }
+                }
+
             } else -> {
                 realm.executeTransaction{
                     realm.where<EventLog>()
