@@ -1,5 +1,6 @@
 package systems.autumnsky.linden_free
 
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,32 +36,28 @@ class InSleepFragment : DialogFragment() {
             dismiss()
         }
 
-        return sleepingDialog
 
-        // TODO:ダイアログフラグメントからダイアログフラグメントは直接は呼び出せない
-/*        awakeButton.setOnLongClickListener { view: View ->
+        awakeButton.setOnLongClickListener { _ ->
             val cal = Calendar.getInstance()
             val timeSetListener = TimePickerDialog.OnTimeSetListener { TimePicker, hour, min ->
                 cal.set(Calendar.HOUR_OF_DAY, hour)
                 cal.set(Calendar.MINUTE, min)
 
-                val realm = Realm.getDefaultInstance()
-                var id = realm.where<EventLog>().count() + 1
-                val log = realm.createObject<EventLog>(id)
-
-                realm.executeTransaction{
-                    log.event_name = getString(R.string.awake)
-                    log.time = Calendar.getInstance().time
-                }
+                MainActivity().insertLog( event, cal )
             }
 
             TimePickerDialog(
-            view.context,
-            timeSetListener,
-            cal.get(Calendar.HOUR_OF_DAY),
-            cal.get(Calendar.MINUTE),true).show(),
-                )
+                activity,
+                timeSetListener,
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                true
+            ).show()
 
-        }*/
+            dismiss()
+            return@setOnLongClickListener true
+        }
+
+        return sleepingDialog
     }
 }
