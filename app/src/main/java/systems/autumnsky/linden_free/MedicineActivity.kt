@@ -73,7 +73,6 @@ class MedicineActivity : AppCompatActivity() {
                 addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
             }
         }
-        realm.close()
 
         val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT){
             override fun onMove( recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
@@ -86,9 +85,11 @@ class MedicineActivity : AppCompatActivity() {
                     .setPositiveButton("Yes"){ _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.medicine_id.text.toString()
+
                         Realm.getDefaultInstance().apply{
                             val targetMedicine = where<Medicine>().equalTo("id", id).findFirst()
                             val targetEvent = where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
+
                             executeTransaction {
                                 targetEvent?.deleteAllFromRealm()
                                 targetMedicine?.deleteFromRealm()
