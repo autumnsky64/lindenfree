@@ -143,8 +143,14 @@ class LogActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val timeString = viewHolder.itemView.time_cell.text.toString()
+                val eventName = viewHolder.itemView.event_cell.text.toString()
+                val quantityString = viewHolder.itemView.qty_cell.text.toString()
+
                 AlertDialog.Builder(this@LogActivity)
-                    .setTitle("Delete " + "?")
+                    .setTitle("Delete this record?")
+                    .setMessage("$timeString \n$eventName $quantityString")
+
                     .setPositiveButton("Yes"){ _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.log_id.text?.toString()?.toLong()

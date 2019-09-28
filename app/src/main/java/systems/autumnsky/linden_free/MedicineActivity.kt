@@ -80,8 +80,9 @@ class MedicineActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
                 AlertDialog.Builder(this@MedicineActivity)
-                    .setTitle("Delete " + "?")
+                    .setTitle("Delete ${viewHolder.itemView.medicine_name.text.toString()}?")
                     .setPositiveButton("Yes"){ _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.medicine_id.text.toString()
