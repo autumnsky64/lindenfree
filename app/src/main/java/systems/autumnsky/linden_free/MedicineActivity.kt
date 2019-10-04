@@ -3,10 +3,12 @@ package systems.autumnsky.linden_free
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,10 +52,16 @@ class MedicineActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when( item.itemId ){
             R.id.add_medicine -> {
-                val dialog = EditMedicineFragment()
-                dialog.show(supportFragmentManager,"medicine")
+
+                EditMedicineFragment().show(supportFragmentManager,"medicine")
+
+                //初回起動時のツールチップを消す
+                findViewById<TextView>(R.id.description_add_medicine)?.let{ it.visibility = View.INVISIBLE }
+                findViewById<ImageView>(R.id.arrow_add_medicine)?.let{ it.visibility = View.INVISIBLE }
+
             }
-        }
+
+            }
         return super.onOptionsItemSelected(item)
     }
 
@@ -81,27 +89,30 @@ class MedicineActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
-                AlertDialog.Builder(this@MedicineActivity)
-                    .setTitle("Delete ${viewHolder.itemView.medicine_name.text.toString()}?")
-                    .setPositiveButton("Yes"){ _, _ ->
+                AlertDialog.Builder(this@MedicineActivity).run{
+                    setTitle("Delete ${viewHolder.itemView.medicine_name.text.toString()}?")
+                    setPositiveButton("Yes") { _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.medicine_id.text.toString()
 
-                        Realm.getDefaultInstance().apply{
+                        Realm.getDefaultInstance().apply {
                             val targetMedicine = where<Medicine>().equalTo("id", id).findFirst()
-                            val targetEvent = where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
+                            val targetEvent =
+                                where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
 
                             executeTransaction {
                                 targetEvent?.deleteAllFromRealm()
                                 targetMedicine?.deleteFromRealm()
                             }
-                        }.also { it.close() }
+                            close()
+                        }
                     }
-                    .setNegativeButton("No"){ _ , _ ->
+                    setNegativeButton("No") { _, _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
                         medicineList.adapter?.notifyDataSetChanged()
                     }
-                    .show()
+                    show()
+                }
             }
         })
         helper.attachToRecyclerView(medicineList)
@@ -111,6 +122,14 @@ class MedicineActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_medicine
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        //初回起動時のツールチップ表示
+        if( !AppLaunchChecker.hasStartedFromLauncher(this)) {
+                val decorView = this@MedicineActivity.window.decorView as ViewGroup
+                decorView.addView(
+                    LayoutInflater.from(this@MedicineActivity).inflate(R.layout.tutorial_medicine_activity, null)
+                )
+        }
     }
 
     // 薬テーブルの一覧表示

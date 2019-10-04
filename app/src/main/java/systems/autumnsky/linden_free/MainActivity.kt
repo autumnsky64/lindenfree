@@ -15,6 +15,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,6 +53,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //初回起動時はMedicineActivityへ
+        if( !AppLaunchChecker.hasStartedFromLauncher(this)){
+            if ( Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
+                startActivity(Intent(applicationContext, MedicineActivity::class.java))
+            } else {
+                //薬が登録されていれば、ボタン
+                val decorView = this@MainActivity.window.decorView as ViewGroup
+                decorView.addView(
+                    LayoutInflater.from(this@MainActivity).inflate(R.layout.tutorial_main_activity, null)
+                )
+
+            }
+        }
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_home

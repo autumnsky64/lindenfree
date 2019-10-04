@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import io.realm.Realm
@@ -85,6 +86,19 @@ class EditMedicineFragment : DialogFragment() {
                 }
             }
             realm.close()
+
+            //初回チュートリアル用バルーン
+            activity?.apply{
+                if ( Realm.getDefaultInstance().where<Medicine>().findAll().count() == 1) {
+                    findViewById<TextView>(R.id.description_medicine_row)?.visibility = View.VISIBLE
+                    findViewById<ImageView>(R.id.arrow_medicine_row)?.visibility = View.VISIBLE
+                    findViewById<TextView>(R.id.description_to_home)?.visibility = View.VISIBLE
+                    findViewById<ImageView>(R.id.arrow_to_home)?.visibility = View.VISIBLE
+                } else {
+                    findViewById<TextView>(R.id.description_medicine_row)?.let{ it.visibility = View.INVISIBLE }
+                    findViewById<ImageView>(R.id.arrow_medicine_row)?.let{ it.visibility = View.INVISIBLE }
+                }
+            }
             dismiss()
         }
 
