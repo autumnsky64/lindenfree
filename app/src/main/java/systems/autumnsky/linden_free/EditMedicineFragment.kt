@@ -87,20 +87,28 @@ class EditMedicineFragment : DialogFragment() {
             }
             realm.close()
 
-            //初回チュートリアル用バルーン
+            if ( (activity?.application as LindenFreeApp).isFirstLaunch ) {
+                showMedicineRowTutorial()
+            }
+
+            dismiss()
+        }
+
+        //初回チュートリアル用バルーン
+        private fun showMedicineRowTutorial() {
             activity?.apply{
                 if ( Realm.getDefaultInstance().where<Medicine>().findAll().count() == 1) {
+                    //薬が一つ登録されている時は、リサイクラービューの操作チップを表示
                     findViewById<TextView>(R.id.description_medicine_row)?.visibility = View.VISIBLE
                     findViewById<ImageView>(R.id.arrow_medicine_row)?.visibility = View.VISIBLE
                     findViewById<TextView>(R.id.description_to_home)?.visibility = View.VISIBLE
                     findViewById<ImageView>(R.id.arrow_to_home)?.visibility = View.VISIBLE
                 } else {
+                    //薬が2つ以上なら非表示、バルーンが2行目に被る
                     findViewById<TextView>(R.id.description_medicine_row)?.let{ it.visibility = View.INVISIBLE }
                     findViewById<ImageView>(R.id.arrow_medicine_row)?.let{ it.visibility = View.INVISIBLE }
                 }
             }
-            dismiss()
         }
-
     }
 }

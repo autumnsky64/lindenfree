@@ -50,27 +50,31 @@ class MainActivity : AppCompatActivity() {
         false
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        //初回起動時はMedicineActivityへ
-        if( !AppLaunchChecker.hasStartedFromLauncher(this)){
+    private fun showTutorial() {
+        if( (application as LindenFreeApp).isFirstLaunch ){
             if ( Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
+                //初回起動時はMedicineActivityへ
                 startActivity(Intent(applicationContext, MedicineActivity::class.java))
             } else {
-                //薬が登録されていれば、ボタン
+                //薬が登録されていれば、調整スピナーやログビューのバルーン表示
                 val decorView = this@MainActivity.window.decorView as ViewGroup
                 decorView.addView(
                     LayoutInflater.from(this@MainActivity).inflate(R.layout.tutorial_main_activity, null)
                 )
-
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        AppLaunchChecker.onActivityCreate(this)
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_home
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        showTutorial()
 
         // 日付ラベル
         findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
@@ -234,7 +238,8 @@ class MainActivity : AppCompatActivity() {
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
 
-            val labelMap: Map<String, String> = labelAttribute(button)
+            val labelMap: Map<String, String> =
+                labelAttribute(button)
             if (labelMap["default"] == labelMap["current"]){
                 insertLog( labelMap["default"], cal )
             }else{

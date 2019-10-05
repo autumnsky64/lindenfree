@@ -174,6 +174,7 @@ class LogActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_log
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
     }
 
     private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

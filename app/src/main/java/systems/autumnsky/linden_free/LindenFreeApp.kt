@@ -1,6 +1,7 @@
 package systems.autumnsky.linden_free
 
 import android.app.Application
+import androidx.core.app.AppLaunchChecker
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.kotlin.createObject
@@ -8,8 +9,14 @@ import java.util.*
 
 
 class LindenFreeApp : Application() {
+
+    var isFirstLaunch: Boolean = false
+
     override fun onCreate() {
         super.onCreate()
+
+        isFirstLaunch = !AppLaunchChecker.hasStartedFromLauncher(applicationContext)
+
         Realm.init(this)
         val config = RealmConfiguration.Builder().schemaVersion(1).build()
         Realm.setDefaultConfiguration(config)

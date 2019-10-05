@@ -8,7 +8,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -124,14 +123,17 @@ class MedicineActivity : AppCompatActivity() {
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
         //初回起動時のツールチップ表示
-        if( !AppLaunchChecker.hasStartedFromLauncher(this)) {
-                val decorView = this@MedicineActivity.window.decorView as ViewGroup
-                decorView.addView(
-                    LayoutInflater.from(this@MedicineActivity).inflate(R.layout.tutorial_medicine_activity, null)
-                )
-        }
+        showTutorial()
     }
 
+    private fun showTutorial(){
+        if( (application as LindenFreeApp).isFirstLaunch ) {
+            val decorView = this@MedicineActivity.window.decorView as ViewGroup
+            decorView.addView(
+                LayoutInflater.from(this@MedicineActivity).inflate(R.layout.tutorial_medicine_activity, null)
+            )
+        }
+    }
     // 薬テーブルの一覧表示
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var medicine: ConstraintLayout
