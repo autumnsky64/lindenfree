@@ -137,6 +137,7 @@ class LogActivity : AppCompatActivity() {
             addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
         }
 
+        //swipe操作
         val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT){
             override fun onMove( recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
                 return false
@@ -174,7 +175,18 @@ class LogActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_log
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
-}
+
+        showTutorial()
+    }
+
+    private fun showTutorial() {
+        if( (application as LindenFreeApp).isFirstLaunch){
+            val decorView = this@LogActivity.window.decorView as ViewGroup
+            decorView.addView(
+                LayoutInflater.from(this@LogActivity).inflate(R.layout.tutorial_log_activity, null)
+            )
+        }
+    }
 
     private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var logRow: ConstraintLayout
