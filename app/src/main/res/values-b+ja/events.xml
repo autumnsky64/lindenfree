@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awake">起床</string>
+    <string name="dose">服薬</string>
+    <string name="in_bed">就寝</string>
+    <string name="sleep">入眠</string>
+</resources>

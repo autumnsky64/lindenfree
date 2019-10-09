@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import io.realm.Realm
+import io.realm.kotlin.createObject
+import io.realm.kotlin.where
 import java.util.*
 
 class InSleepFragment : DialogFragment() {
@@ -22,28 +24,39 @@ class InSleepFragment : DialogFragment() {
 
         //起床ボタンをタップで時刻を入力、長押しでタイムピッカーから入力して終了
         val awakeButton = sleepingDialog.findViewById<Button>(R.id.awake_button)
-        val event = awakeButton.text.toString()
 
         awakeButton.setOnClickListener {
-            MainActivity().insertLog( event, Calendar.getInstance() )
+            val realm = Realm.getDefaultInstance()
+            val newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
 
-            Toast.makeText(
-                context,
-                "Good Morning! Recorded awake time.",
-                Toast.LENGTH_LONG
-            ).show()
-
+            realm.executeTransaction{
+                val newRecord = realm.createObject<EventLog>(newId).apply {
+                    time = Calendar.getInstance().time
+                    event_name = awakeButton.text.toString()
+                }
+                realm.copyToRealm(newRecord)
+            }
+            realm.close()
             dismiss()
         }
 
-
         awakeButton.setOnLongClickListener { _ ->
             val cal = Calendar.getInstance()
-            val timeSetListener = TimePickerDialog.OnTimeSetListener { TimePicker, hour, min ->
+            val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
                 cal.set(Calendar.HOUR_OF_DAY, hour)
                 cal.set(Calendar.MINUTE, min)
 
-                MainActivity().insertLog( event, cal )
+                val realm = Realm.getDefaultInstance()
+                val newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
+
+                realm.executeTransaction{
+                    val newRecord = realm.createObject<EventLog>(newId).apply {
+                        time = cal.time
+                        event_name = awakeButton.text.toString()
+                    }
+                    realm.copyToRealm(newRecord)
+                }
+                realm.close()
             }
 
             TimePickerDialog(
@@ -53,8 +66,8 @@ class InSleepFragment : DialogFragment() {
                 cal.get(Calendar.MINUTE),
                 true
             ).show()
-
             dismiss()
+
             return@setOnLongClickListener true
         }
 

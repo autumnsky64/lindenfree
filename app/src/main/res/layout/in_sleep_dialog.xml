@@ -26,19 +26,19 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
-            android:text="Sleeping since"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/in_sleep_time_title"
-            android:textSize="24sp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/in_sleep_time"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/guideline7"
-            android:layout_marginStart="8dp"
-            app:layout_constraintStart_toStartOf="@+id/guideline6"/>
+        android:id="@+id/in_sleep_time_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/sleeping_since"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/in_sleep_time"
+        app:layout_constraintEnd_toStartOf="@+id/guideline7"
+        app:layout_constraintStart_toStartOf="@+id/guideline6"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
             android:text="In Sleep Time"

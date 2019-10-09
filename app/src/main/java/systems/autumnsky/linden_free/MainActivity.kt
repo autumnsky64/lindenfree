@@ -264,7 +264,7 @@ class MainActivity : AppCompatActivity() {
         var newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
 
         when (event) {
-            "Dose" -> {
+            getText(R.string.dose) -> {
                 val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
 
                 for (i in 0..medicineList.childCount) {
@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
     private fun  updateLog(event: String?, oldDate: Date, newCal: Calendar) {
         val realm = Realm.getDefaultInstance()
         when (event) {
-            "Dose" -> {
+            getText(R.string.dose) -> {
                 val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
 
                 for (i in 0..medicineList.childCount) {

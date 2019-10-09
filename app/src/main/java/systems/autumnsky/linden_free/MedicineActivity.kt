@@ -89,8 +89,9 @@ class MedicineActivity : AppCompatActivity() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
                 AlertDialog.Builder(this@MedicineActivity).run{
-                    setTitle("Delete ${viewHolder.itemView.medicine_name.text.toString()}?")
-                    setPositiveButton("Yes") { _, _ ->
+                    setCancelable(false)
+                    setTitle(getString(R.string.title_delete_medicine, viewHolder.itemView.medicine_name.text.toString()))
+                    setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.medicine_id.text.toString()
 
@@ -106,7 +107,7 @@ class MedicineActivity : AppCompatActivity() {
                             close()
                         }
                     }
-                    setNegativeButton("No") { _, _ ->
+                    setNegativeButton(getText(R.string.dialog_cancel)) { _, _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
                         medicineList.adapter?.notifyDataSetChanged()
                     }

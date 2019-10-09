@@ -2,19 +2,32 @@
     <string name="app_name">LindenFree</string>
 
     <string name="title_home">Home</string>
-    <string name="title_log">Log</string>
     <string name="title_medicine">Medicine</string>
+    <string name="title_log">Log</string>
 
-    <string name="title_activity_log_view">Log</string>
     <string name="title_activity_medicine">Medicines</string>
+    <string name="title_activity_log_view">Log</string>
 
+    <string name="place_holder_medicine_name">Medicine Name</string>
     <string name="label_regular_quantity">Regular Quantity</string>
     <string name="label_adjust_quantity">Adjust Per</string>
     <string name="unit">mg</string>
     <string name="label_adjust_unit">mg</string>
-
     <string name="label_save_button">Save</string>
     <string name="label_cancel_button">Cancel</string>
-    <string name="button_dose">Dose</string>
 
+    <string name="title_delete_medicine">Delete %s?</string>
+
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_cancel">Cancel</string>
+
+    <string name="title_delete_record">Delete this record?</string>
+
+    <string name="sleeping_since">Sleeping since</string>
+
+    <string name="th_time">Time</string>
+    <string name="th_event">Event</string>
+    <string name="th_quantity">Quantity</string>
+
+    <string name="snackbar_save_file_message">Log text file has been saved.</string>
 </resources>

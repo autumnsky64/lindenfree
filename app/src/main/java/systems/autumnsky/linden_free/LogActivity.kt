@@ -118,7 +118,7 @@ class LogActivity : AppCompatActivity() {
                     close()
                 }
 
-                Snackbar.make(findViewById(R.id.snack_bar_container), "Log text file has been saved. ", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(R.id.snack_bar_container), getText(R.string.snackbar_save_file_message), Snackbar.LENGTH_LONG).show()
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -148,10 +148,10 @@ class LogActivity : AppCompatActivity() {
                 val quantityString = viewHolder.itemView.qty_cell.text.toString()
 
                 AlertDialog.Builder(this@LogActivity)
-                    .setTitle("Delete this record?")
+                    .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
 
-                    .setPositiveButton("Yes"){ _, _ ->
+                    .setPositiveButton(getText(R.string.dialog_delete)){ _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.log_id.text?.toString()?.toLong()
                         Realm.getDefaultInstance().apply{
@@ -160,7 +160,7 @@ class LogActivity : AppCompatActivity() {
                                 }
                         } .also { it.close() }
                     }
-                    .setNegativeButton("No"){ _ , _ ->
+                    .setNegativeButton(getText(R.string.dialog_cancel)){ _ , _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
                         logTable.adapter?.notifyDataSetChanged()
                     }
@@ -174,8 +174,7 @@ class LogActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_log
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
-
-    }
+}
 
     private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var logRow: ConstraintLayout

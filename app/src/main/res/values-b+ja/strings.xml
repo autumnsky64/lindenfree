@@ -1,20 +1,34 @@
 <resources>
     <string name="app_name">LindenFree</string>
 
-    <string name="title_home">Home</string>
-    <string name="title_log">Log</string>
-    <string name="title_medicine">Medicine</string>
+    <string name="title_home">ホーム</string>
+    <string name="title_medicine">薬</string>
+    <string name="title_log">ログ</string>
 
-    <string name="title_activity_log_view">Log</string>
-    <string name="title_activity_medicine">Medicines</string>
+    <string name="title_activity_medicine">薬</string>
+    <string name="title_activity_log_view">記録</string>
 
-    <string name="label_regular_quantity">Regular Quantity</string>
-    <string name="label_adjust_quantity">Adjust Per</string>
+    <string name="place_holder_medicine_name">薬名</string>
+    <string name="label_regular_quantity">通常</string>
+    <string name="label_adjust_quantity">調整量</string>
     <string name="unit">mg</string>
-    <string name="label_adjust_unit">mg</string>
+    <string name="label_adjust_unit">mgずつ</string>
 
-    <string name="label_save_button">Save</string>
-    <string name="label_cancel_button">Cancel</string>
+    <string name="title_delete_medicine">%sを削除しますか？</string>
 
-    <string name="button_dose">服薬</string>
+    <string name="label_save_button">保存</string>
+    <string name="label_cancel_button">キャンセル</string>
+
+    <string name="sleeping_since">睡眠中</string>
+
+    <string name="dialog_delete">削除</string>
+    <string name="dialog_cancel">キャンセル</string>
+
+    <string name="title_delete_record">この記録を削除しますか？</string>
+
+    <string name="th_time">時刻</string>
+    <string name="th_event">イベント</string>
+    <string name="th_quantity">量</string>
+
+    <string name="snackbar_save_file_message">睡眠・服薬記録のテキストファイルを保存しました</string>
 </resources>
