@@ -15,6 +15,6 @@
 
     <string name="label_save_button">Save</string>
     <string name="label_cancel_button">Cancel</string>
-    <string name="button_dose">Dose</string>
 
+    <string name="button_dose">服薬</string>
 </resources>
