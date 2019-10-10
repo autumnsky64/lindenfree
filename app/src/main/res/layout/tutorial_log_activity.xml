@@ -15,7 +15,7 @@
         android:background="@color/colorAccent"
         android:clickable="false"
         android:padding="8sp"
-        android:text="Tap time to modify date and time."
+        android:text="@string/description_log_row"
         android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,7 +29,7 @@
         android:background="@color/colorAccent"
         android:clickable="false"
         android:padding="8sp"
-        android:text="Tap icon to save log text file."
+        android:text="@string/description_save_txt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,7 +41,7 @@
         android:background="@color/colorAccent"
         android:clickable="false"
         android:padding="8sp"
-        android:text="Swipe row to delete record."
+        android:text="@string/description_swipe_row"
         app:layout_constraintStart_toStartOf="@+id/description_log_row"
         app:layout_constraintTop_toBottomOf="@+id/description_log_row" />
 
@@ -63,13 +63,14 @@
         android:id="@+id/arrow_log_row"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="185dp"
         android:rotation="90"
         android:scaleX="2"
         android:scaleY="3"
         android:tint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="@+id/description_save_txt"
-        app:layout_constraintStart_toStartOf="@+id/description_save_txt"
+        app:layout_constraintEnd_toEndOf="@+id/description_save_txt"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/description_save_txt"
         app:layout_constraintTop_toTopOf="@+id/description_save_txt"
         app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp" />
 

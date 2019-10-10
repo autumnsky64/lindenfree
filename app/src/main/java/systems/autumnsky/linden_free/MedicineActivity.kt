@@ -60,7 +60,7 @@ class MedicineActivity : AppCompatActivity() {
 
             }
 
-            }
+        }
         return super.onOptionsItemSelected(item)
     }
 
@@ -97,8 +97,7 @@ class MedicineActivity : AppCompatActivity() {
 
                         Realm.getDefaultInstance().apply {
                             val targetMedicine = where<Medicine>().equalTo("id", id).findFirst()
-                            val targetEvent =
-                                where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
+                            val targetEvent = where<Event>().equalTo("medicine.id", targetMedicine?.id).findAll()
 
                             executeTransaction {
                                 targetEvent?.deleteAllFromRealm()
@@ -209,7 +208,7 @@ class MedicineActivity : AppCompatActivity() {
             holder.medicine.setOnClickListener{
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
                 EditMedicineFragment().run {
-                    arguments =Bundle().apply {
+                    arguments = Bundle().apply {
                         putString("MedicineId", medicine?.id)
                         putString("Name", medicine?.name)
                         putDouble("Quantity", medicine?.regular_quantity?:0.0)
