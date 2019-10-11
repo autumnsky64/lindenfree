@@ -94,15 +94,16 @@ class MainActivity : AppCompatActivity() {
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         // Doseボタンの日時表示
-        val currentDate = getDateInstance().parse(findViewById<TextView>(R.id.date_label).text.toString())
-
-        val doseTime = currentDate?.let {
-            val medicine = realm.where<Medicine>().isNotNull("id").findFirst()
-            return@let realm.where<EventLog>()
-                .greaterThanOrEqualTo("time", it)
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+        }
+        val medicine = realm.where<Medicine>().findFirst()
+        val doseTime = realm.where<EventLog>()
+                .greaterThanOrEqualTo("time", today.time)
                 .equalTo("event_name",medicine?.name)
                 .findFirst()?.time
-        }
+
         if( doseTime != null){
             updateButton(findViewById(R.id.dose_button), DateFormat.format( "HH:mm", doseTime).toString())
         }
