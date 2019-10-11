@@ -10,7 +10,7 @@
 
     <string name="place_holder_medicine_name">薬名</string>
     <string name="label_regular_quantity">通常</string>
-    <string name="label_adjust_quantity">調整量</string>
+    <string name="label_adjust_quantity">調整</string>
     <string name="unit">mg</string>
     <string name="label_adjust_unit">mgずつ</string>
 
