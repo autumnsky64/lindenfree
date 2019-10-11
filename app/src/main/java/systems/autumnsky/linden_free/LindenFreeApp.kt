@@ -21,7 +21,12 @@ class LindenFreeApp : Application() {
         val config = RealmConfiguration.Builder().schemaVersion(1).build()
         Realm.setDefaultConfiguration(config)
 
-        //薬以外の必須イベントをEventモデルに追加
+        if (isFirstLaunch){
+            insertDefaultEvents()
+        }
+    }
+
+    private fun insertDefaultEvents() {
         val defaultEvents = mutableListOf(
             getString(R.string.awake),
             getString(R.string.dose),
@@ -31,15 +36,13 @@ class LindenFreeApp : Application() {
 
         val realm = Realm.getDefaultInstance()
 
-        defaultEvents.forEach {
-            val name = it
+        defaultEvents.forEach { eventName ->
             realm.executeTransaction {
                 val event = realm.createObject<Event>(UUID.randomUUID().toString())
-                event.name = name
+                event.name = eventName
                 realm.copyToRealm(event)
             }
         }
-
         realm.close()
     }
 }
