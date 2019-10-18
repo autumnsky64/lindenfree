@@ -9,11 +9,11 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.1"
+    compileSdkVersion 28
+    buildToolsVersion '29.0.1'
     defaultConfig {
         applicationId 'systems.autumnsky.linden_free'
-        minSdkVersion 27
+        minSdkVersion 25
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
