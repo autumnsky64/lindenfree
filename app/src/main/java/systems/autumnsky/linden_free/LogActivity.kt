@@ -129,7 +129,7 @@ class LogActivity : AppCompatActivity() {
         setContentView(R.layout.activity_logview)
 
         val layout = LinearLayoutManager(applicationContext)
-        val eventLog = Realm.getDefaultInstance().where<EventLog>().findAll()
+        val eventLog = Realm.getDefaultInstance().where<EventLog>().findAll().sort("time",Sort.DESCENDING)
 
         val logTable = findViewById<RecyclerView>(R.id.log_table_body).apply {
             layoutManager = layout
