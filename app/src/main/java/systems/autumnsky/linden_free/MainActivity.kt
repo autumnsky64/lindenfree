@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
 import android.icu.text.DateFormat.getDateInstance
+import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.LayoutInflater
@@ -26,6 +27,7 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import java.time.DateTimeException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -244,7 +246,7 @@ class MainActivity : AppCompatActivity() {
             if (labelMap["default"] == labelMap["current"]){
                 insertLog( labelMap["default"], cal )
             }else{
-                getDateInstance().parse( findViewById<TextView>(R.id.date_label).text.toString())?.let{ updateLog( labelMap["default"], it, cal) }
+                SimpleDateFormat("yyyy/MM/dd").parse( findViewById<TextView>(R.id.date_label).text.toString() )?.let{ updateLog( labelMap["default"], it, cal) }
             }
 
             updateButton( button, DateFormat.format("HH:mm", cal.time).toString() )
@@ -285,18 +287,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     newId += 1
                 }
+                realm.close()
             }
             else -> {
-                realm.executeTransaction {
-                    val eventLog = realm.createObject<EventLog>(newId).apply{
-                        time = cal.time
-                        event_name = event
-                    }
-                    realm.copyToRealm(eventLog)
-                }
+               EventLog().insert(event, cal)
             }
         }
-        realm.close()
     }
 
     private fun  updateLog(event: String?, oldDate: Date, newCal: Calendar) {
@@ -338,16 +334,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
             } else -> {
-                realm.executeTransaction{
-                    realm.where<EventLog>()
-                        .greaterThanOrEqualTo("time", oldDate)
-                        .equalTo("event_name", event)
-                        .findFirst()?.apply {
-
-                            time = newCal.time
-
-                    }
-                }
+                EventLog().update(event, oldDate, newCal)
             }
         }
         realm.close()
