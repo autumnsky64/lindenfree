@@ -105,7 +105,7 @@ class LogActivity : AppCompatActivity() {
                     val header = "Time\tEvent\tQuantity\n"
                     write(header.toByteArray())
 
-                    Realm.getDefaultInstance().where<EventLog>()
+                    Realm.getDefaultInstance().where<Event>()
                         .sort("id", Sort.ASCENDING)
                         .findAll()
                         .forEach { record ->
@@ -129,7 +129,7 @@ class LogActivity : AppCompatActivity() {
         setContentView(R.layout.activity_logview)
 
         val layout = LinearLayoutManager(applicationContext)
-        val eventLog = Realm.getDefaultInstance().where<EventLog>().findAll().sort("time",Sort.DESCENDING)
+        val eventLog = Realm.getDefaultInstance().where<Event>().findAll().sort("time",Sort.DESCENDING)
 
         val logTable = findViewById<RecyclerView>(R.id.log_table_body).apply {
             layoutManager = layout
@@ -157,7 +157,7 @@ class LogActivity : AppCompatActivity() {
                         val id = viewHolder.itemView.log_id.text?.toString()?.toLong()
                         Realm.getDefaultInstance().apply{
                             executeTransaction {
-                                where<EventLog>().equalTo("id", id).findAll().deleteAllFromRealm()
+                                where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
                                 }
                         } .also { it.close() }
                     }
@@ -204,8 +204,8 @@ class LogActivity : AppCompatActivity() {
         }
     }
 
-    private inner class RealmAdapter(private val log: OrderedRealmCollection<EventLog>) :
-        RealmRecyclerViewAdapter<EventLog, LogHolder>(log, true) {
+    private inner class RealmAdapter(private val log: OrderedRealmCollection<Event>) :
+        RealmRecyclerViewAdapter<Event, LogHolder>(log, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder {
             val row = LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)

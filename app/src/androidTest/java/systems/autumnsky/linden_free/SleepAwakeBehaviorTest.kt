@@ -50,7 +50,7 @@ class SleepAwakeBehaviorTest {
         )
         appCompatButton.perform(click())
 
-        val timeString = Realm.getDefaultInstance().where<EventLog>()
+        val timeString = Realm.getDefaultInstance().where<Event>()
             .sort("time", Sort.DESCENDING)
             .equalTo("event_name", "Sleep")
             .findFirst()?.time

@@ -18,15 +18,17 @@ class LindenFreeApp : Application() {
         isFirstLaunch = !AppLaunchChecker.hasStartedFromLauncher(applicationContext)
 
         Realm.init(this)
-        val config = RealmConfiguration.Builder().schemaVersion(1).build()
+        val builder = RealmConfiguration.Builder()
+        builder.schemaVersion(2).migration(Migration())
+        val config = builder.build()
         Realm.setDefaultConfiguration(config)
 
         if (isFirstLaunch){
-            insertDefaultEvents()
+            insertDefaultActions()
         }
     }
 
-    private fun insertDefaultEvents() {
+    private fun insertDefaultActions() {
         val defaultEvents = mutableListOf(
             getString(R.string.awake),
             getString(R.string.dose),
@@ -36,11 +38,11 @@ class LindenFreeApp : Application() {
 
         val realm = Realm.getDefaultInstance()
 
-        defaultEvents.forEach { eventName ->
+        defaultEvents.forEach { actionName ->
             realm.executeTransaction {
-                val event = realm.createObject<Event>(UUID.randomUUID().toString())
-                event.name = eventName
-                realm.copyToRealm(event)
+                val action = realm.createObject<Action>(UUID.randomUUID().toString())
+                action.name = actionName
+                realm.copyToRealm(action)
             }
         }
         realm.close()

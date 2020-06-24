@@ -24,7 +24,7 @@ class EditQuantityLogFragment : DialogFragment() {
                 setView(view)
                 setPositiveButton("SAVE") { _, _ ->
                     val realm = Realm.getDefaultInstance()
-                    val logRecord = realm.where<EventLog>().equalTo("id", it.getString("Id")!!.toInt()).findFirst()
+                    val logRecord = realm.where<Event>().equalTo("id", it.getString("Id")!!.toInt()).findFirst()
 
                     realm.executeTransaction {
                         logRecord?.quantity = view.findViewById<EditText>(R.id.input_fixed_quantity).text.toString().toDouble()

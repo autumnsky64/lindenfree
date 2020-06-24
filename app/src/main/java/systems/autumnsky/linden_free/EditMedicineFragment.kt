@@ -61,7 +61,7 @@ class EditMedicineFragment : DialogFragment() {
                         adjustment_step = editedStep
                     }
 
-                    realm.where<Event>().equalTo("medicine.id", targetId.toString()).findFirst()?.apply {
+                    realm.where<Action>().equalTo("medicine.id", targetId.toString()).findFirst()?.apply {
                         medicine = targetMedicine
                         name = editedName
                     }
@@ -77,7 +77,7 @@ class EditMedicineFragment : DialogFragment() {
                         }
                     realm.copyToRealm(editedMedicine)
 
-                    val event = realm.createObject<Event>(UUID.randomUUID().toString()).apply {
+                    val event = realm.createObject<Action>(UUID.randomUUID().toString()).apply {
                         name = editedName
                         medicine = editedMedicine
                     }

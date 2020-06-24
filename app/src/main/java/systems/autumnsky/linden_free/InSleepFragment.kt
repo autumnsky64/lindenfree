@@ -27,10 +27,10 @@ class InSleepFragment : DialogFragment() {
 
         awakeButton.setOnClickListener {
             val realm = Realm.getDefaultInstance()
-            val newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
+            val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
 
             realm.executeTransaction{
-                val newRecord = realm.createObject<EventLog>(newId).apply {
+                val newRecord = realm.createObject<Event>(newId).apply {
                     time = Calendar.getInstance().time
                     event_name = awakeButton.text.toString()
                 }
@@ -47,10 +47,10 @@ class InSleepFragment : DialogFragment() {
                 cal.set(Calendar.MINUTE, min)
 
                 val realm = Realm.getDefaultInstance()
-                val newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
+                val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
 
                 realm.executeTransaction{
-                    val newRecord = realm.createObject<EventLog>(newId).apply {
+                    val newRecord = realm.createObject<Event>(newId).apply {
                         time = cal.time
                         event_name = awakeButton.text.toString()
                     }

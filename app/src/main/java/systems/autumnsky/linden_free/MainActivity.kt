@@ -3,7 +3,6 @@ package systems.autumnsky.linden_free
 import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
-import android.icu.text.DateFormat.getDateInstance
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -27,7 +26,6 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
-import java.time.DateTimeException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -90,9 +88,9 @@ class MainActivity : AppCompatActivity() {
         medicineListView.layoutManager = layout
 
         val realm = Realm.getDefaultInstance()
-        val medicineEvents = realm.where<Event>().isNotNull("medicine").findAll()
+        val medicines = realm.where<Action>().isNotNull("medicine").findAll()
 
-        medicineListView.adapter = RealmAdapter(medicineEvents)
+        medicineListView.adapter = RealmAdapter(medicines)
         medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
 
         // Doseボタンの日時表示
@@ -101,7 +99,7 @@ class MainActivity : AppCompatActivity() {
             set(Calendar.MINUTE, 0)
         }
         val medicine = realm.where<Medicine>().findFirst()
-        val doseTime = realm.where<EventLog>()
+        val doseTime = realm.where<Event>()
                 .greaterThanOrEqualTo("time", today.time)
                 .equalTo("event_name",medicine?.name)
                 .findFirst()?.time
@@ -117,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
-        val lastEvent = realm.where<EventLog>().sort("time", Sort.DESCENDING).findFirst()
+        val lastEvent = realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()
         if( lastEvent?.event_name == getString(R.string.sleep)){
             lastEvent?.time?.let {
                 showSleepingDialog(DateFormat.format("hh:mm", it) as String)
@@ -150,8 +148,8 @@ class MainActivity : AppCompatActivity() {
             unitLabel = itemView.findViewById(R.id.adjust_spinner_unit_label)
         }
     }
-    private inner class RealmAdapter(private val medicineEvents: OrderedRealmCollection<Event>)
-        : RealmRecyclerViewAdapter<Event, MedicineListHolder>(medicineEvents, false){
+    private inner class RealmAdapter(private val medicineList: OrderedRealmCollection<Action>)
+        : RealmRecyclerViewAdapter<Action, MedicineListHolder>(medicineList, false){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
             val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_contain_spinner, parent, false)
@@ -159,14 +157,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
-            val medicineEvent = medicineEvents[position]
-            holder.name.text = medicineEvent?.name
+            holder.name.text = medicineList[position]?.name
 
-            setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineEvent?.medicine?.regular_quantity, medicineEvent?.medicine?.adjustment_step )
+            setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineList[position]?.medicine?.regular_quantity, medicineList[position].medicine?.adjustment_step )
         }
 
         override fun getItemCount(): Int {
-            return medicineEvents.size
+            return medicineList.size
         }
 
         private fun setupSpinner(spinner: Spinner, unitLabel: TextView, default: Double?, adjust: Double?){
@@ -264,7 +261,7 @@ class MainActivity : AppCompatActivity() {
     fun insertLog(event: String?, cal: Calendar) {
 
         val realm = Realm.getDefaultInstance()
-        var newId: Long = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
+        var newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
 
         when (event) {
             getText(R.string.dose) -> {
@@ -278,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                     if (row === null) { continue }
 
                     realm.executeTransaction {
-                        val eventLog = realm.createObject<EventLog>(newId).apply{
+                        val eventLog = realm.createObject<Event>(newId).apply{
                             time = cal.time
                             event_name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
                             quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
@@ -290,7 +287,7 @@ class MainActivity : AppCompatActivity() {
                 realm.close()
             }
             else -> {
-               EventLog().insert(event, cal)
+               Event().insert(event, cal)
             }
         }
     }
@@ -307,7 +304,7 @@ class MainActivity : AppCompatActivity() {
                     if (row === null) { continue }
 
                     val name =  row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                    val targetRecord = realm.where<EventLog>()
+                    val targetRecord = realm.where<Event>()
                         .greaterThanOrEqualTo("time", oldDate)
                         .equalTo("event_name", name)
                         .findFirst()
@@ -323,8 +320,8 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         //insert
                         realm.executeTransaction {
-                            val newId = (realm.where<EventLog>().max("id")?.toLong()?:0) + 1
-                            realm.createObject<EventLog>(newId).apply {
+                            val newId = (realm.where<Event>().max("id")?.toLong()?:0) + 1
+                            realm.createObject<Event>(newId).apply {
                                 event_name = name
                                 time = newCal.time
                                 quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
@@ -334,7 +331,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
             } else -> {
-                EventLog().update(event, oldDate, newCal)
+                Event().update(event, oldDate, newCal)
             }
         }
         realm.close()
