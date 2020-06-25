@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="awake">Awake</string>
-    <string name="dose">Dose</string>
+    <string name="dose">Take medicine</string>
     <string name="in_bed">In Bed</string>
     <string name="sleep">Sleep</string>
 </resources>
