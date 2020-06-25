@@ -242,6 +242,8 @@ class LogActivity : AppCompatActivity() {
                                 }
                                 val realm = Realm.getDefaultInstance()
                                 realm.executeTransaction {
+                                    cal.set( Calendar.SECOND, 0)
+                                    cal.set( Calendar.MILLISECOND, 0)
                                     logRecord.time = cal.time
                                 }
                                 realm.close()

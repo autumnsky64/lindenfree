@@ -26,17 +26,7 @@ class InSleepFragment : DialogFragment() {
         val awakeButton = sleepingDialog.findViewById<Button>(R.id.awake_button)
 
         awakeButton.setOnClickListener {
-            val realm = Realm.getDefaultInstance()
-            val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
-
-            realm.executeTransaction{
-                val newRecord = realm.createObject<Event>(newId).apply {
-                    time = Calendar.getInstance().time
-                    event_name = awakeButton.text.toString()
-                }
-                realm.copyToRealm(newRecord)
-            }
-            realm.close()
+            Event().insert( Calendar.getInstance(), awakeButton.text.toString() )
             dismiss()
         }
 
@@ -46,17 +36,7 @@ class InSleepFragment : DialogFragment() {
                 cal.set(Calendar.HOUR_OF_DAY, hour)
                 cal.set(Calendar.MINUTE, min)
 
-                val realm = Realm.getDefaultInstance()
-                val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
-
-                realm.executeTransaction{
-                    val newRecord = realm.createObject<Event>(newId).apply {
-                        time = cal.time
-                        event_name = awakeButton.text.toString()
-                    }
-                    realm.copyToRealm(newRecord)
-                }
-                realm.close()
+                Event().insert( cal, awakeButton.text.toString() )
             }
 
             TimePickerDialog(

@@ -1,10 +1,15 @@
 package systems.autumnsky.linden_free
 
+import android.icu.text.MessageFormat.format
+import android.text.format.DateFormat.format
+import android.text.format.DateUtils
+import android.util.Log
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import java.text.DateFormat
 import java.util.*
 
 open class Event (
@@ -14,34 +19,37 @@ open class Event (
     open var quantity: Double? = null
 ): RealmObject() {
 
-    fun insert(event: String?, cal: Calendar){
+    fun insert(timing: Calendar, name :String, qty :Double? = null){
         val realm = Realm.getDefaultInstance()
         val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
 
+        timing.set( Calendar.SECOND, 0)
+        timing.set( Calendar.MILLISECOND, 0)
         realm.executeTransaction {
             val eventLog = realm.createObject<Event>(newId).apply{
-                time = cal.time
-                event_name = event
+                time = timing.time
+                event_name = name
+                quantity = qty
             }
             realm.copyToRealm(eventLog)
         }
         realm.close()
     }
 
-    fun update(event: String?, oldDate: Date, newCal: Calendar){
-        val realm = Realm.getDefaultInstance()
+    fun update(event: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null ){
+        newCal.set( Calendar.SECOND, 0)
+        newCal.set( Calendar.MILLISECOND, 0)
 
+        val realm = Realm.getDefaultInstance()
         realm.executeTransaction{
             realm.where<Event>()
-                .greaterThanOrEqualTo("time", oldDate)
+                .equalTo("time", oldCal.time)
                 .equalTo("event_name", event)
                 .findFirst()?.apply {
-
                     time = newCal.time
-
+                    quantity = qty
                 }
-        }
-
+            }
         realm.close()
     }
 }

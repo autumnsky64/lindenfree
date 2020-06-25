@@ -6,6 +6,7 @@ import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,7 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import java.sql.Time
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -79,38 +81,87 @@ class MainActivity : AppCompatActivity() {
         // 日付ラベル
         findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
 
-        findViewById<Button>(R.id.dose_button).setOnClickListener(SetTime())
+        // 薬 ボタン リサイクルビューの薬リストを一括でDBに書き込む
+        findViewById<Button>(R.id.dose_button).setOnClickListener { view ->
+            val cal = Calendar.getInstance()
+            val button = view as Button
+            val labelMap: Map<String, String> = labelAttribute(button)
+            val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+
+            // ボタンのラベルがデフォルトならインサート
+            if (labelMap["default"] == labelMap["current"]) {
+                updateButton(button, DateFormat.format("HH:mm" ,cal.time).toString())
+
+                for (i in 0..medicineList.childCount) {
+                    medicineList.findViewHolderForLayoutPosition(i)?.let {
+                        val medicine = it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                        val quantity = it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString() ?.toDoubleOrNull()
+                        Event().insert( cal, medicine, quantity)
+                    }
+                }
+            } else {
+                // 日付が入ってればタイムピッカーを表示してアップデート
+                val timeSetListener = OnTimeSetListener { _, hour, min ->
+                    cal.set(Calendar.HOUR_OF_DAY, hour)
+                    cal.set(Calendar.MINUTE, min)
+
+                    val date = findViewById<TextView>(R.id.date_label).text.toString() + labelMap["current"]?.replace( labelMap["default"].toString(), "")
+                    val oldCal = Calendar.getInstance()
+                    oldCal.time = SimpleDateFormat("yyyy/MM/dd  HH:mm").parse( date )
+
+                    for (i in 0..medicineList.childCount) {
+                        medicineList.findViewHolderForLayoutPosition(i)?.let {
+                            val medicine = it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                            val quantity = it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString() ?.toDoubleOrNull()
+                            Event().update( medicine, oldCal, cal, quantity)
+                        }
+                    }
+
+                    updateButton(button, DateFormat.format("HH:mm" ,cal.time).toString())
+                }
+
+                TimePickerDialog(
+                    button.context,
+                    timeSetListener,
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                    true
+                ).show()
+            }
+        }
+
         findViewById<Button>(R.id.dose_button).setOnLongClickListener(SetTimeByPicker())
 
-        // 薬のリスト
-        val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
-        val layout = LinearLayoutManager(applicationContext)
-        medicineListView.layoutManager = layout
-
         val realm = Realm.getDefaultInstance()
-        val medicines = realm.where<Action>().isNotNull("medicine").findAll()
 
-        medicineListView.adapter = RealmAdapter(medicines)
-        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
-
-        // Doseボタンの日時表示
+        // 薬 ボタンの日時表示
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
         }
         val medicine = realm.where<Medicine>().findFirst()
         val doseTime = realm.where<Event>()
-                .greaterThanOrEqualTo("time", today.time)
-                .equalTo("event_name",medicine?.name)
-                .findFirst()?.time
+            .greaterThanOrEqualTo("time", today.time)
+            .equalTo("event_name",medicine?.name)
+            .findFirst()?.time
 
         if( doseTime != null){
             updateButton(findViewById(R.id.dose_button), DateFormat.format( "HH:mm", doseTime).toString())
         }
 
+        // 薬のリスト
+        val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+        val layout = LinearLayoutManager(applicationContext)
+        medicineListView.layoutManager = layout
+
+        val medicines = realm.where<Action>().isNotNull("medicine").findAll()
+
+        medicineListView.adapter = RealmAdapter(medicines)
+        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+
         // Sleepボタン
         findViewById<Button>(R.id.sleep_button).setOnClickListener{
-            insertLog( getString(R.string.sleep), Calendar.getInstance())
+            Event().insert( Calendar.getInstance() ,getString(R.string.sleep))
             showSleepingDialog()
         }
 
@@ -192,27 +243,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private inner class SetTime : View.OnClickListener {
-        override fun onClick(view: View?) {
-            val cal = Calendar.getInstance()
-            val button = view as Button
-            val labelMap: Map<String, String> = labelAttribute(button)
-
-            if (labelMap["default"] == labelMap["current"]) {
-                updateButton(button, DateFormat.format("HH:mm" ,cal.time).toString())
-                insertLog(labelMap["default"]?:"some event", cal)
-            } else {
-                timePicker(button)
-            }
-        }
-    }
-
+    // ボタンの動作
     private inner class SetTimeByPicker : View.OnLongClickListener {
         override fun onLongClick(view: View?): Boolean {
             val button = view as Button
             timePicker(button)
             return true
         }
+    }
+
+    //buttonのIDから、初期のラベルを取得
+    private fun labelAttribute(button: Button): Map<String, String> {
+        val stringResName = resources.getResourceEntryName(button.id).replace("_button","")
+        val event = getString(resources.getIdentifier(stringResName, "string", packageName))
+        return mapOf("default" to event, "current" to button.text.toString())
     }
 
     private fun updateButton(button: Button, time: String) {
@@ -223,30 +267,12 @@ class MainActivity : AppCompatActivity() {
         button.setTextColor(getColor(R.color.materialLight))
     }
 
-    //buttonのIDから、初期のラベルを取得
-    private fun labelAttribute(button: Button): Map<String, String> {
-        val stringResName = resources.getResourceEntryName(button.id).replace("_button","")
-        val event = getString(resources.getIdentifier(stringResName, "string", packageName))
-        return mapOf("default" to event, "current" to button.text.toString())
-    }
-
-    //タイムピッカーで指定した時刻でボタンを更新
+    //タイムピッカー
     private fun timePicker( button: Button ) {
         val cal = Calendar.getInstance()
         val timeSetListener = OnTimeSetListener { _, hour, min ->
-
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
-
-            val labelMap: Map<String, String> =
-                labelAttribute(button)
-            if (labelMap["default"] == labelMap["current"]){
-                insertLog( labelMap["default"], cal )
-            }else{
-                SimpleDateFormat("yyyy/MM/dd").parse( findViewById<TextView>(R.id.date_label).text.toString() )?.let{ updateLog( labelMap["default"], it, cal) }
-            }
-
-            updateButton( button, DateFormat.format("HH:mm", cal.time).toString() )
         }
 
         TimePickerDialog(
@@ -256,84 +282,5 @@ class MainActivity : AppCompatActivity() {
             cal.get(Calendar.MINUTE),
             true
         ).show()
-    }
-
-    fun insertLog(event: String?, cal: Calendar) {
-
-        val realm = Realm.getDefaultInstance()
-        var newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
-
-        when (event) {
-            getText(R.string.dose) -> {
-                val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
-
-                for (i in 0..medicineList.childCount) {
-
-                    val row: RecyclerView.ViewHolder? = medicineList.findViewHolderForLayoutPosition(i)
-
-                    // 薬リストに登録がない場合をチェック
-                    if (row === null) { continue }
-
-                    realm.executeTransaction {
-                        val eventLog = realm.createObject<Event>(newId).apply{
-                            time = cal.time
-                            event_name = row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                            quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
-                        }
-                        realm.copyToRealm(eventLog)
-                    }
-                    newId += 1
-                }
-                realm.close()
-            }
-            else -> {
-               Event().insert(event, cal)
-            }
-        }
-    }
-
-    private fun  updateLog(event: String?, oldDate: Date, newCal: Calendar) {
-        val realm = Realm.getDefaultInstance()
-        when (event) {
-            getText(R.string.dose) -> {
-                val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
-
-                for (i in 0..medicineList.childCount) {
-
-                    val row: RecyclerView.ViewHolder? = medicineList.findViewHolderForLayoutPosition(i)
-                    if (row === null) { continue }
-
-                    val name =  row.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                    val targetRecord = realm.where<Event>()
-                        .greaterThanOrEqualTo("time", oldDate)
-                        .equalTo("event_name", name)
-                        .findFirst()
-
-                    if ( targetRecord != null) {
-                        //update
-                        realm.executeTransaction {
-                            targetRecord.apply {
-                                time = newCal.time
-                                quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
-                            }
-                        }
-                    } else {
-                        //insert
-                        realm.executeTransaction {
-                            val newId = (realm.where<Event>().max("id")?.toLong()?:0) + 1
-                            realm.createObject<Event>(newId).apply {
-                                event_name = name
-                                time = newCal.time
-                                quantity = row.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()?.toDoubleOrNull()
-                            }
-                        }
-                    }
-                }
-
-            } else -> {
-                Event().update(event, oldDate, newCal)
-            }
-        }
-        realm.close()
     }
 }
