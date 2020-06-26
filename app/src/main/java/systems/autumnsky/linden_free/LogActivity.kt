@@ -29,6 +29,7 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
+import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.action_row_in_bottom_sheet.*
 import kotlinx.android.synthetic.main.log_row.view.*
 import java.io.BufferedOutputStream
@@ -133,7 +134,9 @@ class LogActivity : AppCompatActivity() {
         setContentView(R.layout.activity_logview)
 
         val layout = LinearLayoutManager(applicationContext)
-        val eventLog = Realm.getDefaultInstance().where<Event>().findAll().sort("time",Sort.DESCENDING)
+        val key = arrayOf("time", "id")
+        val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
+        val eventLog = Realm.getDefaultInstance().where<Event>().findAll().sort(key, sort)
 
         val logTable = findViewById<RecyclerView>(R.id.log_table_body).apply {
             layoutManager = layout
@@ -297,7 +300,6 @@ class ActionList : BottomSheetDialogFragment() {
         val view = View.inflate(context, R.layout.bottom_sheet_action_list, null)
         dialog.setContentView( view )
 
-
         val realm = Realm.getDefaultInstance()
         val layout = GridLayoutManager( activity, 2 )
         val actionList: RecyclerView = view.findViewById(R.id.action_list)
@@ -338,10 +340,33 @@ class ActionList : BottomSheetDialogFragment() {
 
         override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
             holder.name.text = actionList[position]?.name
+            holder.action.setOnClickListener { view ->
+                val cal = Calendar.getInstance()
+                TimePickerDialog(
+                    context,
+                    TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                        cal.apply {
+                            set(Calendar.HOUR_OF_DAY, hour)
+                            set(Calendar.MINUTE, min)
+                        }
+                        Event().insert( cal, actionList[position]?.name.toString() )
+                        activity?.findViewById<RecyclerView>(R.id.log_table_body)?.adapter?.notifyDataSetChanged()
+                        dismiss()
+                    },
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                    true
+                ).show()
+            }
         }
 
         override fun getItemCount(): Int {
             return actionList.size
         }
+    }
+
+    override fun dismiss() {
+        super.dismiss()
+
     }
 }
