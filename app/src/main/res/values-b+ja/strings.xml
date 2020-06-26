@@ -30,5 +30,7 @@
     <string name="th_event">イベント</string>
     <string name="th_quantity">量</string>
 
+    <string name="bottom_sheet_title">時刻を記録</string>
+
     <string name="snackbar_save_file_message">睡眠・服薬記録のテキストファイルを保存しました</string>
 </resources>

@@ -29,5 +29,7 @@
     <string name="th_event">Event</string>
     <string name="th_quantity">Quantity</string>
 
+    <string name="bottom_sheet_title">Record time of action</string>
+
     <string name="snackbar_save_file_message">Log text file has been saved.</string>
 </resources>
