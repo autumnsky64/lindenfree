@@ -3,29 +3,33 @@ package systems.autumnsky.linden_free
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.Layout
 import android.text.format.DateFormat
 import android.view.*
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
+import kotlinx.android.synthetic.main.action_row_in_bottom_sheet.*
 import kotlinx.android.synthetic.main.log_row.view.*
 import java.io.BufferedOutputStream
 import java.text.DecimalFormat
@@ -171,6 +175,12 @@ class LogActivity : AppCompatActivity() {
         helper.attachToRecyclerView(logTable)
         logTable.addItemDecoration(helper)
 
+        //FAB
+        findViewById<View>(R.id.insert_event).setOnClickListener {
+            val actionList = ActionList()
+            actionList.show(supportFragmentManager, actionList.tag )
+        }
+
         //下部ナビゲーション
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_log
@@ -277,6 +287,61 @@ class LogActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int {
             return log.size
+        }
+    }
+}
+
+class ActionList : BottomSheetDialogFragment() {
+    override fun setupDialog(dialog: Dialog, style: Int) {
+        super.setupDialog(dialog, style)
+        val view = View.inflate(context, R.layout.bottom_sheet_action_list, null)
+        dialog.setContentView( view )
+
+
+        val realm = Realm.getDefaultInstance()
+        val layout = GridLayoutManager( activity, 2 )
+        val actionList: RecyclerView = view.findViewById(R.id.action_list)
+
+        realm.where<Action>().isNull("medicine").notEqualTo("name", "Dose").findAll()?.let {
+            actionList.run {
+                layoutManager = layout
+                adapter = RealmAdapter(it)
+            }
+        }
+    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.bottom_sheet_action_list, container, false)
+    }
+
+    private inner class ActionListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+        var action: ConstraintLayout
+        var name: TextView
+
+        init {
+            action = itemView.findViewById(R.id.action_row_in_bottom_sheet)
+            name = itemView.findViewById(R.id.action_name_in_bottom_sheet)
+        }
+    }
+
+    private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>)
+        : RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, false) {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionListHolder {
+            val row = LayoutInflater.from(context)
+                .inflate(R.layout.action_row_in_bottom_sheet, parent, false)
+            return ActionListHolder(row)
+        }
+
+        override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
+            holder.name.text = actionList[position]?.name
+        }
+
+        override fun getItemCount(): Int {
+            return actionList.size
         }
     }
 }
