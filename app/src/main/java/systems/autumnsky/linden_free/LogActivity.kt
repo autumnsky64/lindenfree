@@ -31,6 +31,7 @@ import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.action_row_in_bottom_sheet.*
+import kotlinx.android.synthetic.main.bottom_sheet_action_list.*
 import kotlinx.android.synthetic.main.log_row.view.*
 import java.io.BufferedOutputStream
 import java.text.DecimalFormat
@@ -341,32 +342,14 @@ class ActionList : BottomSheetDialogFragment() {
         override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
             holder.name.text = actionList[position]?.name
             holder.action.setOnClickListener { view ->
-                val cal = Calendar.getInstance()
-                TimePickerDialog(
-                    context,
-                    TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                        cal.apply {
-                            set(Calendar.HOUR_OF_DAY, hour)
-                            set(Calendar.MINUTE, min)
-                        }
-                        Event().insert( cal, actionList[position]?.name.toString() )
-                        activity?.findViewById<RecyclerView>(R.id.log_table_body)?.adapter?.notifyDataSetChanged()
-                        dismiss()
-                    },
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
-                    true
-                ).show()
+                Event().insertByTimePicker( holder.name.text.toString(), view.context)
+                activity?.findViewById<RecyclerView>(R.id.action_list)?.adapter?.notifyDataSetChanged()
+                dismiss()
             }
         }
 
         override fun getItemCount(): Int {
             return actionList.size
         }
-    }
-
-    override fun dismiss() {
-        super.dismiss()
-
     }
 }

@@ -1,9 +1,13 @@
 package systems.autumnsky.linden_free
 
+import android.app.Application
+import android.app.TimePickerDialog
+import android.content.Context
 import android.icu.text.MessageFormat.format
 import android.text.format.DateFormat.format
 import android.text.format.DateUtils
 import android.util.Log
+import androidx.recyclerview.widget.RecyclerView
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -51,5 +55,22 @@ open class Event (
                 }
             }
         realm.close()
+    }
+
+    fun insertByTimePicker( action: String, context: Context){
+        val cal = Calendar.getInstance()
+        TimePickerDialog(
+            context,
+            TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                cal.apply {
+                    set(Calendar.HOUR_OF_DAY, hour)
+                    set(Calendar.MINUTE, min)
+                }
+                insert( cal, action )
+            },
+            cal.get(Calendar.HOUR_OF_DAY),
+            cal.get(Calendar.MINUTE),
+            true
+        ).show()
     }
 }

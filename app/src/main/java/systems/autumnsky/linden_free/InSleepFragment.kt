@@ -1,5 +1,6 @@
 package systems.autumnsky.linden_free
 
+import android.app.Activity
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -30,24 +31,9 @@ class InSleepFragment : DialogFragment() {
             dismiss()
         }
 
-        awakeButton.setOnLongClickListener { _ ->
-            val cal = Calendar.getInstance()
-            val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                cal.set(Calendar.HOUR_OF_DAY, hour)
-                cal.set(Calendar.MINUTE, min)
-
-                Event().insert( cal, awakeButton.text.toString() )
-            }
-
-            TimePickerDialog(
-                activity,
-                timeSetListener,
-                cal.get(Calendar.HOUR_OF_DAY),
-                cal.get(Calendar.MINUTE),
-                true
-            ).show()
+        awakeButton.setOnLongClickListener { view ->
+            Event().insertByTimePicker( awakeButton.text.toString(), view.context )
             dismiss()
-
             return@setOnLongClickListener true
         }
 
