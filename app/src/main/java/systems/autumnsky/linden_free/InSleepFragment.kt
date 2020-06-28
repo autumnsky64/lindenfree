@@ -27,7 +27,7 @@ class InSleepFragment : DialogFragment() {
         val awakeButton = sleepingDialog.findViewById<Button>(R.id.awake_button)
 
         awakeButton.setOnClickListener {
-            Event().insert( Calendar.getInstance(), awakeButton.text.toString() )
+            Event().insert( awakeButton.text.toString())
             dismiss()
         }
 

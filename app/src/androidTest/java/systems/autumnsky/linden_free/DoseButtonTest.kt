@@ -26,10 +26,11 @@ class DoseButtonTest {
     var mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
     @Test
-    fun mainActivityTest2() {
+    fun dose() {
+
         val appCompatButton = onView(
             allOf(
-                withId(R.id.dose_button), withText("Dose"),
+                withId(R.id.dose_button), withText("TAKE MEDICINE"),
                 childAtPosition(
                     allOf(
                         withId(R.id.constraintLayout),
