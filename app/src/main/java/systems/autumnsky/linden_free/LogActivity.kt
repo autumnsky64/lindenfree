@@ -298,7 +298,7 @@ class ActionList : BottomSheetDialogFragment() {
         val layout = GridLayoutManager( activity, 2 )
         val actionList: RecyclerView = view.findViewById(R.id.action_list)
 
-        realm.where<Action>().isNull("medicine").notEqualTo("name", "Dose").findAll()?.let {
+        realm.where<Action>().isNull("medicine").notEqualTo("name", getString(R.string.dose)).findAll()?.let {
             actionList.run {
                 layoutManager = layout
                 adapter = RealmAdapter(it)
@@ -324,7 +324,7 @@ class ActionList : BottomSheetDialogFragment() {
     }
 
     private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>)
-        : RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, false) {
+        : RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionListHolder {
             val row = LayoutInflater.from(context)
@@ -336,7 +336,6 @@ class ActionList : BottomSheetDialogFragment() {
             holder.name.text = actionList[position]?.name
             holder.action.setOnClickListener { view ->
                 Event().insertByTimePicker( holder.name.text.toString(), view.context)
-                activity?.findViewById<RecyclerView>(R.id.action_list)?.adapter?.notifyDataSetChanged()
                 dismiss()
             }
         }
