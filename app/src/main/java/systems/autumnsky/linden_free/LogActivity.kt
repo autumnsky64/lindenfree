@@ -7,13 +7,10 @@ import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.Layout
 import android.text.format.DateFormat
 import android.view.*
-import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import io.realm.OrderedRealmCollection
@@ -29,9 +25,6 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
-import kotlinx.android.synthetic.*
-import kotlinx.android.synthetic.main.action_row_in_bottom_sheet.*
-import kotlinx.android.synthetic.main.bottom_sheet_action_list.*
 import kotlinx.android.synthetic.main.log_row.view.*
 import java.io.BufferedOutputStream
 import java.text.DecimalFormat

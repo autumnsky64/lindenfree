@@ -2,20 +2,16 @@ package systems.autumnsky.linden_free
 
 import android.app.TimePickerDialog
 import android.content.Context
-import android.icu.text.MessageFormat.format
-import android.text.format.DateFormat.format
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
-import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.recyclerview.widget.RecyclerView
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
-import java.text.DateFormat
 import java.util.*
 
 open class Event (
@@ -46,7 +42,7 @@ open class Event (
         }
     }
 
-    fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null ){
+    private fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null ){
         newCal.set( Calendar.SECOND, 0)
         newCal.set( Calendar.MILLISECOND, 0)
 
