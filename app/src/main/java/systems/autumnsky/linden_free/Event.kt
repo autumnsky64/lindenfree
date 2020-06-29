@@ -1,16 +1,14 @@
 package systems.autumnsky.linden_free
 
-import android.app.Application
 import android.app.TimePickerDialog
 import android.content.Context
 import android.icu.text.MessageFormat.format
 import android.text.format.DateFormat.format
-import android.text.format.DateUtils
-import android.util.Log
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
-import androidx.core.view.forEach
+import androidx.core.content.ContextCompat.getColor
+import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.recyclerview.widget.RecyclerView
 import io.realm.Realm
 import io.realm.RealmObject
@@ -102,6 +100,12 @@ open class Event (
             cal.set(Calendar.MINUTE, min)
 
             insertMedicineLog( medicines, cal)
+
+            button.apply {
+                text = button.context.getString( R.string.dose ).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,cal.time).toString()
+                setBackgroundColor(getColor(button.context, R.color.colorPrimary))
+                setTextColor(getColor(button.context, R.color.materialLight))
+            }
         }
 
         TimePickerDialog(
@@ -114,9 +118,41 @@ open class Event (
         return cal
     }
 
-    fun updateMedicineLog( medicines: RecyclerView: button: Button, oldCal: Calendar) :Calendar?{
+    fun updateMedicineLog( medicines: RecyclerView, button: Button, oldCal: Calendar? ) :Calendar?{
+        val newCal = Calendar.getInstance()
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
+            newCal.set(Calendar.HOUR_OF_DAY, hour)
+            newCal.set(Calendar.MINUTE, min)
 
-        return cal
+            for (i in 0..medicines.childCount) {
+                medicines.findViewHolderForLayoutPosition(i)?.let {
+                    val medicine =
+                        it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                    val quantity =
+                        it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()
+                            ?.toDoubleOrNull()
+
+                    if( oldCal != null) {
+                        update(medicine, oldCal, newCal, quantity)
+                    }else{
+                        insert(medicine, newCal, quantity)
+                    }
+
+                    button.text = button.context.getString( R.string.dose ).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,newCal.time).toString()
+
+                }
+            }
+        }
+
+        TimePickerDialog(
+            button.context,
+            timeSetListener,
+            newCal.get(Calendar.HOUR_OF_DAY),
+            newCal.get(Calendar.MINUTE),
+            true
+        ).show()
+
+        return newCal
     }
 
 }
