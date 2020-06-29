@@ -124,14 +124,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 薬のリスト
+        val medicineLayout = LinearLayoutManager(applicationContext)
         val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
-        val layout = LinearLayoutManager(applicationContext)
-        medicineListView.layoutManager = layout
+        medicineListView.layoutManager = medicineLayout
 
         val medicines = realm.where<Action>().isNotNull("medicine").findAll()
 
         medicineListView.adapter = RealmAdapter(medicines)
-        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
+        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, medicineLayout.orientation))
+
+        //その日のイベントリスト
+        val eventLayout = LinearLayoutManager(applicationContext)
+        val todaysEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
+        todaysEventView.layoutManager = eventLayout
+
+        val todayLastSec = Calendar.getInstance().apply {
+            set( Calendar.HOUR_OF_DAY, 23)
+            set( Calendar.MINUTE, 59)
+            set( Calendar.SECOND, 59)
+        }
+
+        realm.where<Event>().between("time", today.time, todayLastSec.time).findAll()?.let{
+            todaysEventView.run{
+                adapter = EventAdapter(it)
+            }
+        }
 
         // Sleepボタン
         findViewById<Button>(R.id.sleep_button).setOnClickListener{
@@ -140,7 +157,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
-        val lastEvent = realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()
+        val key = arrayOf("time", "id")
+        val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
+        val lastEvent = realm.where<Event>().sort(key, sort).findFirst()
         if( lastEvent?.event_name == getString(R.string.sleep)){
             lastEvent?.time?.let {
                 showSleepingDialog(DateFormat.format("hh:mm", it) as String)
@@ -218,6 +237,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //イベントの一覧
+    private inner class EventAdapter( private val todaysEvent: OrderedRealmCollection<Event>)
+        : RealmRecyclerViewAdapter<Event, EventListHolder>(todaysEvent, true){
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventListHolder {
+            val row = LayoutInflater.from(applicationContext).inflate(R.layout.row_todays_sleep, parent, false)
+            return EventListHolder(row)
+        }
+        override fun onBindViewHolder(holder: EventListHolder, position: Int) {
+            holder.eventName.text = todaysEvent[position]?.event_name
+            holder.eventTime.text = DateFormat.format("hh:mm", todaysEvent[position]?.time) as String
+        }
+
+        override fun getItemCount(): Int {
+            return todaysEvent.size
+        }
+
+    }
+    private inner class EventListHolder( itemView: View) : RecyclerView.ViewHolder(itemView){
+        val eventName = itemView.findViewById<TextView>(R.id.todays_event_name)
+        val eventTime = itemView.findViewById<TextView>(R.id.todays_event_time)
+    }
     //buttonのIDから、初期のラベルを取得
     private fun labelAttribute(button: Button): Map<String, String> {
         val stringResName = resources.getResourceEntryName(button.id).replace("_button","")
