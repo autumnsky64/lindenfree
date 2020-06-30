@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -128,15 +129,15 @@ class MainActivity : AppCompatActivity() {
         val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
         medicineListView.layoutManager = medicineLayout
 
-        val medicines = realm.where<Action>().isNotNull("medicine").findAll()
-
-        medicineListView.adapter = RealmAdapter(medicines)
-        medicineListView.addItemDecoration(DividerItemDecoration(applicationContext, medicineLayout.orientation))
+        realm.where<Action>().isNotNull("medicine").findAll()?.let{
+            medicineListView.apply {
+                adapter = medicineAdapter(it)
+                addItemDecoration(DividerItemDecoration(applicationContext, medicineLayout.orientation))
+            }
+        }
 
         //その日のイベントリスト
-        val eventLayout = LinearLayoutManager(applicationContext)
         val todaysEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
-        todaysEventView.layoutManager = eventLayout
 
         val todayLastSec = Calendar.getInstance().apply {
             set( Calendar.HOUR_OF_DAY, 23)
@@ -145,7 +146,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         realm.where<Event>().between("time", today.time, todayLastSec.time).findAll()?.let{
-            todaysEventView.run{
+            todaysEventView.apply{
+                if( it.count() > 6) {
+                    todaysEventView.layoutManager = GridLayoutManager( applicationContext, 2, GridLayoutManager.VERTICAL, false )
+                } else {
+                    todaysEventView.layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
+                }
                 adapter = EventAdapter(it)
             }
         }
@@ -192,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             unitLabel = itemView.findViewById(R.id.adjust_spinner_unit_label)
         }
     }
-    private inner class RealmAdapter(private val medicineList: OrderedRealmCollection<Action>)
+    private inner class medicineAdapter(private val medicineList: OrderedRealmCollection<Action>)
         : RealmRecyclerViewAdapter<Action, MedicineListHolder>(medicineList, false){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
