@@ -19,14 +19,14 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class MedicineActivityTest {
+class AddMedicineTest {
 
     @Rule
     @JvmField
     var mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
     @Test
-    fun medicineActivityTest() {
+    fun addMedicineTest() {
         val bottomNavigationItemView = onView(
             allOf(
                 withId(R.id.navigation_medicine), withContentDescription("Medicine"),
@@ -73,7 +73,61 @@ class MedicineActivityTest {
                 isDisplayed()
             )
         )
-        appCompatEditText.perform(replaceText("test1"), closeSoftKeyboard())
+        appCompatEditText.perform(click())
+
+        val appCompatEditText2 = onView(
+            allOf(
+                withId(R.id.input_medicine_name),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    2
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatEditText2.perform(replaceText("test1"), closeSoftKeyboard())
+
+        val appCompatEditText3 = onView(
+            allOf(
+                withId(R.id.input_regular_quantity),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    4
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatEditText3.perform(replaceText("300"), closeSoftKeyboard())
+
+        val appCompatEditText4 = onView(
+            allOf(
+                withId(R.id.input_adjustment_step),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    5
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatEditText4.perform(replaceText("100"), closeSoftKeyboard())
 
         val appCompatButton = onView(
             allOf(
@@ -108,7 +162,7 @@ class MedicineActivityTest {
         )
         actionMenuItemView2.perform(click())
 
-        val appCompatEditText2 = onView(
+        val appCompatEditText5 = onView(
             allOf(
                 withId(R.id.input_medicine_name),
                 childAtPosition(
@@ -124,11 +178,11 @@ class MedicineActivityTest {
                 isDisplayed()
             )
         )
-        appCompatEditText2.perform(replaceText("test2"), closeSoftKeyboard())
+        appCompatEditText5.perform(click())
 
-        val appCompatEditText3 = onView(
+        val appCompatEditText6 = onView(
             allOf(
-                withId(R.id.input_regular_quantity),
+                withId(R.id.input_medicine_name),
                 childAtPosition(
                     allOf(
                         withId(R.id.edit_log_medicine_quantity),
@@ -137,30 +191,12 @@ class MedicineActivityTest {
                             0
                         )
                     ),
-                    4
+                    2
                 ),
                 isDisplayed()
             )
         )
-        appCompatEditText3.perform(replaceText("2"), closeSoftKeyboard())
-
-        val appCompatEditText4 = onView(
-            allOf(
-                withId(R.id.input_adjustment_step),
-                childAtPosition(
-                    allOf(
-                        withId(R.id.edit_log_medicine_quantity),
-                        childAtPosition(
-                            withId(android.R.id.content),
-                            0
-                        )
-                    ),
-                    5
-                ),
-                isDisplayed()
-            )
-        )
-        appCompatEditText4.perform(replaceText("0.25"), closeSoftKeyboard())
+        appCompatEditText6.perform(replaceText("test2"), closeSoftKeyboard())
 
         val appCompatButton2 = onView(
             allOf(
@@ -180,27 +216,24 @@ class MedicineActivityTest {
         )
         appCompatButton2.perform(click())
 
-        val constraintLayout = onView(
+        val actionMenuItemView3 = onView(
             allOf(
-                withId(R.id.medicine),
+                withId(R.id.add_medicine), withContentDescription("Add Medicine"),
                 childAtPosition(
-                    allOf(
-                        withId(R.id.medicine_list),
-                        childAtPosition(
-                            withId(R.id.medicine),
-                            1
-                        )
+                    childAtPosition(
+                        withId(R.id.action_bar),
+                        1
                     ),
                     0
                 ),
                 isDisplayed()
             )
         )
-        constraintLayout.perform(click())
+        actionMenuItemView3.perform(click())
 
-        val appCompatEditText5 = onView(
+        val appCompatEditText7 = onView(
             allOf(
-                withId(R.id.input_regular_quantity),
+                withId(R.id.input_medicine_name),
                 childAtPosition(
                     allOf(
                         withId(R.id.edit_log_medicine_quantity),
@@ -209,16 +242,16 @@ class MedicineActivityTest {
                             0
                         )
                     ),
-                    4
+                    2
                 ),
                 isDisplayed()
             )
         )
-        appCompatEditText5.perform(replaceText("300"), closeSoftKeyboard())
+        appCompatEditText7.perform(click())
 
-        val appCompatEditText6 = onView(
+        val appCompatEditText8 = onView(
             allOf(
-                withId(R.id.input_adjustment_step),
+                withId(R.id.input_medicine_name),
                 childAtPosition(
                     allOf(
                         withId(R.id.edit_log_medicine_quantity),
@@ -227,12 +260,12 @@ class MedicineActivityTest {
                             0
                         )
                     ),
-                    5
+                    2
                 ),
                 isDisplayed()
             )
         )
-        appCompatEditText6.perform(replaceText("100"), closeSoftKeyboard())
+        appCompatEditText8.perform(replaceText("delete test"), closeSoftKeyboard())
 
         val appCompatButton3 = onView(
             allOf(
@@ -252,6 +285,92 @@ class MedicineActivityTest {
         )
         appCompatButton3.perform(click())
 
+        val constraintLayoutForDelete = onView(
+            allOf(
+                withId(R.id.medicine),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.medicine_list),
+                        childAtPosition(
+                            withId(R.id.medicine),
+                            1
+                        )
+                    ),
+                    3
+                ),
+                isDisplayed()
+            )
+        )
+        constraintLayoutForDelete.perform(swipeLeft())
+
+        val appCompatButton4 = onView(
+            allOf(
+                withId(android.R.id.button1), withText("Delete"),
+                childAtPosition(
+                    childAtPosition(
+                        withId(R.id.buttonPanel),
+                        0
+                    ),
+                    3
+                )
+            )
+        )
+        appCompatButton4.perform(click())
+
+        val constraintLayout = onView(
+            allOf(
+                withId(R.id.medicine),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.medicine_list),
+                        childAtPosition(
+                            withId(R.id.medicine),
+                            1
+                        )
+                    ),
+                    1
+                ),
+                isDisplayed()
+            )
+        )
+        constraintLayout.perform(click())
+
+        val appCompatEditText9 = onView(
+            allOf(
+                withId(R.id.input_regular_quantity),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    4
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatEditText9.perform(replaceText("2"), closeSoftKeyboard())
+
+        val appCompatButton5 = onView(
+            allOf(
+                withId(R.id.cancel_medicine), withText("Cancel"),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    11
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatButton5.perform(click())
+
         val constraintLayout2 = onView(
             allOf(
                 withId(R.id.medicine),
@@ -268,31 +387,53 @@ class MedicineActivityTest {
                 isDisplayed()
             )
         )
-        constraintLayout2.perform(longClick())
+        constraintLayout2.perform(click())
 
-        val appCompatButton4 = onView(
+        val appCompatEditText10 = onView(
             allOf(
-                withId(android.R.id.button1), withText("Yes"),
-                childAtPosition(
-                    childAtPosition(
-                        withId(R.id.buttonPanel),
-                        0
-                    ),
-                    3
-                )
-            )
-        )
-        appCompatButton4.perform(scrollTo(), click())
-
-        val constraintLayout3 = onView(
-            allOf(
-                withId(R.id.medicine),
+                withId(R.id.input_regular_quantity),
                 childAtPosition(
                     allOf(
-                        withId(R.id.medicine_list),
+                        withId(R.id.edit_log_medicine_quantity),
                         childAtPosition(
-                            withId(R.id.medicine),
-                            1
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    4
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatEditText10.perform(replaceText("2"), closeSoftKeyboard())
+
+        val appCompatEditText11 = onView(
+            allOf(
+                withId(R.id.input_adjustment_step),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    5
+                ),
+                isDisplayed()
+            )
+        )
+        appCompatEditText11.perform(replaceText("0.5"), closeSoftKeyboard())
+
+        val appCompatButton6 = onView(
+            allOf(
+                withId(R.id.save_medicine), withText("Save"),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.edit_log_medicine_quantity),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
                         )
                     ),
                     0
@@ -300,21 +441,7 @@ class MedicineActivityTest {
                 isDisplayed()
             )
         )
-        constraintLayout3.perform(longClick())
-
-        val appCompatButton5 = onView(
-            allOf(
-                withId(android.R.id.button2), withText("No"),
-                childAtPosition(
-                    childAtPosition(
-                        withId(R.id.buttonPanel),
-                        0
-                    ),
-                    2
-                )
-            )
-        )
-        appCompatButton5.perform(scrollTo(), click())
+        appCompatButton6.perform(click())
     }
 
     private fun childAtPosition(
