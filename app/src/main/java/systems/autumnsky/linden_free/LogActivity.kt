@@ -196,19 +196,10 @@ class LogActivity : AppCompatActivity() {
     }
 
     private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var logRow: ConstraintLayout
-        var id: TextView
-        var time: TextView
-        var event: TextView
-        var quantity: TextView
-
-        init {
-            logRow = itemView.findViewById(R.id.log_row)
-            id = itemView.findViewById(R.id.log_id)
-            time = itemView.findViewById(R.id.time_cell)
-            event = itemView.findViewById(R.id.event_cell)
-            quantity = itemView.findViewById(R.id.qty_cell)
-        }
+        val id :TextView = itemView.findViewById(R.id.log_id)
+        val time :TextView = itemView.findViewById(R.id.time_cell)
+        val event :TextView = itemView.findViewById(R.id.event_cell)
+        val quantity :TextView = itemView.findViewById(R.id.qty_cell)
     }
 
     private inner class RealmAdapter(private val log: OrderedRealmCollection<Event>) :
@@ -314,13 +305,8 @@ class ActionList : BottomSheetDialogFragment() {
     }
 
     private inner class ActionListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        var action: ConstraintLayout
-        var name: TextView
-
-        init {
-            action = itemView.findViewById(R.id.action_row_in_bottom_sheet)
-            name = itemView.findViewById(R.id.action_name_in_bottom_sheet)
-        }
+        val action :ConstraintLayout = itemView.findViewById(R.id.action_row_in_bottom_sheet)
+        val name :TextView = itemView.findViewById(R.id.action_name_in_bottom_sheet)
     }
 
     private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>)

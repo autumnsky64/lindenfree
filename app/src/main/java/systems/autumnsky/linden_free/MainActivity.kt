@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
 
         realm.where<Action>().isNotNull("medicine").findAll()?.let{
             medicineListView.apply {
-                adapter = medicineAdapter(it)
+                adapter = MedicineAdapter(it)
                 addItemDecoration(DividerItemDecoration(applicationContext, medicineLayout.orientation))
             }
         }
@@ -186,19 +186,12 @@ class MainActivity : AppCompatActivity() {
 
     //薬の一覧
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        var medicine: ConstraintLayout
-        var name: TextView
-        var quantitySpinner: Spinner
-        var unitLabel: TextView
-
-        init{
-            medicine = itemView.findViewById(R.id.medicine_with_spinner)
-            name = itemView.findViewById(R.id.medicine_name_with_spinner)
-            quantitySpinner = itemView.findViewById(R.id.adjust_spinner)
-            unitLabel = itemView.findViewById(R.id.adjust_spinner_unit_label)
-        }
+        val medicine: ConstraintLayout = itemView.findViewById(R.id.medicine_with_spinner)
+        val name: TextView = itemView.findViewById(R.id.medicine_name_with_spinner)
+        val quantitySpinner: Spinner = itemView.findViewById(R.id.adjust_spinner)
+        val unitLabel: TextView = itemView.findViewById(R.id.adjust_spinner_unit_label)
     }
-    private inner class medicineAdapter(private val medicineList: OrderedRealmCollection<Action>)
+    private inner class MedicineAdapter(private val medicineList: OrderedRealmCollection<Action>)
         : RealmRecyclerViewAdapter<Action, MedicineListHolder>(medicineList, false){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {

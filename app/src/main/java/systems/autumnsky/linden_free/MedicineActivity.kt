@@ -136,28 +136,15 @@ class MedicineActivity : AppCompatActivity() {
     }
     // 薬テーブルの一覧表示
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var medicine: ConstraintLayout
-        var medicine_id : TextView
-        var name: TextView
-        var quantity: TextView
-        var step: TextView
+        val medicine: ConstraintLayout = itemView.findViewById(R.id.medicine)
+        val medicine_id: TextView = itemView.findViewById(R.id.medicine_id)
+        val name: TextView = itemView.findViewById(R.id.medicine_name)
+        val quantity: TextView = itemView.findViewById(R.id.regular_quantity)
+        val step: TextView = itemView.findViewById(R.id.adjustment_step)
 
-        var regularUnitLabel: TextView
-
-        var adjustmentLabel: TextView
-        var adjustmentUnitLabel: TextView
-
-        init {
-            medicine = itemView.findViewById(R.id.medicine)
-            medicine_id = itemView.findViewById(R.id.medicine_id)
-            name = itemView.findViewById(R.id.medicine_name)
-            quantity = itemView.findViewById(R.id.regular_quantity)
-            step = itemView.findViewById(R.id.adjustment_step)
-
-            regularUnitLabel = itemView.findViewById(R.id.regular_unit_label)
-            adjustmentLabel = itemView.findViewById(R.id.adjustment_label)
-            adjustmentUnitLabel = itemView.findViewById(R.id.adjustment_unit)
-        }
+        val regularUnitLabel: TextView = itemView.findViewById(R.id.regular_unit_label)
+        val adjustmentLabel: TextView = itemView.findViewById(R.id.adjustment_label)
+        val adjustmentUnitLabel: TextView = itemView.findViewById(R.id.adjustment_unit)
     }
 
     private inner class RealmAdapter(private val medicines: OrderedRealmCollection<Medicine>)
