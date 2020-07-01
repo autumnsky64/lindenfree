@@ -174,14 +174,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSleepingDialog( inSleepTime: String = DateFormat.format("hh:mm", Calendar.getInstance()) as String ) {
-        val sleepingDialog = InSleepFragment()
-        val bundle = Bundle()
-
-        bundle.putString("InSleepTime", inSleepTime)
-
-        sleepingDialog.isCancelable = false
-        sleepingDialog.arguments = bundle
-        sleepingDialog.show(supportFragmentManager, "InSleep")
+        InSleepFragment().apply {
+            isCancelable = false
+            arguments = Bundle().apply {
+                putString("InSleepTime", inSleepTime)
+            }
+            show(supportFragmentManager, "InSleep")
+        }
     }
 
     //薬の一覧

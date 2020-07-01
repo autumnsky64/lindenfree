@@ -152,7 +152,6 @@ class LogActivity : AppCompatActivity() {
                 AlertDialog.Builder(this@LogActivity)
                     .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
-
                     .setPositiveButton(getText(R.string.dialog_delete)){ _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.log_id.text?.toString()?.toLong()
@@ -166,7 +165,11 @@ class LogActivity : AppCompatActivity() {
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
                         logTable.adapter?.notifyDataSetChanged()
                     }
+                    .setOnDismissListener {
+                        logTable.adapter?.notifyDataSetChanged()
+                    }
                     .show()
+
             }
         })
         helper.attachToRecyclerView(logTable)
