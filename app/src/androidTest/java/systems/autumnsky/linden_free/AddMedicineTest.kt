@@ -296,7 +296,7 @@ class AddMedicineTest {
                             1
                         )
                     ),
-                    3
+                    2
                 ),
                 isDisplayed()
             )
