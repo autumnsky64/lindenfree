@@ -292,7 +292,7 @@ class ActionList : BottomSheetDialogFragment() {
         val layout = GridLayoutManager( activity, 2 )
         val actionList: RecyclerView = view.findViewById(R.id.action_list)
 
-        realm.where<Action>().isNull("medicine").notEqualTo("name", getString(R.string.dose)).findAll()?.let {
+        realm.where<Action>().notEqualTo("name", getString(R.string.dose)).findAll()?.let {
             actionList.run {
                 layoutManager = layout
                 adapter = RealmAdapter(it)
