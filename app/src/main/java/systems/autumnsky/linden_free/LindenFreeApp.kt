@@ -5,6 +5,7 @@ import androidx.core.app.AppLaunchChecker
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.kotlin.createObject
+import io.realm.kotlin.where
 import java.util.*
 
 
@@ -39,10 +40,12 @@ class LindenFreeApp : Application() {
         val realm = Realm.getDefaultInstance()
 
         defaultEvents.forEach { actionName ->
-            realm.executeTransaction {
-                val action = realm.createObject<Action>(UUID.randomUUID().toString())
-                action.name = actionName
-                realm.copyToRealm(action)
+            if( realm.where<Action>().equalTo("name", actionName ).findAll().count()== 0 ){
+                realm.executeTransaction {
+                    val action = realm.createObject<Action>(UUID.randomUUID().toString())
+                    action.name = actionName
+                    realm.copyToRealm(action)
+                }
             }
         }
         realm.close()
