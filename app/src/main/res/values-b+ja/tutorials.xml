@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="description_add_medicine">アイコンをタップして薬を登録</string>
+    <string name="description_add_medicine">薬を登録</string>
     <string name="description_to_home">服薬時刻、睡眠時間を記録するにはホームへ</string>
     <string name="description_medicine_row">タップで薬の編集、スワイプで削除</string>
 
-    <string name="description_medicine_spinner">登録した薬に\n通常量と調節量を設定していれば\n5段階に調整できます</string>
-    <string name="description_main_buttons">タップで現在時刻で記録、長押しで時刻を指定して記録</string>
-    <string name="description_log_view">服薬、起床、入眠時刻の記録を確認するにはログビューへ移動</string>
-
     <string name="description_log_row">時刻をタップで日付と時刻を修正</string>
-    <string name="description_save_txt">アイコンをタップでテキストファイル保存</string>
-    <string name="description_swipe_row">スワイプで記録1行を削除</string>
+    <string name="description_save_txt">テキストファイルとして記録を保存</string>
 </resources>

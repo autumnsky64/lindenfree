@@ -30,6 +30,11 @@ class MedicineActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_home -> {
+                //初回起動時のヒント
+                findViewById<ConstraintLayout>(R.id.tutorial_medicine)?.let{
+                    it.visibility = View.INVISIBLE
+                }
+
                 val intent = Intent(applicationContext, MainActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
@@ -127,11 +132,12 @@ class MedicineActivity : AppCompatActivity() {
     }
 
     private fun showTutorial(){
-        if( (application as LindenFreeApp).isFirstLaunch ) {
-            val decorView = this@MedicineActivity.window.decorView as ViewGroup
-            decorView.addView(
-                LayoutInflater.from(this@MedicineActivity).inflate(R.layout.tutorial_medicine_activity, null)
-            )
+        if( (application as LindenFreeApp).isFirstLaunch
+            && Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
+                val decorView = this@MedicineActivity.window.decorView as ViewGroup
+                decorView.addView(
+                    LayoutInflater.from(this@MedicineActivity).inflate(R.layout.tutorial_medicine_activity, null)
+                )
         }
     }
     // 薬テーブルの一覧表示

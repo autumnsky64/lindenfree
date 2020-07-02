@@ -48,21 +48,6 @@ class MainActivity : AppCompatActivity() {
         false
     }
 
-    private fun showTutorial() {
-        if( (application as LindenFreeApp).isFirstLaunch ){
-            if ( Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
-                //初回起動時はMedicineActivityへ
-                startActivity(Intent(applicationContext, MedicineActivity::class.java))
-            } else {
-                //薬が登録されていれば、調整スピナーやログビューのバルーン表示
-                val decorView = this@MainActivity.window.decorView as ViewGroup
-                decorView.addView(
-                    LayoutInflater.from(this@MainActivity).inflate(R.layout.tutorial_main_activity, null)
-                )
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -72,7 +57,11 @@ class MainActivity : AppCompatActivity() {
         navView.selectedItemId = R.id.navigation_home
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
-        showTutorial()
+        //初回起動で薬が登録されてなければMedicine Activityへ
+        if( (application as LindenFreeApp).isFirstLaunch
+            &&  Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
+                startActivity(Intent(applicationContext, MedicineActivity::class.java))
+        }
 
         // 日付ラベル
         findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())

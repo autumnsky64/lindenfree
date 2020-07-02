@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="description_add_medicine">Tap icon to add medicine.</string>
+    <string name="description_add_medicine">Tap to add medicine.</string>
     <string name="description_to_home">Show home to record dose and sleep time.</string>
     <string name="description_medicine_row">Tap to edit, Swipe to delete.</string>
 
-    <string name="description_medicine_spinner">If you set medicine\nquantity and adjustment,\ntap to adjust by 5step.</string>
-    <string name="description_main_buttons">Tap buttons to record now time.\n Long tap to show time picker.</string>
-    <string name="description_log_view">Move log view to check record dose, sleep and awake time.</string>
-
-    <string name="description_log_row">Tap time to modify date and time.</string>
+    <string name="description_log_row">Tap time or Quantity to modify, swipe to delete.</string>
     <string name="description_save_txt">Tap icon to save log text file.</string>
-    <string name="description_swipe_row">Swipe row to delete record.</string>
 </resources>

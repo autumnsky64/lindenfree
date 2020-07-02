@@ -91,7 +91,7 @@ class AddMedicineTest {
                 isDisplayed()
             )
         )
-        appCompatEditText2.perform(replaceText("test1"), closeSoftKeyboard())
+        appCompatEditText2.perform(replaceText("Medicine1"), closeSoftKeyboard())
 
         val appCompatEditText3 = onView(
             allOf(
@@ -196,7 +196,7 @@ class AddMedicineTest {
                 isDisplayed()
             )
         )
-        appCompatEditText6.perform(replaceText("test2"), closeSoftKeyboard())
+        appCompatEditText6.perform(replaceText("Medicine2"), closeSoftKeyboard())
 
         val appCompatButton2 = onView(
             allOf(

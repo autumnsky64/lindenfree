@@ -81,6 +81,7 @@ class LogActivity : AppCompatActivity() {
     }
 
     private val WRITE_REQUEST_CODE: Int = 563
+
     private fun createCsv(){
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -186,16 +187,6 @@ class LogActivity : AppCompatActivity() {
         navView.selectedItemId = R.id.navigation_log
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
-        showTutorial()
-    }
-
-    private fun showTutorial() {
-        if( (application as LindenFreeApp).isFirstLaunch){
-            val decorView = this@LogActivity.window.decorView as ViewGroup
-            decorView.addView(
-                LayoutInflater.from(this@LogActivity).inflate(R.layout.tutorial_log_activity, null)
-            )
-        }
     }
 
     private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
