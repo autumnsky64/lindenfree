@@ -46,16 +46,24 @@ open class Event (
         newCal.set( Calendar.SECOND, 0)
         newCal.set( Calendar.MILLISECOND, 0)
 
-         Realm.getDefaultInstance().executeTransaction { realm ->
-            realm.where<Event>()
+        val realm = Realm.getDefaultInstance()
+        val found = realm.where<Event>()
                 .equalTo("time", oldCal.time)
                 .equalTo("event_name", action)
-                .findFirst()?.apply {
+                .findFirst()
+
+        if ( found == null){
+            insert(action, newCal, qty)
+        } else {
+            realm.executeTransaction {
+                found.apply {
                     time = newCal.time
                     quantity = qty
                 }
-             realm.close()
             }
+        }
+
+        realm.close()
     }
 
     fun insertByTimePicker( action: String, context: Context){
