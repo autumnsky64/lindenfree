@@ -12,7 +12,6 @@ import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
@@ -62,6 +61,8 @@ class MainActivity : AppCompatActivity() {
             &&  Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
                 startActivity(Intent(applicationContext, MedicineActivity::class.java))
         }
+
+        //Swipeで日付移動
 
         // 日付ラベル
         findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
@@ -174,7 +175,6 @@ class MainActivity : AppCompatActivity() {
 
     //薬の一覧
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val medicine: ConstraintLayout = itemView.findViewById(R.id.medicine_with_spinner)
         val name: TextView = itemView.findViewById(R.id.medicine_name_with_spinner)
         val quantitySpinner: Spinner = itemView.findViewById(R.id.adjust_spinner)
         val unitLabel: TextView = itemView.findViewById(R.id.adjust_spinner_unit_label)
@@ -188,18 +188,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MedicineListHolder, position: Int) {
-            holder.name.text = medicineList[position]?.name
+            val medicineName = medicineList[position]?.name
+            holder.name.text = medicineName
 
-            setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineList[position]?.medicine?.regular_quantity, medicineList[position].medicine?.adjustment_step )
-            //TODO ログから容量をセットする
+            val todaysFirstSec = Calendar.getInstance().apply {
+                set( Calendar.HOUR_OF_DAY, 0)
+                set( Calendar.MINUTE, 0)
+                set( Calendar.SECOND, 0)
+            }
+            val recordedQuantity = Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time).equalTo("event_name", medicineName).findFirst()?.quantity
+
+            setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineList[position]?.medicine, recordedQuantity)
+
         }
 
         override fun getItemCount(): Int {
             return medicineList.size
         }
 
-        private fun setupSpinner(spinner: Spinner, unitLabel: TextView, default: Double?, adjust: Double?){
+        private fun setupSpinner(spinner: Spinner, unitLabel: TextView, medicine: Medicine?, quantity: Double?){
             val qtyList = mutableListOf<Double>()
+            val default = medicine?.regular_quantity
+            val adjust = medicine?.adjustment_step
+
             if ( default != null && adjust != null){
                 val min = default - (adjust * 2)
 
@@ -218,8 +229,15 @@ class MainActivity : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spinner.adapter = adapter
 
+
             if ( spinner.adapter.count > 2){
-                spinner.setSelection(2)
+
+                val found = qtyList.indexOf( quantity )
+                if( found == -1 ){
+                    spinner.setSelection(2)
+                } else {
+                    spinner.setSelection(found)
+                }
             }
         }
     }
