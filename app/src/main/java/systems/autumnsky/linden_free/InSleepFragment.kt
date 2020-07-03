@@ -1,36 +1,52 @@
 package systems.autumnsky.linden_free
 
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import io.realm.Realm
+import io.realm.Sort
+import io.realm.kotlin.where
 
 class InSleepFragment : DialogFragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val sleepingDialog = inflater.inflate(R.layout.in_sleep_dialog, container, false)
+    override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
+        return activity?.let {
 
-        //入眠時刻を表示
-        arguments?.let{
-            sleepingDialog.findViewById<TextView>(R.id.in_sleep_time).text = it.getString("InSleepTime")
-        }
+            val builder = AlertDialog.Builder(it)
+            val body = requireActivity().layoutInflater.inflate(R.layout.in_sleep_dialog, null)
 
-        //起床ボタンをタップで時刻を入力、長押しでタイムピッカーから入力して終了
-        val awakeButton = sleepingDialog.findViewById<Button>(R.id.awake_button)
+            builder.setView(body)
+            //入眠時刻を表示
+            arguments?.let{
+                body.findViewById<TextView>(R.id.in_sleep_time).text = it.getString("InSleepTime")
+            }
 
-        awakeButton.setOnClickListener {
-            Event().insert( awakeButton.text.toString())
-            dismiss()
-        }
+            //起床ボタンをタップで時刻を入力、長押しでタイムピッカーから入力して終了
+            val awakeButton = body.findViewById<Button>(R.id.awake_button)
 
-        awakeButton.setOnLongClickListener { view ->
-            Event().insertByTimePicker( awakeButton.text.toString(), view.context )
-            dismiss()
-            return@setOnLongClickListener true
-        }
+            awakeButton.setOnClickListener {
+                Event().insert( awakeButton.text.toString())
+                dismiss()
+            }
 
-        return sleepingDialog
+            awakeButton.setOnLongClickListener { view ->
+                Event().insertByTimePicker( awakeButton.text.toString(), view.context )
+                dismiss()
+                return@setOnLongClickListener true
+            }
+            builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { _, _ ->
+                val key = arrayOf("time", "id")
+                val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
+                Realm.getDefaultInstance().apply{
+                    executeTransaction {
+                        where<Event>().equalTo("event_name", getString(R.string.sleep)).sort(key, sort).findFirst()?.deleteFromRealm()
+                    }
+                } .also { it.close() }
+            })
+            builder.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
     }
 }
