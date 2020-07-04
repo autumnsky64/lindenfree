@@ -20,6 +20,7 @@
     <string name="label_cancel_button">キャンセル</string>
 
     <string name="sleeping_since">睡眠中</string>
+    <string name="sleeping_dialog_cancel_attention">キャンセルで入眠時刻は記録されません</string>
 
     <string name="dialog_delete">削除</string>
     <string name="dialog_cancel">キャンセル</string>

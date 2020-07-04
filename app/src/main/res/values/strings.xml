@@ -24,6 +24,7 @@
     <string name="title_delete_record">Delete this record?</string>
 
     <string name="sleeping_since">Sleeping since</string>
+    <string name="sleeping_dialog_cancel_attention">If canceled, sleep time does not record.</string>
 
     <string name="th_time">Time</string>
     <string name="th_event">Event</string>
