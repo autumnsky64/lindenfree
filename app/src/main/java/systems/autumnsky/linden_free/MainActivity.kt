@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         realm.where<Event>().between("time", today.time, todayLastSec.time).findAll()?.let{
             todaysEventView.apply{
                 if( it.count() > 6) {
-                    todaysEventView.layoutManager = GridLayoutManager( applicationContext, 2, GridLayoutManager.VERTICAL, false )
+                    todaysEventView.layoutManager = GridLayoutManager( applicationContext, 4, GridLayoutManager.HORIZONTAL, false )
                 } else {
                     todaysEventView.layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
                 }
@@ -170,6 +170,7 @@ class MainActivity : AppCompatActivity() {
                 putString("InSleepTime", inSleepTime)
             }
             show(supportFragmentManager, "InSleep")
+
         }
     }
 
