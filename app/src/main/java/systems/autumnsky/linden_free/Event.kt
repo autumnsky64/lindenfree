@@ -75,7 +75,7 @@ open class Event (
                     set(Calendar.HOUR_OF_DAY, hour)
                     set(Calendar.MINUTE, min)
                 }
-                insert( action )
+                insert( action, cal)
             },
             cal.get(Calendar.HOUR_OF_DAY),
             cal.get(Calendar.MINUTE),
