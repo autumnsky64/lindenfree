@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         val medicine = realm.where<Medicine>().findFirst()
         val doseTime = realm.where<Event>()
             .greaterThanOrEqualTo("time", today.time)
-            .equalTo("event_name",medicine?.name)
+            .equalTo("name",medicine?.name)
             .findFirst()?.time
 
         if( doseTime != null){
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         val key = arrayOf("time", "id")
         val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
         val lastEvent = realm.where<Event>().sort(key, sort).findFirst()
-        if( lastEvent?.event_name == getString(R.string.sleep)){
+        if( lastEvent?.name == getString(R.string.sleep)){
             lastEvent?.time?.let {
                 showSleepingDialog(DateFormat.format("hh:mm", it) as String)
             }
@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity() {
                 set( Calendar.MINUTE, 0)
                 set( Calendar.SECOND, 0)
             }
-            val recordedQuantity = Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time).equalTo("event_name", medicineName).findFirst()?.quantity
+            val recordedQuantity = Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time).equalTo("name", medicineName).findFirst()?.quantity
 
             setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineList[position]?.medicine, recordedQuantity)
 
@@ -251,7 +251,7 @@ class MainActivity : AppCompatActivity() {
             return EventListHolder(row)
         }
         override fun onBindViewHolder(holder: EventListHolder, position: Int) {
-            holder.eventName.text = todaysEvent[position]?.event_name
+            holder.eventName.text = todaysEvent[position]?.name
             holder.eventTime.text = DateFormat.format("hh:mm", todaysEvent[position]?.time) as String
         }
 

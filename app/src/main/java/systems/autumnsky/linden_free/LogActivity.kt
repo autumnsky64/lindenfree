@@ -112,7 +112,7 @@ class LogActivity : AppCompatActivity() {
                             val timeString = DateFormat.format("yyyy/MM/dd kk:mm", record.time )
                             val quantityString = if( record.quantity != null ) DecimalFormat("#.##").format(record.quantity!!) else ""
 
-                            write("${timeString}\t${record.event_name}\t${quantityString}\n".toByteArray())
+                            write("${timeString}\t${record.name}\t${quantityString}\n".toByteArray())
                         }
                     flush()
                     close()
@@ -216,7 +216,7 @@ class LogActivity : AppCompatActivity() {
             holder.run {
                 id.text = logRecord.id?.toString()
                 time.text = logRecord.time?.let { DateFormat.format("yy/MM/dd kk:mm", it) }
-                event.text = logRecord.event_name
+                event.text = logRecord.name
                 quantity.text = logRecord.quantity?.let { DecimalFormat("#.##").format(it) + "mg" }
             }
 
@@ -265,7 +265,7 @@ class LogActivity : AppCompatActivity() {
                     EditQuantityLogFragment().run {
                         arguments = Bundle().apply {
                             putString("Id", logRecord.id!!.toString())
-                            putString("MedicineName", logRecord.event_name)
+                            putString("MedicineName", logRecord.name)
                             putString("Quantity", quantity.toString())
                         }
                         show(supportFragmentManager, "EditQuantity")

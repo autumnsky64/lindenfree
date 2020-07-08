@@ -42,7 +42,7 @@ class InSleepFragment : DialogFragment() {
                 val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
                 Realm.getDefaultInstance().apply{
                     executeTransaction {
-                        where<Event>().equalTo("event_name", getString(R.string.sleep)).sort(key, sort).findFirst()?.deleteFromRealm()
+                        where<Event>().equalTo("name", getString(R.string.sleep)).sort(key, sort).findFirst()?.deleteFromRealm()
                     }
                 } .also { it.close() }
             })

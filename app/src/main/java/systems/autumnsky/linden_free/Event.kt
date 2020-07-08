@@ -17,7 +17,7 @@ import java.util.*
 open class Event (
     @PrimaryKey open var id: Long? = null,
     open var time: Date? = null,
-    open var event_name: String? = null,
+    open var name: String? = null,
     open var quantity: Double? = null
 ): RealmObject() {
 
@@ -34,7 +34,7 @@ open class Event (
             val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
             val eventLog = realm.createObject<Event>(newId).apply{
                 time = cal.time
-                event_name = action
+                name = action
                 quantity = qty
             }
             realm.copyToRealm(eventLog)
@@ -49,7 +49,7 @@ open class Event (
         val realm = Realm.getDefaultInstance()
         val found = realm.where<Event>()
                 .equalTo("time", oldCal.time)
-                .equalTo("event_name", action)
+                .equalTo("name", action)
                 .findFirst()
 
         if ( found == null){
