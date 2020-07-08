@@ -11,6 +11,8 @@
     <string name="place_holder_medicine_name">Medicine Name</string>
     <string name="label_regular_quantity">Regular Quantity</string>
     <string name="label_adjust_quantity">Adjust Per</string>
+    <string name="label_use_as_needed">Use as needed</string>
+
     <string name="unit">mg</string>
     <string name="label_adjust_unit">mg</string>
     <string name="label_save_button">Save</string>

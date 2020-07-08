@@ -13,6 +13,7 @@
     <string name="label_adjust_quantity">調整</string>
     <string name="unit">mg</string>
     <string name="label_adjust_unit">mgずつ</string>
+    <string name="label_use_as_needed">頓服</string>
 
     <string name="title_delete_medicine">%sを削除しますか？</string>
 

@@ -151,6 +151,7 @@ class MedicineActivity : AppCompatActivity() {
         val regularUnitLabel: TextView = itemView.findViewById(R.id.regular_unit_label)
         val adjustmentLabel: TextView = itemView.findViewById(R.id.adjustment_label)
         val adjustmentUnitLabel: TextView = itemView.findViewById(R.id.adjustment_unit)
+        val useAsNeededLabel: TextView = itemView.findViewById(R.id.is_use_as_needed)
     }
 
     private inner class RealmAdapter(private val medicines: OrderedRealmCollection<Medicine>)
@@ -196,6 +197,9 @@ class MedicineActivity : AppCompatActivity() {
                     adjustmentUnitLabel.visibility = View.INVISIBLE
                 }
             }
+
+            val isUseAsNeeded = medicine?.is_use_as_needed
+            if( isUseAsNeeded != null && isUseAsNeeded ){ holder.useAsNeededLabel.visibility = View.VISIBLE }
 
             // タップで編集
             holder.medicine.setOnClickListener{
