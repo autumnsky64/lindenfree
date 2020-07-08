@@ -137,13 +137,24 @@ class MainActivity : AppCompatActivity() {
 
         realm.where<Event>().between("time", today.time, todayLastSec.time).findAll()?.let{
             todaysEventView.apply{
-                if( it.count() > 6) {
-                    todaysEventView.layoutManager = GridLayoutManager( applicationContext, 4, GridLayoutManager.HORIZONTAL, false )
-                } else {
-                    todaysEventView.layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
-                }
+                layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
                 adapter = EventAdapter(it)
             }
+        }
+
+        //FAB
+        findViewById<View>(R.id.daily_insert_event).setOnClickListener {
+            val stringArray = arrayOf(getString(R.string.dose))
+            val actions = realm.where<Action>()
+                .not().`in`("name", stringArray)
+                .beginGroup()
+                    .isNull("medicine")
+                        .or()
+                    .equalTo("medicine.is_use_as_needed", true)
+                .endGroup()
+                .findAll()
+            val actionList = BottomSheetActionList( actions )
+            actionList.show(supportFragmentManager, actionList.tag )
         }
 
         // Sleepボタン
@@ -252,7 +263,7 @@ class MainActivity : AppCompatActivity() {
         }
         override fun onBindViewHolder(holder: EventListHolder, position: Int) {
             holder.eventName.text = todaysEvent[position]?.name
-            holder.eventTime.text = DateFormat.format("hh:mm", todaysEvent[position]?.time) as String
+            holder.eventTime.text = DateFormat.format("HH:mm", todaysEvent[position]?.time) as String
         }
 
         override fun getItemCount(): Int {

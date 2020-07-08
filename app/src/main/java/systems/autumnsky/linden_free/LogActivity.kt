@@ -3,7 +3,6 @@ package systems.autumnsky.linden_free
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -14,11 +13,12 @@ import android.view.*
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
@@ -185,7 +185,8 @@ class LogActivity : AppCompatActivity() {
 
         //FAB
         findViewById<View>(R.id.insert_event).setOnClickListener {
-            val actionList = ActionList()
+            val actions = Realm.getDefaultInstance().where<Action>().notEqualTo("name", getString(R.string.dose)).findAll()
+            val actionList = BottomSheetActionList( actions, isDatePicker = true )
             actionList.show(supportFragmentManager, actionList.tag )
         }
 
@@ -280,70 +281,3 @@ class LogActivity : AppCompatActivity() {
     }
 }
 
-class ActionList : BottomSheetDialogFragment() {
-    override fun setupDialog(dialog: Dialog, style: Int) {
-        super.setupDialog(dialog, style)
-        val view = View.inflate(context, R.layout.bottom_sheet_action_list, null)
-        dialog.setContentView( view )
-
-        val realm = Realm.getDefaultInstance()
-        val layout = GridLayoutManager( activity, 2 )
-        val actionList: RecyclerView = view.findViewById(R.id.action_list)
-
-        realm.where<Action>().notEqualTo("name", getString(R.string.dose)).findAll()?.let {
-            actionList.run {
-                layoutManager = layout
-                adapter = RealmAdapter(it)
-            }
-        }
-    }
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.bottom_sheet_action_list, container, false)
-    }
-
-    private inner class ActionListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val action :ConstraintLayout = itemView.findViewById(R.id.action_row_in_bottom_sheet)
-        val name :TextView = itemView.findViewById(R.id.action_name_in_bottom_sheet)
-    }
-
-    private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>)
-        : RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, true) {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionListHolder {
-            val row = LayoutInflater.from(context)
-                .inflate(R.layout.action_row_in_bottom_sheet, parent, false)
-            return ActionListHolder(row)
-        }
-
-        override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
-            holder.name.text = actionList[position]?.name
-            holder.action.setOnClickListener { view ->
-                //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
-                val cal = Calendar.getInstance()
-                DatePickerDialog(
-                    context,
-                    DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                        cal.apply {
-                            set(Calendar.YEAR, year)
-                            set(Calendar.MONTH, month)
-                            set(Calendar.DAY_OF_MONTH, day)
-                        }
-                        Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
-                        dismiss()
-                    },
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return actionList.size
-        }
-    }
-}

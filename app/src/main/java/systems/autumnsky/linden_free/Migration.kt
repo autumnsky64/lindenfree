@@ -14,7 +14,6 @@ class Migration : RealmMigration {
                 get("Medicine")?.addField("is_use_as_needed", Boolean::class.java)
                 get("Event")?.renameField("event_name", "name")
             }
-            verCount++
         }
     }
 }
