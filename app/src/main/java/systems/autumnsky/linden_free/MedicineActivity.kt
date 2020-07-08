@@ -210,6 +210,7 @@ class MedicineActivity : AppCompatActivity() {
                         putString("Name", medicine?.name)
                         putDouble("Quantity", medicine?.regular_quantity?:0.0)
                         putDouble("Step", medicine?.adjustment_step?:0.0)
+                        putBoolean("IsUseAsNeeded", medicine?.is_use_as_needed?:false)
                     }
                     show(supportFragmentManager,"medicine")
                 }

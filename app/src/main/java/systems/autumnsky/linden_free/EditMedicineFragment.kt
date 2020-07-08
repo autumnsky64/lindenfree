@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.kotlin.createObject
@@ -27,9 +24,11 @@ class EditMedicineFragment : DialogFragment() {
 
             val quantity: Double? = it.getDouble("Quantity")
             val step: Double? = it.getDouble("Step")
+            val bool: Boolean? = it.getBoolean("IsUseAsNeeded")
 
             if ( quantity != 0.0 ){ view.findViewById<EditText>(R.id.input_regular_quantity).setText(DecimalFormat("#.##").format(quantity))}
             if ( step != 0.0 ){ view.findViewById<EditText>(R.id.input_adjustment_step).setText(DecimalFormat("#.##").format(step)) }
+            if ( bool == true ){ view.findViewById<CheckBox>(R.id.checkbox_use_as_needed).isChecked = true }
 
             }
 
@@ -46,6 +45,7 @@ class EditMedicineFragment : DialogFragment() {
             val editedName = medicineDialog.findViewById<TextView>(R.id.input_medicine_name).text?.toString()
             val editedQuantity = medicineDialog.findViewById<EditText>(R.id.input_regular_quantity).text?.toString()?.toDoubleOrNull()
             val editedStep = medicineDialog.findViewById<EditText>(R.id.input_adjustment_step).text?.toString()?.toDoubleOrNull()
+            val isUseAsNeeded = medicineDialog.findViewById<CheckBox>(R.id.checkbox_use_as_needed).isChecked
 
             // 薬名の空欄チェック
             if( editedName == "" ) { return }
@@ -59,6 +59,7 @@ class EditMedicineFragment : DialogFragment() {
                         name = editedName
                         regular_quantity = editedQuantity
                         adjustment_step = editedStep
+                        is_use_as_needed = isUseAsNeeded
                     }
 
                     realm.where<Action>().equalTo("medicine.id", targetId.toString()).findFirst()?.apply {
@@ -74,6 +75,7 @@ class EditMedicineFragment : DialogFragment() {
                             name = editedName
                             regular_quantity = editedQuantity
                             adjustment_step = editedStep
+                            is_use_as_needed = isUseAsNeeded
                         }
                     realm.copyToRealm(editedMedicine)
 
@@ -81,6 +83,7 @@ class EditMedicineFragment : DialogFragment() {
                         name = editedName
                         medicine = editedMedicine
                     }
+
                     realm.copyToRealm(event)
 
                 }

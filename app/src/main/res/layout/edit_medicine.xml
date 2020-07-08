@@ -116,11 +116,11 @@
         android:id="@+id/divider2"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:background="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_adjustment_step" />
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_use_as_needed" />
 
     <View
         android:id="@+id/divider3"
@@ -143,5 +143,15 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+    <CheckBox
+        android:id="@+id/checkbox_use_as_needed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/label_use_as_needed"
+        android:textAlignment="viewEnd"
+        app:layout_constraintEnd_toEndOf="@+id/input_medicine_name"
+        app:layout_constraintTop_toBottomOf="@+id/input_adjustment_step" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
