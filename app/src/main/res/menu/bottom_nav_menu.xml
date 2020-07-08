@@ -8,14 +8,15 @@
             android:iconTint="#00FFFFFF"/>
 
     <item
-            android:id="@+id/navigation_home"
-            android:icon="@drawable/ic_home_black_24dp"
-            android:title="@string/title_home" android:checkable="false" android:checked="true"
-    />
+        android:id="@+id/navigation_home"
+        android:checkable="false"
+        android:checked="true"
+        android:icon="@drawable/ic_event_black_24dp"
+        android:title="@string/title_daily" />
 
     <item
-            android:id="@+id/navigation_log"
-            android:icon="@drawable/ic_event_note_black_24dp"
-            android:title="@string/title_log"/>
+        android:id="@+id/navigation_log"
+        android:icon="@drawable/ic_insert_chart_black_24dp"
+        android:title="@string/title_log" />
 
 </menu>

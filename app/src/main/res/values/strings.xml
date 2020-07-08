@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">LindenFree</string>
 
-    <string name="title_home">Home</string>
+    <string name="title_daily">Daily</string>
     <string name="title_medicine">Medicine</string>
     <string name="title_log">Log</string>
 
