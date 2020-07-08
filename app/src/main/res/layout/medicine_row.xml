@@ -13,7 +13,7 @@
         android:layout_width="379dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:text="Medicine Name"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,10 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:text="1.5"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/medicine_name"
+        app:layout_constraintStart_toEndOf="@+id/is_use_as_needed"
         app:layout_constraintTop_toBottomOf="@+id/medicine_name" />
 
     <TextView
@@ -92,12 +92,14 @@
         android:id="@+id/is_use_as_needed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:paddingEnd="10sp"
         android:text="@string/label_use_as_needed"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/regular_quantity"
-        app:layout_constraintEnd_toStartOf="@+id/regular_quantity"
         app:layout_constraintStart_toStartOf="@+id/medicine_name"
-        app:layout_constraintTop_toTopOf="@+id/regular_quantity" />
+        app:layout_constraintTop_toBottomOf="@+id/medicine_name"
+        app:layout_constraintTop_toTopOf="@+id/regular_quantity"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
