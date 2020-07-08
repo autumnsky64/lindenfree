@@ -66,8 +66,7 @@ open class Event (
         realm.close()
     }
 
-    fun insertByTimePicker( action: String, context: Context){
-        val cal = Calendar.getInstance()
+    fun insertByTimePicker( action: String, context: Context, cal :Calendar = Calendar.getInstance()){
         TimePickerDialog(
             context,
             TimePickerDialog.OnTimeSetListener { _, hour, min ->

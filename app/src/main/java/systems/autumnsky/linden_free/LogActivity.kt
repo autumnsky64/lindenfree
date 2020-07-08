@@ -135,7 +135,14 @@ class LogActivity : AppCompatActivity() {
 
         val logTable = findViewById<RecyclerView>(R.id.log_table_body).apply {
             layoutManager = layout
-            adapter = RealmAdapter(eventLog)
+            adapter = RealmAdapter(eventLog).apply {
+                //追記時に最上部にスクロールする
+                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                    override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                        findViewById<RecyclerView>(R.id.log_table_body).scrollToPosition(positionStart)
+                    }
+                })
+            }
             addItemDecoration(DividerItemDecoration(applicationContext, layout.orientation))
         }
 
@@ -315,8 +322,23 @@ class ActionList : BottomSheetDialogFragment() {
         override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
             holder.name.text = actionList[position]?.name
             holder.action.setOnClickListener { view ->
-                Event().insertByTimePicker( holder.name.text.toString(), view.context)
-                dismiss()
+                //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
+                val cal = Calendar.getInstance()
+                DatePickerDialog(
+                    context,
+                    DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                        cal.apply {
+                            set(Calendar.YEAR, year)
+                            set(Calendar.MONTH, month)
+                            set(Calendar.DAY_OF_MONTH, day)
+                        }
+                        Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                        dismiss()
+                    },
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+                ).show()
             }
         }
 
