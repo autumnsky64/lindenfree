@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         val medicineListView = findViewById<RecyclerView>(R.id.medicines_with_spinner)
         medicineListView.layoutManager = medicineLayout
 
-        realm.where<Action>().isNotNull("medicine").findAll()?.let{
+        realm.where<Action>().isNotNull("medicine").equalTo("medicine.is_use_as_needed", false).findAll()?.let{
             medicineListView.apply {
                 adapter = MedicineAdapter(it)
                 addItemDecoration(DividerItemDecoration(applicationContext, medicineLayout.orientation))
