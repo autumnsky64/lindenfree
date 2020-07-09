@@ -67,6 +67,21 @@ class MainActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
         }
 
+        val currentDay = SimpleDateFormat("yyyy/MM/dd").parse( findViewById<TextView>(R.id.date_label).text.toString() )
+        val calToday = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        var isTodayDaily:Boolean
+        if (calToday.compareTo( Calendar.getInstance().apply { time = currentDay} ) == 0) {
+            isTodayDaily = true
+        } else {
+            isTodayDaily = false
+        }
+
         // 薬 ボタン: リサイクルビューの薬リストを一括でDBに書き込む
         findViewById<Button>(R.id.dose_button).setOnClickListener { view ->
             val button = view as Button
@@ -75,8 +90,14 @@ class MainActivity : AppCompatActivity() {
 
             // ボタンのラベルがデフォルトならインサート 時刻が入ってればアップデート
             if (labelMap["default"] == labelMap["current"]) {
-                Event().insertMedicineLog( medicineList )
-                updateButton( button, Calendar.getInstance() )
+                if( isTodayDaily) {
+                    Event().insertMedicineLog( medicineList )
+                    updateButton( button, Calendar.getInstance() )
+                } else {
+                    val argCal = Calendar.getInstance().apply{ time = currentDay }
+                    Event().insertMedicineLogByTimePicker( medicineList, button, argCal)
+                    updateButton( button, argCal )
+                }
             } else {
                 Event().updateMedicineLog( medicineList, button, buildCalendarByLabel( button ) )
             }
@@ -86,9 +107,10 @@ class MainActivity : AppCompatActivity() {
             val button = view as Button
             val labelMap: Map<String, String> = labelAttribute(button)
             val medicineList = findViewById<RecyclerView>(R.id.medicines_with_spinner)
+            val argCal = Calendar.getInstance().apply{ time = currentDay }
 
             if(labelMap["default"] == labelMap["current"]) {
-                Event().insertMedicineLogByTimePicker( medicineList, button )
+                Event().insertMedicineLogByTimePicker( medicineList, button, argCal )
             } else {
                 Event().updateMedicineLog( medicineList, button, buildCalendarByLabel( button ))
             }
@@ -98,10 +120,8 @@ class MainActivity : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
 
         // ボタンなどの日時表示
-        val today = SimpleDateFormat("yyyy/MM/dd").parse( findViewById<TextView>(R.id.date_label).text.toString() )
-
-        val todayLastSec = Calendar.getInstance().apply {
-            time = today
+        val currentDayLastSec = Calendar.getInstance().apply {
+            time = currentDay
             set( Calendar.HOUR_OF_DAY, 23)
             set( Calendar.MINUTE, 59)
             set( Calendar.SECOND, 59)
@@ -109,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         val medicine = realm.where<Medicine>().findFirst()
         val doseTime = realm.where<Event>()
-            .between("time", today, todayLastSec.time)
+            .between("time", currentDay, currentDayLastSec.time)
             .equalTo("name",medicine?.name)
             .findFirst()?.time
 
@@ -134,23 +154,38 @@ class MainActivity : AppCompatActivity() {
         //その日のイベントリスト
         val sortKey = arrayOf("time", "id")
         val sortAscend = arrayOf( Sort.ASCENDING, Sort.ASCENDING)
-        val todaysEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
-        realm.where<Event>().between("time", today, todayLastSec.time).sort(sortKey, sortAscend).findAll()?.let{
-            todaysEventView.apply{
+        val dailyEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
+        realm.where<Event>().between("time", currentDay, currentDayLastSec.time).sort(sortKey, sortAscend).findAll()?.let{
+            dailyEventView.apply{
                 layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
                 adapter = EventAdapter(it)
             }
         }
 
         //日付移動
-        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener { _ ->
+        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener {
             val intent = Intent(applicationContext, MainActivity::class.java)
             val prevDay = Calendar.getInstance().apply{
-                time = today
+                time = currentDay
                 add(Calendar.DAY_OF_MONTH, -1)
             }
             intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", prevDay))
             startActivity(intent)
+        }
+
+        val nextDay = Calendar.getInstance().apply{
+                time = currentDay
+                add(Calendar.DAY_OF_MONTH, +1)
+            }
+        if( nextDay.compareTo(Calendar.getInstance()) < 0 ){
+            findViewById<ImageButton>(R.id.move_next_day).apply{
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    val intent = Intent(applicationContext, MainActivity::class.java)
+                    intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", nextDay))
+                    startActivity(intent)
+                }
+            }
         }
 
         //FAB
@@ -165,25 +200,24 @@ class MainActivity : AppCompatActivity() {
                 .endGroup()
                 .findAll()
 
-            // intentのdayが空でない場合、過去の日を表示している
-            if( day != null){
-                val actionList = BottomSheetActionList( actions, isDatePicker = true, day = today)
+            if( isTodayDaily ){
+                val actionList = BottomSheetActionList( actions )
                 actionList.show(supportFragmentManager, actionList.tag )
             } else {
-                val actionList = BottomSheetActionList( actions )
+                val actionList = BottomSheetActionList( actions, isDatePicker = true, day = currentDay)
                 actionList.show(supportFragmentManager, actionList.tag )
             }
         }
 
         // Sleepボタン
         val sleepButton = findViewById<Button>(R.id.sleep_button)
-        if( day != null){
-            sleepButton.visibility = View.GONE
-        } else {
+        if( isTodayDaily ){
             sleepButton.setOnClickListener {
                 Event().insert(getString(R.string.sleep))
                 showSleepingDialog()
             }
+        } else {
+            sleepButton.visibility = View.GONE
         }
 
         // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
@@ -227,11 +261,9 @@ class MainActivity : AppCompatActivity() {
             holder.name.text = medicineName
 
             val todaysFirstSec = Calendar.getInstance().apply {
-                set( Calendar.HOUR_OF_DAY, 0)
-                set( Calendar.MINUTE, 0)
-                set( Calendar.SECOND, 0)
+                time  = SimpleDateFormat("yyyy/MM/dd").parse( findViewById<TextView>(R.id.date_label).text.toString() )
             }
-            val recordedQuantity = Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time).equalTo("name", medicineName).findFirst()?.quantity
+            val recordedQuantity = Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time).equalTo("name", medicineName).sort("time", Sort.ASCENDING).findFirst()?.quantity
 
             setupSpinner(holder.quantitySpinner, holder.unitLabel, medicineList[position]?.medicine, recordedQuantity)
 

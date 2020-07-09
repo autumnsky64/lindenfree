@@ -82,7 +82,7 @@ open class Event (
         ).show()
     }
 
-    fun insertMedicineLog( medicines: RecyclerView, timing :Calendar? = null ) {
+    fun insertMedicineLog( medicines: RecyclerView, timing :Calendar? = Calendar.getInstance() ) {
         for (i in 0..medicines.childCount) {
             medicines.findViewHolderForLayoutPosition(i)?.let {
                 val medicine =
@@ -96,8 +96,7 @@ open class Event (
         }
     }
 
-    fun insertMedicineLogByTimePicker( medicines: RecyclerView, button: Button): Calendar? {
-        val cal = Calendar.getInstance()
+    fun insertMedicineLogByTimePicker( medicines: RecyclerView, button: Button, cal: Calendar): Calendar? {
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
@@ -123,6 +122,9 @@ open class Event (
 
     fun updateMedicineLog( medicines: RecyclerView, button: Button, oldCal: Calendar? ) :Calendar?{
         val newCal = Calendar.getInstance()
+        if( oldCal != null) {
+            newCal.time = oldCal.time
+        }
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
             newCal.set(Calendar.HOUR_OF_DAY, hour)
             newCal.set(Calendar.MINUTE, min)
