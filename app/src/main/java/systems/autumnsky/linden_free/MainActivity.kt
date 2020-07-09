@@ -7,10 +7,7 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -62,12 +59,24 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(applicationContext, MedicineActivity::class.java))
         }
 
-        //Swipeで日付移動
+        //日付移動
+        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener { button ->
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            val prevDay = Calendar.getInstance()
+            prevDay.add(Calendar.DAY_OF_MONTH, -1)
+            intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", prevDay))
+            startActivity(intent)
+        }
 
         // 日付ラベル
-        findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
+        val day = intent.getStringExtra("Day")
+        if( day != null){
+            findViewById<TextView>(R.id.date_label).text = day
+        } else {
+            findViewById<TextView>(R.id.date_label).text = DateFormat.format("yyyy/MM/dd", Calendar.getInstance())
+        }
 
-        // 薬 ボタン リサイクルビューの薬リストを一括でDBに書き込む
+        // 薬 ボタン: リサイクルビューの薬リストを一括でDBに書き込む
         findViewById<Button>(R.id.dose_button).setOnClickListener { view ->
             val button = view as Button
             val labelMap: Map<String, String> = labelAttribute(button)

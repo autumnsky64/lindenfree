@@ -7,17 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <ImageButton
+        android:id="@+id/move_previous_day"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:adjustViewBounds="false"
+        android:background="#00FFFFFF"
+        android:foreground="@drawable/ic_keyboard_arrow_left_black_24dp"
+        android:foregroundTint="#7CB342"
+        app:layout_constraintBottom_toBottomOf="@+id/date_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/date_label" />
+
     <TextView
         android:id="@+id/date_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="Today"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="#5C6BC0"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/move_previous_day"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
