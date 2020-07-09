@@ -59,15 +59,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(applicationContext, MedicineActivity::class.java))
         }
 
-        //日付移動
-        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener { button ->
-            val intent = Intent(applicationContext, MainActivity::class.java)
-            val prevDay = Calendar.getInstance()
-            prevDay.add(Calendar.DAY_OF_MONTH, -1)
-            intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", prevDay))
-            startActivity(intent)
-        }
-
         // 日付ラベル
         val day = intent.getStringExtra("Day")
         if( day != null){
@@ -107,13 +98,18 @@ class MainActivity : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
 
         // ボタンなどの日時表示
-        val today = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
+        val today = SimpleDateFormat("yyyy/MM/dd").parse( findViewById<TextView>(R.id.date_label).text.toString() )
+
+        val todayLastSec = Calendar.getInstance().apply {
+            time = today
+            set( Calendar.HOUR_OF_DAY, 23)
+            set( Calendar.MINUTE, 59)
+            set( Calendar.SECOND, 59)
         }
+
         val medicine = realm.where<Medicine>().findFirst()
         val doseTime = realm.where<Event>()
-            .greaterThanOrEqualTo("time", today.time)
+            .between("time", today, todayLastSec.time)
             .equalTo("name",medicine?.name)
             .findFirst()?.time
 
@@ -137,18 +133,22 @@ class MainActivity : AppCompatActivity() {
 
         //その日のイベントリスト
         val todaysEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
-
-        val todayLastSec = Calendar.getInstance().apply {
-            set( Calendar.HOUR_OF_DAY, 23)
-            set( Calendar.MINUTE, 59)
-            set( Calendar.SECOND, 59)
-        }
-
-        realm.where<Event>().between("time", today.time, todayLastSec.time).findAll()?.let{
+        realm.where<Event>().between("time", today, todayLastSec.time).findAll()?.let{
             todaysEventView.apply{
                 layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
                 adapter = EventAdapter(it)
             }
+        }
+
+        //日付移動
+        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener { button ->
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            val prevDay = Calendar.getInstance().apply{
+                time = today
+                add(Calendar.DAY_OF_MONTH, -1)
+            }
+            intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", prevDay))
+            startActivity(intent)
         }
 
         //FAB
