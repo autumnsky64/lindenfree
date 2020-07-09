@@ -132,8 +132,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         //その日のイベントリスト
+        val sortKey = arrayOf("time", "id")
+        val sortAscend = arrayOf( Sort.ASCENDING, Sort.ASCENDING)
         val todaysEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
-        realm.where<Event>().between("time", today, todayLastSec.time).findAll()?.let{
+        realm.where<Event>().between("time", today, todayLastSec.time).sort(sortKey, sortAscend).findAll()?.let{
             todaysEventView.apply{
                 layoutManager = GridLayoutManager( applicationContext, 1, GridLayoutManager.VERTICAL, false )
                 adapter = EventAdapter(it)
@@ -141,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         //日付移動
-        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener { button ->
+        findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener { _ ->
             val intent = Intent(applicationContext, MainActivity::class.java)
             val prevDay = Calendar.getInstance().apply{
                 time = today
@@ -174,8 +176,8 @@ class MainActivity : AppCompatActivity() {
 
         // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
         val key = arrayOf("time", "id")
-        val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
-        val lastEvent = realm.where<Event>().sort(key, sort).findFirst()
+        val sortDescend = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
+        val lastEvent = realm.where<Event>().sort(key, sortDescend).findFirst()
         if( lastEvent?.name == getString(R.string.sleep)){
             lastEvent?.time?.let {
                 showSleepingDialog(DateFormat.format("hh:mm", it) as String)
