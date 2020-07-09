@@ -16,9 +16,15 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.RealmResults
 import java.util.*
 
-class BottomSheetActionList (actions : RealmResults<Action>, isDatePicker :Boolean = false ): BottomSheetDialogFragment() {
+class BottomSheetActionList (
+        actions : RealmResults<Action>,
+        isDatePicker :Boolean = false,
+        day :Date? = null
+    ): BottomSheetDialogFragment() {
+
     private val isDatePicker = isDatePicker
     private val targetActions = actions
+    private val date = day
 
     override fun setupDialog(dialog: Dialog, style: Int) {
         super.setupDialog(dialog, style)
@@ -60,6 +66,7 @@ class BottomSheetActionList (actions : RealmResults<Action>, isDatePicker :Boole
             holder.action.setOnClickListener { view ->
                 //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
                 val cal = Calendar.getInstance()
+                if( this@BottomSheetActionList.date != null){ cal.time = date }
                 if( isDatePicker ){
                     DatePickerDialog(
                         view.context,

@@ -164,14 +164,26 @@ class MainActivity : AppCompatActivity() {
                     .equalTo("medicine.is_use_as_needed", true)
                 .endGroup()
                 .findAll()
-            val actionList = BottomSheetActionList( actions )
-            actionList.show(supportFragmentManager, actionList.tag )
+
+            // intentのdayが空でない場合、過去の日を表示している
+            if( day != null){
+                val actionList = BottomSheetActionList( actions, isDatePicker = true, day = today)
+                actionList.show(supportFragmentManager, actionList.tag )
+            } else {
+                val actionList = BottomSheetActionList( actions )
+                actionList.show(supportFragmentManager, actionList.tag )
+            }
         }
 
         // Sleepボタン
-        findViewById<Button>(R.id.sleep_button).setOnClickListener{
-            Event().insert( getString(R.string.sleep) )
-            showSleepingDialog()
+        val sleepButton = findViewById<Button>(R.id.sleep_button)
+        if( day != null){
+            sleepButton.visibility = View.GONE
+        } else {
+            sleepButton.setOnClickListener {
+                Event().insert(getString(R.string.sleep))
+                showSleepingDialog()
+            }
         }
 
         // イベントログの最後のレコードが、スリープの時は睡眠中ダイアログを表示
