@@ -11,7 +11,7 @@ class Migration : RealmMigration {
             scheme.apply {
                 rename("Event", "Action")
                 rename("EventLog", "Event")
-                get("Medicine")?.addField("is_use_as_needed", Boolean::class.java)
+                get("Medicine")?.addField("is_use_as_needed", Boolean::class.java)?.setNullable("is_use_as_needed",true)
                 get("Event")?.renameField("event_name", "name")
             }
         }
