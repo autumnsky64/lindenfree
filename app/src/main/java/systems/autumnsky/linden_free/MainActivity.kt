@@ -1,6 +1,7 @@
 package systems.autumnsky.linden_free
 
 import android.content.Intent
+import android.icu.text.DecimalFormat
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -177,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                 time = currentDay
                 add(Calendar.DAY_OF_MONTH, +1)
             }
-        if( nextDay.compareTo(Calendar.getInstance()) < 0 ){
+        if( nextDay < Calendar.getInstance() ){
             findViewById<ImageButton>(R.id.move_next_day).apply{
                 visibility = View.VISIBLE
                 setOnClickListener {
@@ -225,7 +226,7 @@ class MainActivity : AppCompatActivity() {
         val sortDescend = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
         val lastEvent = realm.where<Event>().sort(key, sortDescend).findFirst()
         if( lastEvent?.name == getString(R.string.sleep)){
-            lastEvent?.time?.let {
+            lastEvent.time?.let {
                 showSleepingDialog(DateFormat.format("hh:mm", it) as String)
             }
         }
@@ -313,12 +314,13 @@ class MainActivity : AppCompatActivity() {
     private inner class EventAdapter( private val todaysEvent: OrderedRealmCollection<Event>)
         : RealmRecyclerViewAdapter<Event, EventListHolder>(todaysEvent, true){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventListHolder {
-            val row = LayoutInflater.from(applicationContext).inflate(R.layout.row_todays_sleep, parent, false)
+            val row = LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
             return EventListHolder(row)
         }
         override fun onBindViewHolder(holder: EventListHolder, position: Int) {
-            holder.eventName.text = todaysEvent[position]?.name
-            holder.eventTime.text = DateFormat.format("HH:mm", todaysEvent[position]?.time) as String
+            holder.nameCell.text = todaysEvent[position]?.name
+            holder.timeCell.text = DateFormat.format("HH:mm", todaysEvent[position]?.time) as String
+            holder.quantityCell.text = todaysEvent[position]?.quantity?.let{ DecimalFormat("#.##").format(it) + " mg" }
         }
 
         override fun getItemCount(): Int {
@@ -327,8 +329,9 @@ class MainActivity : AppCompatActivity() {
 
     }
     private inner class EventListHolder( itemView: View) : RecyclerView.ViewHolder(itemView){
-        val eventName = itemView.findViewById<TextView>(R.id.todays_event_name)
-        val eventTime = itemView.findViewById<TextView>(R.id.todays_event_time)
+        val nameCell :TextView = itemView.findViewById(R.id.event_cell)
+        val timeCell :TextView = itemView.findViewById(R.id.time_cell)
+        val quantityCell :TextView = itemView.findViewById(R.id.qty_cell)
     }
     //buttonのIDから、初期のラベルを取得
     private fun labelAttribute(button: Button): Map<String, String> {
