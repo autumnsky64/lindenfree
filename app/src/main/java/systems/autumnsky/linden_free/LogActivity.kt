@@ -161,7 +161,6 @@ class LogActivity : AppCompatActivity() {
                     .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
                     .setPositiveButton(getText(R.string.dialog_delete)){ _, _ ->
-                        // medicine tableからの削除
                         val id = viewHolder.itemView.log_id.text?.toString()?.toLong()
                         Realm.getDefaultInstance().apply{
                             executeTransaction {

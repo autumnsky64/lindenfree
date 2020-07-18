@@ -1,5 +1,6 @@
 package systems.autumnsky.linden_free
 
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.icu.text.DecimalFormat
 import android.icu.text.SimpleDateFormat
@@ -9,18 +10,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.AppLaunchChecker
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
+import kotlinx.android.synthetic.main.log_row.view.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -163,6 +163,41 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //LogActivityからスワイプ処理、コピペ
+        val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT){
+            override fun onMove( recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val timeString = viewHolder.itemView.time_cell.text.toString()
+                val eventName = viewHolder.itemView.event_cell.text.toString()
+                val quantityString = viewHolder.itemView.qty_cell.text.toString()
+
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle(getText(R.string.title_delete_record))
+                    .setMessage("$timeString \n$eventName $quantityString")
+                    .setPositiveButton(getText(R.string.dialog_delete)){ _, _ ->
+                        val id = viewHolder.itemView.log_id.text?.toString()?.toLong()
+                        Realm.getDefaultInstance().apply{
+                            executeTransaction {
+                                where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
+                            }
+                        } .also { it.close() }
+                    }
+                    .setNegativeButton(getText(R.string.dialog_cancel)){ _ , _ ->
+                        //スワイプで行表示が消えたままになるので何も変わってないが再描画
+                        dailyEventView.adapter?.notifyDataSetChanged()
+                    }
+                    .setOnDismissListener {
+                        dailyEventView.adapter?.notifyDataSetChanged()
+                    }
+                    .show()
+
+            }
+        })
+        helper.attachToRecyclerView(dailyEventView)
+
         //日付移動
         findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener {
             val intent = Intent(applicationContext, MainActivity::class.java)
@@ -297,9 +332,7 @@ class MainActivity : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spinner.adapter = adapter
 
-
             if ( spinner.adapter.count > 2){
-
                 val found = qtyList.indexOf( quantity )
                 if( found == -1 ){
                     spinner.setSelection(2)
@@ -318,9 +351,37 @@ class MainActivity : AppCompatActivity() {
             return EventListHolder(row)
         }
         override fun onBindViewHolder(holder: EventListHolder, position: Int) {
-            holder.nameCell.text = todaysEvent[position]?.name
-            holder.timeCell.text = DateFormat.format("HH:mm", todaysEvent[position]?.time) as String
-            holder.quantityCell.text = todaysEvent[position]?.quantity?.let{ DecimalFormat("#.##").format(it) + " mg" }
+            holder.run{
+                id.text = todaysEvent[position]?.id.toString()
+                nameCell.text = todaysEvent[position]?.name
+                timeCell.text = DateFormat.format("HH:mm", todaysEvent[position]?.time) as String
+                quantityCell.text = todaysEvent[position]?.quantity?.let{ DecimalFormat("#.##").format(it) + " mg" }
+            }
+            //LogActivityからのコピペ
+            holder.timeCell.setOnClickListener {
+                val cal = Calendar.getInstance().apply { time = todaysEvent[position].time!! }
+
+                        TimePickerDialog(
+                            this@MainActivity,
+                            TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                                cal.apply {
+                                    set(Calendar.HOUR_OF_DAY, hour)
+                                    set(Calendar.MINUTE, min)
+                                }
+                                val realm = Realm.getDefaultInstance()
+                                realm.executeTransaction {
+                                    cal.set( Calendar.SECOND, 0)
+                                    cal.set( Calendar.MILLISECOND, 0)
+                                    todaysEvent[position].time = cal.time
+                                }
+                                realm.close()
+
+                            },
+                            cal.get(Calendar.HOUR_OF_DAY),
+                            cal.get(Calendar.MINUTE),
+                            true
+                        ).show()
+            }
         }
 
         override fun getItemCount(): Int {
@@ -329,6 +390,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     private inner class EventListHolder( itemView: View) : RecyclerView.ViewHolder(itemView){
+        val id :TextView = itemView.findViewById(R.id.log_id)
         val nameCell :TextView = itemView.findViewById(R.id.event_cell)
         val timeCell :TextView = itemView.findViewById(R.id.time_cell)
         val quantityCell :TextView = itemView.findViewById(R.id.qty_cell)
