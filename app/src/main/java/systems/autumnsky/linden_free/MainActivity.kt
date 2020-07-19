@@ -199,20 +199,22 @@ class MainActivity : AppCompatActivity() {
         helper.attachToRecyclerView(dailyEventView)
 
         //日付移動
+        val prevDay = Calendar.getInstance().apply{
+            time = currentDay
+            add(Calendar.DAY_OF_MONTH, -1)
+        }
+
+        val nextDay = Calendar.getInstance().apply{
+            time = currentDay
+            add(Calendar.DAY_OF_MONTH, +1)
+        }
+
         findViewById<ImageButton>(R.id.move_previous_day).setOnClickListener {
             val intent = Intent(applicationContext, MainActivity::class.java)
-            val prevDay = Calendar.getInstance().apply{
-                time = currentDay
-                add(Calendar.DAY_OF_MONTH, -1)
-            }
             intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", prevDay))
             startActivity(intent)
         }
 
-        val nextDay = Calendar.getInstance().apply{
-                time = currentDay
-                add(Calendar.DAY_OF_MONTH, +1)
-            }
         if( nextDay < Calendar.getInstance() ){
             findViewById<ImageButton>(R.id.move_next_day).apply{
                 visibility = View.VISIBLE
