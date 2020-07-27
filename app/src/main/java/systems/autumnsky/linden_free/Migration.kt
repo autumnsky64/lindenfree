@@ -2,6 +2,7 @@ package systems.autumnsky.linden_free
 
 import io.realm.DynamicRealm
 import io.realm.RealmMigration
+import java.util.*
 
 class Migration : RealmMigration {
     override fun migrate(realm: DynamicRealm, oldVersion: Long, newVersion: Long) {
@@ -13,6 +14,22 @@ class Migration : RealmMigration {
                 rename("EventLog", "Event")
                 get("Medicine")?.addField("is_use_as_needed", Boolean::class.java)?.setNullable("is_use_as_needed",true)
                 get("Event")?.renameField("event_name", "name")
+            }
+            verCount++
+        }
+        if ( verCount == 2L ){
+            scheme.apply {
+                create("Cycle").apply {
+                    addField("activity", String::class.java)
+                    addField("length", Long::class.java).setNullable("length", true)
+                    addField("startTime", Date::class.java)
+                }
+            }
+            scheme.apply{
+                create("DailyCycle").apply {
+                    addField("day", Date::class.java)
+                    addRealmListField("stack", get("Cycle")!!)
+                }
             }
         }
     }

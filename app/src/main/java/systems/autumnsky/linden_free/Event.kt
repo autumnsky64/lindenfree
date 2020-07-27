@@ -40,6 +40,7 @@ open class Event (
             realm.copyToRealm(eventLog)
             realm.close()
         }
+        DailyCycle().insert(action, cal)
     }
 
     private fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null ){
