@@ -54,11 +54,15 @@ open class DailyCycle (
         events.mapIndexed { index, event ->
             val cycle = realm.createObject<Cycle>()
 
+            cycle.activity = convertActivityName(event.name as String)
+
             if (index == 0) {
                 cycle.length = event.time!!.time - day.timeInMillis
+                cycle.startTime = day.time
             } else {
-                val prevTime = events[index - 1]?.time!!.time
-                cycle.length = event.time!!.time - prevTime
+                val prevTime = events[index - 1]?.time!!
+                cycle.length = event.time!!.time - prevTime.time
+                cycle.startTime = prevTime
             }
 
             cycles.add(cycle)
@@ -68,11 +72,15 @@ open class DailyCycle (
                 nextDay.add(Calendar.DATE, 1)
 
                 val lastCycle = realm.createObject<Cycle>()
-                lastCycle.length = nextDay.timeInMillis - event.time!!.time
+                lastCycle.apply{
+                    activity = event.name as String
+                    length = nextDay.timeInMillis - event.time!!.time
+                    startTime = event.time
+                }
 
                 cycles.add(lastCycle)
+                }
             }
-        }
 
         //targetDayがなければインサート
         val targetDay = realm.where<DailyCycle>().equalTo("day", day.time).findFirst()?.let{
@@ -83,5 +91,20 @@ open class DailyCycle (
 
         realm.commitTransaction()
         realm.close()
+    }
+
+    private fun convertActivityName( action: String ) :String?{
+        //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
+        var activityName :String?
+
+        when (action){
+            "Sleep" -> activityName = "Awake"
+            "Awake" -> activityName = "Sleep"
+            "起床" -> activityName = "睡眠"
+            "入眠" -> activityName = "覚醒"
+            else -> activityName = null
+        }
+
+        return activityName
     }
 }
