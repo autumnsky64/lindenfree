@@ -28,6 +28,7 @@ import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.log_row.view.*
 import java.io.BufferedOutputStream
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 class LogActivity : AppCompatActivity() {
@@ -165,8 +166,12 @@ class LogActivity : AppCompatActivity() {
                         Realm.getDefaultInstance().apply{
                             executeTransaction {
                                 where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
-                                }
+                            }
                         } .also { it.close() }
+
+                        DailyCycle().refreshDailyStack(
+                            Calendar.getInstance().apply { time  = SimpleDateFormat("yyyy/MM/dd hh:mm").parse(timeString) }
+                        )
                     }
                     .setNegativeButton(getText(R.string.dialog_cancel)){ _ , _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画

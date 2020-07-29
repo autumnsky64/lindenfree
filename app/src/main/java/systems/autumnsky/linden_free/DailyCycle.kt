@@ -43,7 +43,7 @@ open class DailyCycle (
         //sleep/awake イベント時刻を取得
         val events = realm.where<Event>()
             .between("time", day.time, currentDayLastSec.time)
-            .`in`("name", arrayOf("Sleep","Awake"))
+            .`in`("name", arrayOf("Sleep","Awake","起床","入眠"))
             .sort(arrayOf("time","id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
             .findAll()
 

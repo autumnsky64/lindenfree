@@ -184,6 +184,9 @@ class MainActivity : AppCompatActivity() {
                                 where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
                             }
                         } .also { it.close() }
+
+                        DailyCycle().refreshDailyStack(calToday)
+
                     }
                     .setNegativeButton(getText(R.string.dialog_cancel)){ _ , _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画

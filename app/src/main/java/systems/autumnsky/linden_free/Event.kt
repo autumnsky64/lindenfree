@@ -63,8 +63,9 @@ open class Event (
                 }
             }
         }
-
         realm.close()
+
+        DailyCycle().refreshDailyStack(newCal)
     }
 
     fun insertByTimePicker( action: String, context: Context, cal :Calendar = Calendar.getInstance()){
