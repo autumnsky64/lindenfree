@@ -21,6 +21,7 @@ import org.hamcrest.TypeSafeMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import systems.autumnsky.linden_free.model.Event
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

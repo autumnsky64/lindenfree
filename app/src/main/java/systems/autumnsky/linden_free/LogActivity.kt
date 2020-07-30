@@ -26,6 +26,9 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.log_row.view.*
+import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.DailyCycle
+import systems.autumnsky.linden_free.model.Event
 import java.io.BufferedOutputStream
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -267,7 +270,7 @@ class LogActivity : AppCompatActivity() {
             val quantity = logRecord.quantity
             if (quantity != null) {
                 holder.quantity.setOnClickListener {
-                    EditQuantityLogFragment().run {
+                    EditRecordedQuantityFragment().run {
                         arguments = Bundle().apply {
                             putString("Id", logRecord.id!!.toString())
                             putString("MedicineName", logRecord.name)

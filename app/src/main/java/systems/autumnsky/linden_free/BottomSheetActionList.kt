@@ -14,12 +14,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.realm.OrderedRealmCollection
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.RealmResults
+import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.Event
 import java.util.*
 
 class BottomSheetActionList (
-        actions : RealmResults<Action>,
-        isDatePicker :Boolean = false,
-        day :Date? = null
+    actions : RealmResults<Action>,
+    isDatePicker :Boolean = false,
+    day :Date? = null
     ): BottomSheetDialogFragment() {
 
     private val isDatePicker = isDatePicker
@@ -76,7 +78,8 @@ class BottomSheetActionList (
                                 set(Calendar.MONTH, month)
                                 set(Calendar.DAY_OF_MONTH, day)
                             }
-                            Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                            Event()
+                                .insertByTimePicker(holder.name.text.toString(), view.context, cal)
                             dismiss()
                         },
                         cal.get(Calendar.YEAR),
@@ -84,7 +87,8 @@ class BottomSheetActionList (
                         cal.get(Calendar.DAY_OF_MONTH)
                     ).show()
                 } else {
-                    Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                    Event()
+                        .insertByTimePicker(holder.name.text.toString(), view.context, cal)
                     dismiss()
                 }
             }

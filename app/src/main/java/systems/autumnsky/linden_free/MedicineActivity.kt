@@ -18,6 +18,8 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.medicine_row.view.*
+import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.Medicine
 import java.text.DecimalFormat
 
 class MedicineActivity : AppCompatActivity() {

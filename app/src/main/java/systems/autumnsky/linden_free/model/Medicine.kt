@@ -1,4 +1,4 @@
-package systems.autumnsky.linden_free
+package systems.autumnsky.linden_free.model
 
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey

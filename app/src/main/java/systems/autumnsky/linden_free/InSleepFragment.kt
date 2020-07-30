@@ -10,6 +10,7 @@ import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.Sort
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.Event
 
 class InSleepFragment : DialogFragment() {
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
@@ -33,7 +34,8 @@ class InSleepFragment : DialogFragment() {
             }
 
             awakeButton.setOnLongClickListener { view ->
-                Event().insertByTimePicker( awakeButton.text.toString(), view.context )
+                Event()
+                    .insertByTimePicker( awakeButton.text.toString(), view.context )
                 dismiss()
                 return@setOnLongClickListener true
             }

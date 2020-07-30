@@ -1,4 +1,4 @@
-package systems.autumnsky.linden_free
+package systems.autumnsky.linden_free.model
 
 import io.realm.Realm
 import io.realm.RealmList

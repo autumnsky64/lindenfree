@@ -21,6 +21,10 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.log_row.view.*
+import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.DailyCycle
+import systems.autumnsky.linden_free.model.Event
+import systems.autumnsky.linden_free.model.Medicine
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -96,11 +100,13 @@ class MainActivity : AppCompatActivity() {
                     updateButton( button, Calendar.getInstance() )
                 } else {
                     val argCal = Calendar.getInstance().apply{ time = currentDay }
-                    Event().insertMedicineLogByTimePicker( medicineList, button, argCal)
+                    Event()
+                        .insertMedicineLogByTimePicker( medicineList, button, argCal)
                     updateButton( button, argCal )
                 }
             } else {
-                Event().updateMedicineLog( medicineList, button, buildCalendarByLabel( button ) )
+                Event()
+                    .updateMedicineLog( medicineList, button, buildCalendarByLabel( button ) )
             }
         }
 
@@ -111,9 +117,11 @@ class MainActivity : AppCompatActivity() {
             val argCal = Calendar.getInstance().apply{ time = currentDay }
 
             if(labelMap["default"] == labelMap["current"]) {
-                Event().insertMedicineLogByTimePicker( medicineList, button, argCal )
+                Event()
+                    .insertMedicineLogByTimePicker( medicineList, button, argCal )
             } else {
-                Event().updateMedicineLog( medicineList, button, buildCalendarByLabel( button ))
+                Event()
+                    .updateMedicineLog( medicineList, button, buildCalendarByLabel( button ))
             }
             return@setOnLongClickListener false
         }
@@ -293,7 +301,7 @@ class MainActivity : AppCompatActivity() {
         : RealmRecyclerViewAdapter<Action, MedicineListHolder>(medicineList, false){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
-            val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_contain_spinner, parent, false)
+            val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_row_contain_spinner, parent, false)
             return MedicineListHolder(row)
         }
 

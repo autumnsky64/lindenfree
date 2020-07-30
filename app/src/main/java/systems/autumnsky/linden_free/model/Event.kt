@@ -1,4 +1,4 @@
-package systems.autumnsky.linden_free
+package systems.autumnsky.linden_free.model
 
 import android.app.TimePickerDialog
 import android.content.Context
@@ -12,6 +12,7 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.R
 import java.util.*
 
 open class Event (
@@ -106,9 +107,13 @@ open class Event (
             insertMedicineLog( medicines, cal)
 
             button.apply {
-                text = button.context.getString( R.string.dose ).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,cal.time).toString()
-                setBackgroundColor(getColor(button.context, R.color.colorPrimary))
-                setTextColor(getColor(button.context, R.color.materialLight))
+                text = button.context.getString(R.string.dose).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,cal.time).toString()
+                setBackgroundColor(getColor(button.context,
+                    R.color.colorPrimary
+                ))
+                setTextColor(getColor(button.context,
+                    R.color.materialLight
+                ))
             }
         }
 
@@ -145,7 +150,7 @@ open class Event (
                         insert(medicine, newCal, quantity)
                     }
 
-                    button.text = button.context.getString( R.string.dose ).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,newCal.time).toString()
+                    button.text = button.context.getString(R.string.dose).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,newCal.time).toString()
 
                 }
             }

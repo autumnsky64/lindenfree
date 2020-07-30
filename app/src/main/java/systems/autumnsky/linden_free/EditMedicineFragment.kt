@@ -10,6 +10,8 @@ import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.Medicine
 import java.text.DecimalFormat
 import java.util.*
 

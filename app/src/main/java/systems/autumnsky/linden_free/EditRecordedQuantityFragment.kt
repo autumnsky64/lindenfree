@@ -9,8 +9,9 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.Event
 
-class EditQuantityLogFragment : DialogFragment() {
+class EditRecordedQuantityFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = requireActivity().layoutInflater.inflate(R.layout.edit_log_quantity, null)
