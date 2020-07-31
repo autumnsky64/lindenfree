@@ -24,11 +24,13 @@ open class DailyCycle (
         return realm.where<DailyCycle>().equalTo("day", cal.time).findFirst()
     }
 
-    fun refreshDailyStack(day: Calendar){
+    fun refreshDailyStack(date: Calendar){
 
         val realm = Realm.getDefaultInstance()
 
-        day.apply{
+
+        val day = Calendar.getInstance().apply{
+            time = date.time
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
         }
@@ -79,12 +81,13 @@ open class DailyCycle (
                 }
 
                 cycles.add(lastCycle)
+
                 }
             }
 
         //targetDayがなければインサート
-        val targetDay = realm.where<DailyCycle>().equalTo("day", day.time).findFirst()?.let{
-            insert(day)
+        val targetDay = realm.where<DailyCycle>().equalTo("day", date.time).findFirst()?.let{
+            insert(date)
         }
 
         targetDay?.stack = cycles
