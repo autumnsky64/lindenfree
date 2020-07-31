@@ -15,7 +15,7 @@
         android:title="@string/title_daily" />
 
     <item
-        android:id="@+id/navigation_log"
+        android:id="@+id/navigation_chart"
         android:icon="@drawable/ic_insert_chart_black_24dp"
         android:title="@string/title_log" />
 

@@ -38,7 +38,7 @@ class LogActivity : AppCompatActivity() {
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.navigation_log -> {
+                R.id.navigation_chart -> {
                     val intent = Intent(applicationContext, LogActivity::class.java)
                     startActivity(intent)
                     return@OnNavigationItemSelectedListener true
@@ -73,6 +73,10 @@ class LogActivity : AppCompatActivity() {
                 }else{
                     createCsv()
                 }
+            }
+            R.id.show_chart -> {
+                val intent = Intent(applicationContext, ChartActivity::class.java)
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -199,7 +203,7 @@ class LogActivity : AppCompatActivity() {
 
         //下部ナビゲーション
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
-        navView.selectedItemId = R.id.navigation_log
+        navView.selectedItemId = R.id.navigation_chart
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
     }

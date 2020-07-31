@@ -5,7 +5,7 @@
       android:layout_height="match_parent">
 
     <item
-            android:id="@+id/dl_log"
+            android:id="@+id/dl_chart"
             app:showAsAction="ifRoom"
             android:icon="@drawable/ic_archive_black_24dp"
             android:title="Download log file"
@@ -14,8 +14,8 @@
     </item>
 
     <item
-        android:id="@+id/show_chart"
-        android:icon="@drawable/ic_insert_chart_black_24dp"
+        android:id="@+id/show_table"
+        android:icon="@drawable/ic_view_list_black_24dp"
         android:title="Download log file"
         android:tooltipText="Download log file"
         app:showAsAction="ifRoom"></item>

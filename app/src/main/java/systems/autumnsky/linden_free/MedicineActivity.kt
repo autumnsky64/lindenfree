@@ -26,8 +26,8 @@ class MedicineActivity : AppCompatActivity() {
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_log -> {
-                val intent = Intent(applicationContext, LogActivity::class.java)
+            R.id.navigation_chart -> {
+                val intent = Intent(applicationContext, ChartActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }

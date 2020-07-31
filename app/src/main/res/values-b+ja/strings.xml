@@ -4,9 +4,11 @@
     <string name="title_daily">デイリー</string>
     <string name="title_medicine">薬</string>
     <string name="title_log">ログ</string>
+    <string name="title_chart">グラフ</string>
 
     <string name="title_activity_medicine">薬</string>
     <string name="title_activity_log_view">記録</string>
+    <string name="title_activity_chart">グラフ</string>
 
     <string name="place_holder_medicine_name">薬名</string>
     <string name="label_regular_quantity">通常</string>

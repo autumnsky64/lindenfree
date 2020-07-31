@@ -4,9 +4,11 @@
     <string name="title_daily">Daily</string>
     <string name="title_medicine">Medicine</string>
     <string name="title_log">Log</string>
+    <string name="title_chart">Chart</string>
 
     <string name="title_activity_medicine">Medicines</string>
     <string name="title_activity_log_view">Log</string>
+    <string name="title_activity_chart">Chart</string>
 
     <string name="place_holder_medicine_name">Medicine Name</string>
     <string name="label_regular_quantity">Regular Quantity</string>
