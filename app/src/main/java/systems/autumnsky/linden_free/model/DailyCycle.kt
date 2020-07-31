@@ -21,7 +21,7 @@ open class DailyCycle (
             })
             realm.close()
         }
-        return realm.where<DailyCycle>().equalTo("day", cal.time).findFirst()
+        return Realm.getDefaultInstance().where<DailyCycle>().equalTo("day", cal.time).findFirst()
     }
 
     fun refreshDailyStack(date: Calendar){

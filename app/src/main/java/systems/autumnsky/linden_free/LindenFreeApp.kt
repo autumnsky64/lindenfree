@@ -4,9 +4,13 @@ import android.app.Application
 import androidx.core.app.AppLaunchChecker
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.DailyCycle
+import systems.autumnsky.linden_free.model.Event
+import systems.autumnsky.linden_free.model.Migration
 import java.util.*
 
 
@@ -28,6 +32,31 @@ class LindenFreeApp : Application() {
         if (isFirstLaunch){
             insertDefaultActions()
         }
+
+        //既存のイベントデータから、DailyCycleテーブルに日ごとのデータを入れる
+        //マイグレーション直後はDailyCycleにデータがなく、Eventだけにデータのある状態のはず
+        val realm = Realm.getDefaultInstance()
+        if( realm.where<DailyCycle>().findAll().count() == 0
+            && realm.where<Event>().findAll().count() > 0 ){
+
+            val lastDay = Calendar.getInstance().apply{
+                val lastEvent =  realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()
+                time = lastEvent!!.time
+            }
+
+            var currentDay = Calendar.getInstance().apply {
+                val oldestEvent =  realm.where<Event>().sort("time", Sort.ASCENDING).findFirst()
+                time = oldestEvent!!.time
+                set(Calendar.MINUTE, 0)
+                set(Calendar.HOUR, 0)
+            }
+
+            while ( currentDay < lastDay ){
+                DailyCycle().refreshDailyStack( currentDay )
+                currentDay.add(Calendar.DATE, 1)
+            }
+        }
+
     }
 
     private fun insertDefaultActions() {
