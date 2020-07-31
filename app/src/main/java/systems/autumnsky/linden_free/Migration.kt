@@ -1,7 +1,12 @@
 package systems.autumnsky.linden_free
 
 import io.realm.DynamicRealm
+import io.realm.Realm
 import io.realm.RealmMigration
+import io.realm.Sort
+import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.DailyCycle
+import systems.autumnsky.linden_free.model.Event
 import java.util.*
 
 class Migration : RealmMigration {
@@ -31,6 +36,25 @@ class Migration : RealmMigration {
                     addRealmListField("stack", get("Cycle")!!)
                 }
             }
+
+            //既存のイベントデータから、DailyCycleテーブルに日ごとのデータを入れる
+            val lastDay = Calendar.getInstance().apply{
+                time = Realm.getDefaultInstance().where<Event>()
+                    .isNotEmpty("time").sort("time", Sort.DESCENDING).findFirst()?.time
+            }
+
+            var currentDay = Calendar.getInstance().apply {
+                time = Realm.getDefaultInstance().where<Event>()
+                    .isNotEmpty("time").sort("time", Sort.ASCENDING).findFirst()?.time
+                set(Calendar.MINUTE, 0)
+                set(Calendar.HOUR, 0)
+            }
+
+            while ( currentDay < lastDay ){
+                DailyCycle().refreshDailyStack( currentDay )
+                currentDay.add(Calendar.DATE, 1)
+            }
+
         }
     }
 }

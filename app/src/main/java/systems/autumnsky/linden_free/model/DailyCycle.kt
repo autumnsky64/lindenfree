@@ -42,12 +42,15 @@ open class DailyCycle (
             set( Calendar.SECOND, 59)
         }
 
-        //sleep/awake イベント時刻を取得
+        //targetDayがなければインサート グラフ化するイベントがなくても日付レコードは必要
+        val targetDay = realm.where<DailyCycle>().equalTo("day", day.time).findFirst() ?: insert(day)
+
+        //sleep/awake イベント時刻を取得 イベントがなければここで終了
         val events = realm.where<Event>()
             .between("time", day.time, currentDayLastSec.time)
             .`in`("name", arrayOf("Sleep","Awake","起床","入眠"))
             .sort(arrayOf("time","id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
-            .findAll()
+            .findAll() ?: return
 
         realm.beginTransaction()
 
@@ -84,11 +87,6 @@ open class DailyCycle (
 
                 }
             }
-
-        //targetDayがなければインサート
-        val targetDay = realm.where<DailyCycle>().equalTo("day", date.time).findFirst()?.let{
-            insert(date)
-        }
 
         targetDay?.stack = cycles
 
