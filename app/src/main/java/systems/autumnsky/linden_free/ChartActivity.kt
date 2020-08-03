@@ -4,8 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.realm.Realm
+import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.Action
 
 class ChartActivity : AppCompatActivity() {
 
@@ -50,6 +54,14 @@ class ChartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chart)
 
+        //FAB
+        findViewById<View>(R.id.insert_event).setOnClickListener {
+            val actions = Realm.getDefaultInstance().where<Action>().notEqualTo("name", getString(R.string.dose)).findAll()
+            val actionList = BottomSheetActionList( actions, isDatePicker = true )
+            actionList.show(supportFragmentManager, actionList.tag )
+        }
+
+        //下部ナビゲーション
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.selectedItemId = R.id.navigation_chart
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)

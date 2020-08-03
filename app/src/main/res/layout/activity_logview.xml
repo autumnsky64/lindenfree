@@ -71,18 +71,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/th_time" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="411dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        app:itemIconTint="@color/bottom_navigation_color"
-        app:itemTextColor="@color/bottom_navigation_color"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/snack_bar_container"
         android:layout_width="match_parent"
@@ -107,4 +95,16 @@
         app:layout_constraintBottom_toTopOf="@+id/snack_bar_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_create_black_24dp" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        app:itemIconTint="@color/bottom_navigation_color"
+        app:itemTextColor="@color/bottom_navigation_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 </androidx.constraintlayout.widget.ConstraintLayout>
