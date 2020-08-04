@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -119,7 +120,7 @@ class ChartActivity : AppCompatActivity() {
             }
 
             stack?.forEach { cycle ->
-                if( cycle.activity !="Sleep"){ return@forEach }
+                if( cycle.activity != "Sleep" && cycle.activity != "睡眠" ){ return@forEach }
                 val startSec :Float = ((cycle!!.startTime!!.time - day!!.time ) / 1000 ).toFloat()
                 val left = ratioOfDay( startSec ) * canvas.width
 
@@ -131,6 +132,7 @@ class ChartActivity : AppCompatActivity() {
                     right += 1
                 }
 
+                Log.d("cycle", cycle.activity)
                 canvas.drawRect(left, 0F, right, canvas.height.toFloat(), paint)
             }
         }
