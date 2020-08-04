@@ -1,22 +1,21 @@
 package systems.autumnsky.linden_free
 
 import android.content.Intent
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.format.DateFormat
-import android.util.Log
 import android.view.*
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import io.realm.OrderedRealmCollection
-import io.realm.Realm
-import io.realm.RealmRecyclerViewAdapter
-import io.realm.Sort
+import io.realm.*
 import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.Cycle
 import systems.autumnsky.linden_free.model.DailyCycle
+import java.util.*
 
 class ChartActivity : AppCompatActivity() {
 
@@ -82,32 +81,53 @@ class ChartActivity : AppCompatActivity() {
 
 
     private inner class Element(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val date :TextView = itemView.findViewById(R.id.time_cell)
-        val event :TextView = itemView.findViewById(R.id.event_cell)
+        val drawArea : ImageView = itemView.findViewById(R.id.draw_area)
     }
 
     private inner class RealmAdapter(private val days: OrderedRealmCollection<DailyCycle>) :
         RealmRecyclerViewAdapter<DailyCycle, Element>(days, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Element {
-            val row =
-                LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
-            return Element(row)
+            return Element(
+                LayoutInflater.from(applicationContext).inflate(R.layout.cycle_chart_element, parent, false)
+            )
         }
 
         override fun onBindViewHolder(element: Element, position: Int) {
-            val current = days[position]
-            element.run {
-                date.text = current.day?.let { DateFormat.format("yy/MM/dd kk:mm", it) }
-                Log.d ( "Day:" , current.day?.toString())
-                current.stack?.forEach { cycle ->
-                    Log.d ("cycle:", cycle.activity + "," + DateFormat.format("yy/MM/dd kk:mm", cycle.startTime) + "," + cycle.length.toString())
-                }
-            }
+            val day = days[position].day
+            val cycles = days[position].stack
+            element.drawArea.setImageDrawable(DrawCycle(day, cycles))
         }
 
         override fun getItemCount(): Int {
             return days.size
         }
+    }
+
+    class DrawCycle(
+        day : Date?,
+        stack : RealmList<Cycle>?
+    ): Drawable(){
+
+        //1日分のグラフ描画
+        override fun draw(canvas: Canvas) {
+            val paint = Paint().apply {
+                color = Color.rgb(101, 202, 239)
+            }
+            val width = (0..1000).random().toFloat()
+            canvas.drawRect(0F, 0F, width, canvas.maximumBitmapHeight.toFloat(), paint)
+        }
+
+        override fun setAlpha(alpha: Int) {
+            this.alpha = alpha
+        }
+
+        override fun setColorFilter(filter: ColorFilter?) {
+            this.colorFilter = filter
+        }
+
+        override fun getOpacity(): Int =
+            PixelFormat.OPAQUE
+
     }
 }
