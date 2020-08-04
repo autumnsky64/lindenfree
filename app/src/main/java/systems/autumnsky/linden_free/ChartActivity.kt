@@ -109,13 +109,34 @@ class ChartActivity : AppCompatActivity() {
         stack : RealmList<Cycle>?
     ): Drawable(){
 
+        val day = day
+        val stack = stack
+
         //1日分のグラフ描画
         override fun draw(canvas: Canvas) {
             val paint = Paint().apply {
                 color = Color.rgb(101, 202, 239)
             }
-            val width = (0..1000).random().toFloat()
-            canvas.drawRect(0F, 0F, width, canvas.maximumBitmapHeight.toFloat(), paint)
+
+            stack?.forEach { cycle ->
+                if( cycle.activity !="Sleep"){ return@forEach }
+                val startSec :Float = ((cycle!!.startTime!!.time - day!!.time ) / 1000 ).toFloat()
+                val left = ratioOfDay( startSec ) * canvas.width
+
+                val length :Float = ( cycle!!.length!! / 1000 ).toFloat()
+                var right = (ratioOfDay(length)  * canvas.width ) + left
+
+                //5分以上でないと1px以上にならないため
+                if( (right - left) < 1 ){
+                    right += 1
+                }
+
+                canvas.drawRect(left, 0F, right, canvas.height.toFloat(), paint)
+            }
+        }
+
+        private fun ratioOfDay( second :Float ) :Float{
+            return second / ( 24 * 60 * 60 )
         }
 
         override fun setAlpha(alpha: Int) {
