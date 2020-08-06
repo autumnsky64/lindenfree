@@ -64,7 +64,7 @@ class ChartActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = RealmAdapter(
                 Realm.getDefaultInstance().where<DailyCycle>().findAll().sort("day", Sort.DESCENDING))
-            background = DrawRuledLine()
+            background = RuledLine()
         }
 
         //FAB
@@ -97,7 +97,7 @@ class ChartActivity : AppCompatActivity() {
         override fun onBindViewHolder(element: Element, position: Int) {
             val day = days[position].day
             val cycles = days[position].stack
-            element.drawArea.setImageDrawable(DrawCycle(day, cycles))
+            element.drawArea.setImageDrawable(DrawPattern(day, cycles))
         }
 
         override fun getItemCount(): Int {
@@ -105,7 +105,7 @@ class ChartActivity : AppCompatActivity() {
         }
     }
 
-    class DrawCycle(
+    class DrawPattern(
         day : Date?,
         stack : RealmList<Cycle>?
     ): Drawable(){
@@ -153,7 +153,7 @@ class ChartActivity : AppCompatActivity() {
         override fun getOpacity(): Int = PixelFormat.OPAQUE
     }
 
-    class DrawRuledLine() :Drawable(){
+    class RuledLine() :Drawable(){
         override fun draw(canvas: Canvas) {
             val dayOfHour = 24
             val spaceEvery1Hour = bounds.right / dayOfHour
