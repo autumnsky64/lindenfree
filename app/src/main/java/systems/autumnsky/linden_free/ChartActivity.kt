@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -65,6 +64,7 @@ class ChartActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = RealmAdapter(
                 Realm.getDefaultInstance().where<DailyCycle>().findAll().sort("day", Sort.DESCENDING))
+            background = DrawRuledLine()
         }
 
         //FAB
@@ -115,26 +115,27 @@ class ChartActivity : AppCompatActivity() {
 
         //1日分のグラフ描画
         override fun draw(canvas: Canvas) {
-            val paint = Paint().apply {
-                color = Color.rgb(101, 202, 239)
-            }
+            val paint = Paint().apply { color = Color.rgb(101, 202, 239) }
 
             stack?.forEach { cycle ->
                 if( cycle.activity != "Sleep" && cycle.activity != "睡眠" ){ return@forEach }
-                val startSec :Float = ((cycle!!.startTime!!.time - day!!.time ) / 1000 ).toFloat()
-                val left = ratioOfDay( startSec ) * canvas.width
-
-                val length :Float = ( cycle!!.length!! / 1000 ).toFloat()
-                var right = (ratioOfDay(length)  * canvas.width ) + left
-
-                //5分以上でないと1px以上にならないため
-                if( (right - left) < 1 ){
-                    right += 1
-                }
-
-                Log.d("cycle", cycle.activity)
-                canvas.drawRect(left, 0F, right, canvas.height.toFloat(), paint)
+                canvas.drawRect( bar( cycle, canvas ), paint)
             }
+        }
+
+        private fun bar(cycle: Cycle, canvas: Canvas): Rect{
+            val startSec :Float = ((cycle!!.startTime!!.time - day!!.time ) / 1000 ).toFloat()
+            val left = ( ratioOfDay( startSec ) * canvas.width ).toInt()
+
+            val length :Float = ( cycle!!.length!! / 1000 ).toFloat()
+            var right = (( ratioOfDay(length)  * canvas.width ) + left ).toInt()
+
+            //5分以上でないと1px以上にならないため
+            if( (right - left) < 1 ){
+                right += 1
+            }
+
+            return Rect( left, 0, right, canvas.height )
         }
 
         private fun ratioOfDay( second :Float ) :Float{
@@ -149,8 +150,42 @@ class ChartActivity : AppCompatActivity() {
             this.colorFilter = filter
         }
 
-        override fun getOpacity(): Int =
-            PixelFormat.OPAQUE
+        override fun getOpacity(): Int = PixelFormat.OPAQUE
+    }
 
+    class DrawRuledLine() :Drawable(){
+        override fun draw(canvas: Canvas) {
+            val dayOfHour = 24
+            val spaceEvery1Hour = bounds.right / dayOfHour
+
+            val hourLine = Paint().apply { color = Color.rgb(192, 192, 192) }
+            val sixHourLine = Paint().apply{ color = Color.rgb(32, 32, 32) }
+
+            for ( i in 1 until( dayOfHour)){
+                val startX = ( i * spaceEvery1Hour).toFloat()
+                val startY = 0F
+                val endX = startX
+                val endY = bounds.bottom.toFloat()
+
+                if ( i.rem(6) == 0) {
+                    canvas.drawLine( startX, startY, endX, endY, sixHourLine)
+                } else {
+                    canvas.drawLine( startX, startY, endX, endY, hourLine)
+                }
+
+            }
+
+        }
+        override fun setAlpha(alpha: Int) {
+            this.alpha = alpha
+        }
+
+        override fun setColorFilter(filter: ColorFilter?) {
+            this.colorFilter = filter
+        }
+
+        override fun getOpacity(): Int = PixelFormat.OPAQUE
     }
 }
+
+
