@@ -22,7 +22,6 @@ import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.log_row.view.*
 import systems.autumnsky.linden_free.model.Action
-import systems.autumnsky.linden_free.model.DailyCycle
 import systems.autumnsky.linden_free.model.Event
 import systems.autumnsky.linden_free.model.Medicine
 import java.util.*
@@ -186,15 +185,10 @@ class MainActivity : AppCompatActivity() {
                     .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
                     .setPositiveButton(getText(R.string.dialog_delete)){ _, _ ->
-                        val id = viewHolder.itemView.log_id.text?.toString()?.toLong()
-                        Realm.getDefaultInstance().apply{
-                            executeTransaction {
-                                where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
-                            }
-                        } .also { it.close() }
 
-                        DailyCycle().refreshDailyStack(calToday)
-
+                        viewHolder.itemView.id_cell.text?.toString()?.toLong()?.let {
+                            Event().delete(it)
+                        }
                     }
                     .setNegativeButton(getText(R.string.dialog_cancel)){ _ , _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
@@ -403,7 +397,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     private inner class EventListHolder( itemView: View) : RecyclerView.ViewHolder(itemView){
-        val id :TextView = itemView.findViewById(R.id.log_id)
+        val id :TextView = itemView.findViewById(R.id.id_cell)
         val nameCell :TextView = itemView.findViewById(R.id.event_cell)
         val timeCell :TextView = itemView.findViewById(R.id.time_cell)
         val quantityCell :TextView = itemView.findViewById(R.id.qty_cell)

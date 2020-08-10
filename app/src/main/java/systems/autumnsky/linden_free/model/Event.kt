@@ -69,6 +69,22 @@ open class Event (
         DailyCycle().refreshDailyStack(newCal)
     }
 
+    fun delete(id :Long){
+        Realm.getDefaultInstance().apply{
+
+            val day = Calendar.getInstance().apply {
+                 time = where<Event>().equalTo("id", id).findFirst()?.time
+            }
+
+            executeTransaction {
+                where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
+            }
+
+            DailyCycle().refreshDailyStack(day)
+
+        } .also { it.close() }
+    }
+
     fun insertByTimePicker( action: String, context: Context, cal :Calendar = Calendar.getInstance()){
         TimePickerDialog(
             context,
