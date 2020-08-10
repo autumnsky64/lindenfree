@@ -20,10 +20,12 @@ import java.util.*
 
 class BottomSheetActionList (
     actions : RealmResults<Action>,
+    isTimePicker :Boolean = false,
     isDatePicker :Boolean = false,
     day :Date? = null
     ): BottomSheetDialogFragment() {
 
+    private val isTimePicker = isTimePicker
     private val isDatePicker = isDatePicker
     private val targetActions = actions
     private val date = day
@@ -86,9 +88,13 @@ class BottomSheetActionList (
                         cal.get(Calendar.MONTH),
                         cal.get(Calendar.DAY_OF_MONTH)
                     ).show()
-                } else {
+                } else if( isTimePicker ){
                     Event()
                         .insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                    dismiss()
+                } else {
+                    Event()
+                        .insert(holder.name.text.toString(), cal)
                     dismiss()
                 }
             }

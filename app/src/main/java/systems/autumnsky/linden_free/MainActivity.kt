@@ -247,7 +247,7 @@ class MainActivity : AppCompatActivity() {
                 val actionList = BottomSheetActionList( actions )
                 actionList.show(supportFragmentManager, actionList.tag )
             } else {
-                val actionList = BottomSheetActionList( actions, isDatePicker = true, day = currentDay)
+                val actionList = BottomSheetActionList( actions, isTimePicker = true, day = currentDay)
                 actionList.show(supportFragmentManager, actionList.tag )
             }
         }
