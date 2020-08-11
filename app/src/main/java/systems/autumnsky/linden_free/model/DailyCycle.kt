@@ -28,29 +28,14 @@ open class DailyCycle (
             set(Calendar.MILLISECOND, 0)
         }
 
-        if (currentDay.time >= lastDay){
-            while (lastDay <= currentDay.time) {
-                realm.executeTransaction { realm ->
-                    realm.copyToRealm(
-                        realm.createObject<DailyCycle>().apply {
-                            day = currentDay.time
-                        })
-                }
-                currentDay.add(Calendar.DAY_OF_MONTH, -1)
+        while (lastDay <= currentDay.time) {
+            realm.executeTransaction { realm ->
+                realm.copyToRealm(
+                    realm.createObject<DailyCycle>().apply {
+                        day = currentDay.time
+                    })
             }
-        } else {
-            //渡された日が未来の場合 アプリの使用目的からするとありえん
-            //TODO:デイトピッカーで未来の日付は選べないよう制限をかける
-            //制限した後は、この判定と処理は不要
-            while (lastDay >= currentDay.time) {
-                realm.executeTransaction { realm ->
-                    realm.copyToRealm(
-                        realm.createObject<DailyCycle>().apply {
-                            day = currentDay.time
-                        })
-                }
-                currentDay.add(Calendar.DAY_OF_MONTH, +1)
-            }
+            currentDay.add(Calendar.DAY_OF_MONTH, -1)
         }
 
         realm.close()
