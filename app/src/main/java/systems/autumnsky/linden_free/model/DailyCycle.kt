@@ -14,13 +14,47 @@ open class DailyCycle (
 ): RealmObject() {
 
     fun insert (cal: Calendar) : DailyCycle? {
-        Realm.getDefaultInstance().executeTransaction{ realm ->
-            realm.copyToRealm(
-                realm.createObject<DailyCycle>().apply{
-                    day = cal.time
-            })
-            realm.close()
+
+        val realm = Realm.getDefaultInstance()
+
+        var lastDay = realm.where<DailyCycle>().lessThan("day", cal.time).sort("day", Sort.DESCENDING) .findFirst()?.day
+                ?: Calendar.getInstance().apply { time = cal.time }.time
+
+        // 現在からlastDayまで日付を遡りつつ1日ずつインサート
+        var currentDay = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }
+
+        if (currentDay.time >= lastDay){
+            while (lastDay <= currentDay.time) {
+                realm.executeTransaction { realm ->
+                    realm.copyToRealm(
+                        realm.createObject<DailyCycle>().apply {
+                            day = currentDay.time
+                        })
+                }
+                currentDay.add(Calendar.DAY_OF_MONTH, -1)
+            }
+        } else {
+            //渡された日が未来の場合 アプリの使用目的からするとありえん
+            //TODO:デイトピッカーで未来の日付は選べないよう制限をかける
+            //制限した後は、この判定と処理は不要
+            while (lastDay >= currentDay.time) {
+                realm.executeTransaction { realm ->
+                    realm.copyToRealm(
+                        realm.createObject<DailyCycle>().apply {
+                            day = currentDay.time
+                        })
+                }
+                currentDay.add(Calendar.DAY_OF_MONTH, +1)
+            }
+        }
+
+        realm.close()
+
         return Realm.getDefaultInstance().where<DailyCycle>().equalTo("day", cal.time).findFirst()
     }
 
@@ -28,11 +62,11 @@ open class DailyCycle (
 
         val realm = Realm.getDefaultInstance()
 
-
         val day = Calendar.getInstance().apply{
             time = date.time
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
+            set(Calendar.MILLISECOND, 0)
         }
 
         val currentDayLastSec = Calendar.getInstance().apply {
