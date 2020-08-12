@@ -22,6 +22,7 @@ import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.log_row.view.*
 import systems.autumnsky.linden_free.model.Action
+import systems.autumnsky.linden_free.model.DailyCycle
 import systems.autumnsky.linden_free.model.Event
 import systems.autumnsky.linden_free.model.Medicine
 import java.util.*
@@ -365,6 +366,7 @@ class MainActivity : AppCompatActivity() {
                 quantityCell.text = todaysEvent[position]?.quantity?.let{ DecimalFormat("#.##").format(it) + " mg" }
             }
             //LogActivityからのコピペ
+            //TODO: Eventモデルのアップデートメソッドを使うよう変更する
             holder.timeCell.setOnClickListener {
                 val cal = Calendar.getInstance().apply { time = todaysEvent[position].time!! }
 
@@ -382,7 +384,7 @@ class MainActivity : AppCompatActivity() {
                                     todaysEvent[position].time = cal.time
                                 }
                                 realm.close()
-
+                                DailyCycle().refreshDailyStack(cal)
                             },
                             cal.get(Calendar.HOUR_OF_DAY),
                             cal.get(Calendar.MINUTE),
