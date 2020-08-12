@@ -97,7 +97,8 @@ class ChartActivity : AppCompatActivity() {
         override fun onBindViewHolder(element: Element, position: Int) {
             val day = days[position].day
             val cycles = days[position].cycleStack
-            element.drawArea.setImageDrawable(DrawPattern(day, cycles))
+            val takenMedicines = days[position].medicineStack
+            element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines))
         }
 
         override fun getItemCount(): Int {
@@ -107,19 +108,30 @@ class ChartActivity : AppCompatActivity() {
 
     class DrawPattern(
         day : Date?,
-        stack : RealmList<Cycle>?
+        activityStack : RealmList<Cycle>?,
+        medicineStack : RealmList<Cycle>?
     ): Drawable(){
 
         val day = day
-        val stack = stack
+        val activityStack = activityStack
+        val medicineStack = medicineStack
 
         //1日分のグラフ描画
         override fun draw(canvas: Canvas) {
-            val paint = Paint().apply { color = Color.rgb(101, 202, 239) }
+            val barPaint = Paint().apply { color = Color.rgb(101, 202, 239) }
+            val dotPaint = Paint().apply { color = Color.rgb(255,193,7) }
 
-            stack?.forEach { cycle ->
+            activityStack?.forEach { cycle ->
                 if( cycle.activity != "Sleep" && cycle.activity != "睡眠" ){ return@forEach }
-                canvas.drawRect( bar( cycle, canvas ), paint)
+                canvas.drawRect( bar( cycle, canvas ), barPaint)
+            }
+
+            medicineStack?.forEach { medicine ->
+                val timing :Float = ((medicine.startTime!!.time - day!!.time ) / 1000 ).toFloat()
+                val x :Float = ratioOfDay( timing ) * canvas.width
+                val y :Float = ( canvas.height * 0.5 ).toFloat()
+                val r :Float = ( canvas.height * 0.2 ).toFloat()
+                canvas.drawCircle( x, y, r, dotPaint)
             }
         }
 
