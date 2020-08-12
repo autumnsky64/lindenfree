@@ -10,7 +10,8 @@ import java.util.*
 
 open class DailyCycle (
     open var day: Date? = null,
-    open var stack: RealmList<Cycle>? = null
+    open var cycleStack: RealmList<Cycle>? = null,
+    open var medicineStack: RealmList<Cycle>? = null
 ): RealmObject() {
 
     fun insert (cal: Calendar) : DailyCycle? {
@@ -107,7 +108,37 @@ open class DailyCycle (
                 }
             }
 
-        targetDay?.stack = cycles
+        targetDay?.cycleStack = cycles
+
+        realm.commitTransaction()
+
+        //medicineStackの更新
+        //登録している薬をArrayに
+        val medicines :Array<String> = realm.where<Medicine>().findAll().map {
+            it.name
+        }.filterNotNull().toTypedArray()
+
+        //服薬の時刻を取得
+        val medicineEvents = realm.where<Event>()
+            .between("time", day.time, currentDayLastSec.time)
+            .`in`("name", medicines)
+            .sort(arrayOf("time","id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
+            .findAll() ?: return
+
+        realm.beginTransaction()
+
+        var medicineCycles = RealmList<Cycle>()
+
+        medicineEvents.forEach { event ->
+            val cycle = realm.createObject<Cycle>()
+
+            cycle.activity = event.name
+            cycle.startTime = event.time
+
+            medicineCycles.add(cycle)
+        }
+
+        targetDay?.medicineStack = medicineCycles
 
         realm.commitTransaction()
         realm.close()

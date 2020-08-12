@@ -96,7 +96,7 @@ class ChartActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(element: Element, position: Int) {
             val day = days[position].day
-            val cycles = days[position].stack
+            val cycles = days[position].cycleStack
             element.drawArea.setImageDrawable(DrawPattern(day, cycles))
         }
 

@@ -28,7 +28,8 @@ class Migration : RealmMigration {
             scheme.apply{
                 create("DailyCycle").apply {
                     addField("day", Date::class.java)
-                    addRealmListField("stack", get("Cycle")!!)
+                    addRealmListField("cycleStack", get("Cycle")!!)
+                    addRealmListField("medicineStack", get("Cycle")!!)
                 }
             }
         }
