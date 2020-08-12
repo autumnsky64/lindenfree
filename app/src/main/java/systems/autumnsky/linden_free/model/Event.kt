@@ -72,8 +72,9 @@ open class Event (
     fun delete(id :Long){
         Realm.getDefaultInstance().apply{
 
-            val day = Calendar.getInstance().apply {
-                 time = where<Event>().equalTo("id", id).findFirst()?.time
+            val day = Calendar.getInstance()
+            where<Event>().equalTo("id", id).findFirst()?.time?.let{
+                day.time = it
             }
 
             executeTransaction {

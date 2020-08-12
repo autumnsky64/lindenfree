@@ -39,16 +39,18 @@ class LindenFreeApp : Application() {
         if( realm.where<DailyCycle>().findAll().count() == 0
             && realm.where<Event>().findAll().count() > 0 ){
 
-            val lastDay = Calendar.getInstance().apply{
-                val lastEvent =  realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()
-                time = lastEvent!!.time
+            val lastDay = Calendar.getInstance()
+            realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()?.time?.let{
+                lastDay.time = it
             }
 
-            var currentDay = Calendar.getInstance().apply {
-                val oldestEvent =  realm.where<Event>().sort("time", Sort.ASCENDING).findFirst()
-                time = oldestEvent!!.time
-                set(Calendar.MINUTE, 0)
-                set(Calendar.HOUR, 0)
+            val currentDay = Calendar.getInstance()
+            realm.where<Event>().sort("time", Sort.ASCENDING).findFirst()?.time?.let{
+                currentDay.time = it
+                currentDay.apply{
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.HOUR, 0)
+                }
             }
 
             while ( currentDay < lastDay ){

@@ -30,9 +30,9 @@ open class DailyCycle (
         }
 
         while (lastDay <= currentDay.time) {
-            realm.executeTransaction { realm ->
-                realm.copyToRealm(
-                    realm.createObject<DailyCycle>().apply {
+            realm.executeTransaction {
+                it.copyToRealm(
+                    it.createObject<DailyCycle>().apply {
                         day = currentDay.time
                     })
             }

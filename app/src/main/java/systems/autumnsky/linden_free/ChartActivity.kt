@@ -124,10 +124,10 @@ class ChartActivity : AppCompatActivity() {
         }
 
         private fun bar(cycle: Cycle, canvas: Canvas): Rect{
-            val startSec :Float = ((cycle!!.startTime!!.time - day!!.time ) / 1000 ).toFloat()
+            val startSec :Float = ((cycle.startTime!!.time - day!!.time ) / 1000 ).toFloat()
             val left = ( ratioOfDay( startSec ) * canvas.width ).toInt()
 
-            val length :Float = ( cycle!!.length!! / 1000 ).toFloat()
+            val length :Float = ( cycle.length!! / 1000 ).toFloat()
             var right = (( ratioOfDay(length)  * canvas.width ) + left ).toInt()
 
             //5分以上でないと1px以上にならないため
