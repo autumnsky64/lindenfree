@@ -31,7 +31,7 @@ class Log_Fab_test {
     fun log_Fab_test() {
         val bottomNavigationItemView = onView(
             allOf(
-                withId(R.id.navigation_log), withContentDescription("Log"),
+                withId(R.id.navigation_chart), withContentDescription("Log"),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.nav_view),

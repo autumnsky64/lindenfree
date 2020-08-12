@@ -59,7 +59,7 @@ class BottomBarBehaviorTest {
 
         val bottomNavigationItemView3 = onView(
             allOf(
-                withId(R.id.navigation_log), withContentDescription("Log"),
+                withId(R.id.navigation_chart), withContentDescription("Log"),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.nav_view),
@@ -104,7 +104,7 @@ class BottomBarBehaviorTest {
 
         val bottomNavigationItemView6 = onView(
             allOf(
-                withId(R.id.navigation_log), withContentDescription("Log"),
+                withId(R.id.navigation_chart), withContentDescription("Log"),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.nav_view),

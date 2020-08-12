@@ -288,7 +288,7 @@ class LogOutputTest {
 
         val bottomNavigationItemView5 = onView(
             allOf(
-                withId(R.id.navigation_log), withContentDescription("Log"), childAtPosition(
+                withId(R.id.navigation_chart), withContentDescription("Log"), childAtPosition(
                     childAtPosition(
                         withId(R.id.nav_view), 0
                     ), 2
