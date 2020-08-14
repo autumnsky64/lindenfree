@@ -19,17 +19,17 @@ class Migration : RealmMigration {
         }
         if ( verCount == 2L ){
             scheme.apply {
-                create("Cycle").apply {
-                    addField("activity", String::class.java)
+                create("Activity").apply {
+                    addField("name", String::class.java)
                     addField("length", Long::class.java).setNullable("length", true)
                     addField("startTime", Date::class.java)
                 }
             }
             scheme.apply{
-                create("DailyCycle").apply {
+                create("DailyActivity").apply {
                     addField("day", Date::class.java)
-                    addRealmListField("cycleStack", get("Cycle")!!)
-                    addRealmListField("medicineStack", get("Cycle")!!)
+                    addRealmListField("activityStack", get("Activity")!!)
+                    addRealmListField("medicineStack", get("Activity")!!)
                 }
             }
         }

@@ -41,7 +41,7 @@ open class Event (
             realm.copyToRealm(eventLog)
             realm.close()
         }
-        DailyCycle().refreshDailyStack(cal)
+        DailyActivity().refreshDailyStack(cal)
     }
 
     private fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null ){
@@ -66,7 +66,7 @@ open class Event (
         }
         realm.close()
 
-        DailyCycle().refreshDailyStack(newCal)
+        DailyActivity().refreshDailyStack(newCal)
     }
 
     fun delete(id :Long){
@@ -81,7 +81,7 @@ open class Event (
                 where<Event>().equalTo("id", id).findAll().deleteAllFromRealm()
             }
 
-            DailyCycle().refreshDailyStack(day)
+            DailyActivity().refreshDailyStack(day)
 
         } .also { it.close() }
     }

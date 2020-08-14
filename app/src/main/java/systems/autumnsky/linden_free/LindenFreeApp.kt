@@ -8,7 +8,7 @@ import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.Action
-import systems.autumnsky.linden_free.model.DailyCycle
+import systems.autumnsky.linden_free.model.DailyActivity
 import systems.autumnsky.linden_free.model.Event
 import systems.autumnsky.linden_free.model.Migration
 import java.util.*
@@ -36,7 +36,7 @@ class LindenFreeApp : Application() {
         //既存のイベントデータから、DailyCycleテーブルに日ごとのデータを入れる
         //マイグレーション直後はDailyCycleにデータがなく、Eventだけにデータのある状態のはず
         val realm = Realm.getDefaultInstance()
-        if( realm.where<DailyCycle>().findAll().count() == 0
+        if( realm.where<DailyActivity>().findAll().count() == 0
             && realm.where<Event>().findAll().count() > 0 ){
 
             val lastDay = Calendar.getInstance()
@@ -54,7 +54,7 @@ class LindenFreeApp : Application() {
             }
 
             while ( currentDay < lastDay ){
-                DailyCycle().refreshDailyStack( currentDay )
+                DailyActivity().refreshDailyStack( currentDay )
                 currentDay.add(Calendar.DATE, 1)
             }
         }

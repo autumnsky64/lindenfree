@@ -13,8 +13,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.*
 import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.Action
-import systems.autumnsky.linden_free.model.Cycle
-import systems.autumnsky.linden_free.model.DailyCycle
+import systems.autumnsky.linden_free.model.Activity
+import systems.autumnsky.linden_free.model.DailyActivity
 import java.util.*
 
 class ChartActivity : AppCompatActivity() {
@@ -63,7 +63,7 @@ class ChartActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.cycle_chart).apply {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = RealmAdapter(
-                Realm.getDefaultInstance().where<DailyCycle>().findAll().sort("day", Sort.DESCENDING))
+                Realm.getDefaultInstance().where<DailyActivity>().findAll().sort("day", Sort.DESCENDING))
             background = RuledLine()
         }
 
@@ -85,8 +85,8 @@ class ChartActivity : AppCompatActivity() {
         val drawArea : ImageView = itemView.findViewById(R.id.draw_area)
     }
 
-    private inner class RealmAdapter(private val days: OrderedRealmCollection<DailyCycle>) :
-        RealmRecyclerViewAdapter<DailyCycle, Element>(days, true) {
+    private inner class RealmAdapter(private val days: OrderedRealmCollection<DailyActivity>) :
+        RealmRecyclerViewAdapter<DailyActivity, Element>(days, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Element {
             return Element(
@@ -96,7 +96,7 @@ class ChartActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(element: Element, position: Int) {
             val day = days[position].day
-            val cycles = days[position].cycleStack
+            val cycles = days[position].activityStack
             val takenMedicines = days[position].medicineStack
             element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines))
         }
@@ -108,8 +108,8 @@ class ChartActivity : AppCompatActivity() {
 
     class DrawPattern(
         day : Date?,
-        activityStack : RealmList<Cycle>?,
-        medicineStack : RealmList<Cycle>?
+        activityStack : RealmList<Activity>?,
+        medicineStack : RealmList<Activity>?
     ): Drawable(){
 
         val day = day
@@ -122,7 +122,7 @@ class ChartActivity : AppCompatActivity() {
             val dotPaint = Paint().apply { color = Color.rgb(255,193,7) }
 
             activityStack?.forEach { cycle ->
-                if( cycle.activity != "Sleep" && cycle.activity != "睡眠" ){ return@forEach }
+                if( cycle.name != "Sleep" && cycle.name != "睡眠" ){ return@forEach }
                 canvas.drawRect( bar( cycle, canvas ), barPaint)
             }
 
@@ -135,11 +135,11 @@ class ChartActivity : AppCompatActivity() {
             }
         }
 
-        private fun bar(cycle: Cycle, canvas: Canvas): Rect{
-            val startSec :Float = ((cycle.startTime!!.time - day!!.time ) / 1000 ).toFloat()
+        private fun bar(activity: Activity, canvas: Canvas): Rect{
+            val startSec :Float = ((activity.startTime!!.time - day!!.time ) / 1000 ).toFloat()
             val left = ( ratioOfDay( startSec ) * canvas.width ).toInt()
 
-            val length :Float = ( cycle.length!! / 1000 ).toFloat()
+            val length :Float = ( activity.length!! / 1000 ).toFloat()
             var right = (( ratioOfDay(length)  * canvas.width ) + left ).toInt()
 
             //5分以上でないと1px以上にならないため
