@@ -16,7 +16,7 @@
 
     <item
         android:id="@+id/navigation_chart"
-        android:icon="@drawable/ic_insert_chart_black_24dp"
+        android:icon="@drawable/ic_chart"
         android:title="@string/title_log" />
 
 </menu>
