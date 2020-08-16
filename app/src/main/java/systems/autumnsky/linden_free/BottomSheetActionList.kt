@@ -1,6 +1,5 @@
 package systems.autumnsky.linden_free
 
-import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,14 +18,14 @@ import systems.autumnsky.linden_free.model.Event
 import java.util.*
 
 class BottomSheetActionList (
-    actions : RealmResults<Action>,
+    actions: RealmResults<Action>,
+    isDatePicker :Boolean = true,
     isTimePicker :Boolean = false,
-    isDatePicker :Boolean = false,
     day :Date? = null
     ): BottomSheetDialogFragment() {
 
-    private val isTimePicker = isTimePicker
     private val isDatePicker = isDatePicker
+    private val isTimePicker = isTimePicker
     private val targetActions = actions
     private val date = day
 
@@ -66,40 +65,33 @@ class BottomSheetActionList (
         }
 
         override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
+            val cal = Calendar.getInstance()
+            if( this@BottomSheetActionList.date != null){ cal.time = date }
+
             holder.name.text = actionList[position]?.name
             holder.action.setOnClickListener { view ->
-                //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
-                val cal = Calendar.getInstance()
-                if( this@BottomSheetActionList.date != null){ cal.time = date }
-                if( isDatePicker ){
-                    DatePickerDialog(
-                        view.context,
-                        DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                            cal.apply {
-                                set(Calendar.YEAR, year)
-                                set(Calendar.MONTH, month)
-                                set(Calendar.DAY_OF_MONTH, day)
-                            }
-                            Event()
-                                .insertByTimePicker(holder.name.text.toString(), view.context, cal)
-                            dismiss()
-                        },
-                        cal.get(Calendar.YEAR),
-                        cal.get(Calendar.MONTH),
-                        cal.get(Calendar.DAY_OF_MONTH)
-                    ).apply{
-                        datePicker.maxDate = cal.timeInMillis
-                        show()
+
+                when {
+                    isDatePicker -> {
+                        Event().insertByDatePicker(holder.name.text.toString(), view.context, cal)
                     }
-                } else if( isTimePicker ){
-                    Event()
-                        .insertByTimePicker(holder.name.text.toString(), view.context, cal)
-                    dismiss()
-                } else {
-                    Event()
-                        .insert(holder.name.text.toString(), cal)
-                    dismiss()
+                    isTimePicker -> {
+                        Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                    }
+                    else -> {
+                        Event().insert(holder.name.text.toString(), cal)
+                    }
                 }
+
+                dismiss()
+            }
+
+            if ( !isDatePicker ) {
+               holder.action.setOnLongClickListener { view ->
+                   Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                   dismiss()
+                   return@setOnLongClickListener false
+               }
             }
         }
 

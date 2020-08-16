@@ -189,7 +189,7 @@ class LogActivity : AppCompatActivity() {
         //FAB
         findViewById<View>(R.id.insert_event).setOnClickListener {
             val actions = Realm.getDefaultInstance().where<Action>().notEqualTo("name", getString(R.string.dose)).findAll()
-            val actionList = BottomSheetActionList( actions, isDatePicker = true )
+            val actionList = BottomSheetActionList( actions )
             actionList.show(supportFragmentManager, actionList.tag )
         }
 

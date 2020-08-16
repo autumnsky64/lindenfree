@@ -245,10 +245,10 @@ class MainActivity : AppCompatActivity() {
                 .findAll()
 
             if( isTodayDaily ){
-                val actionList = BottomSheetActionList( actions )
+                val actionList = BottomSheetActionList( actions, isDatePicker = false )
                 actionList.show(supportFragmentManager, actionList.tag )
             } else {
-                val actionList = BottomSheetActionList( actions, isTimePicker = true, day = currentDay)
+                val actionList = BottomSheetActionList( actions, isDatePicker = false, isTimePicker = true, day = currentDay)
                 actionList.show(supportFragmentManager, actionList.tag )
             }
         }
