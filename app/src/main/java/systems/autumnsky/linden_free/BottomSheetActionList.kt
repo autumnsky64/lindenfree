@@ -65,21 +65,24 @@ class BottomSheetActionList (
         }
 
         override fun onBindViewHolder(holder: ActionListHolder, position: Int) {
+
+            val name = actionList[position]?.name ?: return
+
             val cal = Calendar.getInstance()
             if( this@BottomSheetActionList.date != null){ cal.time = date }
 
-            holder.name.text = actionList[position]?.name
+            holder.name.text = name
             holder.action.setOnClickListener { view ->
 
                 when {
                     isDatePicker -> {
-                        Event().insertByDatePicker(holder.name.text.toString(), view.context, cal)
+                        Event().insertByDatePicker(name, view.context, cal)
                     }
                     isTimePicker -> {
-                        Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                        Event().insertByTimePicker(name, view.context, cal)
                     }
                     else -> {
-                        Event().insert(holder.name.text.toString(), cal)
+                        Event().insert(name, cal)
                     }
                 }
 
@@ -88,7 +91,7 @@ class BottomSheetActionList (
 
             if ( !isDatePicker ) {
                holder.action.setOnLongClickListener { view ->
-                   Event().insertByTimePicker(holder.name.text.toString(), view.context, cal)
+                   Event().insertByTimePicker(name, view.context, cal)
                    dismiss()
                    return@setOnLongClickListener false
                }
