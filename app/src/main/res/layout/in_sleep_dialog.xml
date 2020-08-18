@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/in_sleep_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="24dp"
-        >
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/in_sleep_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="24dp">
 
     <Button
         android:id="@+id/awake_button"
@@ -42,31 +39,31 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-            android:text="In Sleep Time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/in_sleep_time"
-            android:textSize="30sp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline8"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintStart_toStartOf="@+id/guideline6"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/guideline7"/>
+        android:id="@+id/in_sleep_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="In Sleep Time"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline8"
+        app:layout_constraintEnd_toStartOf="@+id/guideline7"
+        app:layout_constraintStart_toStartOf="@+id/guideline6" />
 
     <androidx.constraintlayout.widget.Guideline
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/guideline6"
-            app:layout_constraintGuide_percent="0.15"/>
+        android:id="@+id/guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.15" />
 
     <androidx.constraintlayout.widget.Guideline
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/guideline7"
-            app:layout_constraintGuide_percent="0.85"/>
+        android:id="@+id/guideline7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.85" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline8"

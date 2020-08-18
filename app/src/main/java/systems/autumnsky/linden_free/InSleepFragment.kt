@@ -21,7 +21,7 @@ class InSleepFragment : DialogFragment() {
 
             builder.setView(body)
             //入眠時刻を表示
-            arguments?.let{
+            arguments?.let {
                 body.findViewById<TextView>(R.id.in_sleep_time).text = it.getString("InSleepTime")
             }
 
@@ -29,24 +29,25 @@ class InSleepFragment : DialogFragment() {
             val awakeButton = body.findViewById<Button>(R.id.awake_button)
 
             awakeButton.setOnClickListener {
-                Event().insert( awakeButton.text.toString())
+                Event().insert(awakeButton.text.toString())
                 dismiss()
             }
 
             awakeButton.setOnLongClickListener { view ->
                 Event()
-                    .insertByTimePicker( awakeButton.text.toString(), view.context )
+                    .insertByTimePicker(awakeButton.text.toString(), view.context)
                 dismiss()
                 return@setOnLongClickListener true
             }
             builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { _, _ ->
                 val key = arrayOf("time", "id")
-                val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
-                Realm.getDefaultInstance().apply{
+                val sort = arrayOf(Sort.DESCENDING, Sort.DESCENDING)
+                Realm.getDefaultInstance().apply {
                     executeTransaction {
-                        where<Event>().equalTo("name", getString(R.string.sleep)).sort(key, sort).findFirst()?.deleteFromRealm()
+                        where<Event>().equalTo("name", getString(R.string.sleep)).sort(key, sort)
+                            .findFirst()?.deleteFromRealm()
                     }
-                } .also { it.close() }
+                }.also { it.close() }
             })
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")

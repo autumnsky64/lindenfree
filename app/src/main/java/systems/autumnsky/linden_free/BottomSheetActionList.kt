@@ -17,12 +17,12 @@ import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Event
 import java.util.*
 
-class BottomSheetActionList (
+class BottomSheetActionList(
     actions: RealmResults<Action>,
-    isDatePicker :Boolean = true,
-    isTimePicker :Boolean = false,
-    day :Date? = null
-    ): BottomSheetDialogFragment() {
+    isDatePicker: Boolean = true,
+    isTimePicker: Boolean = false,
+    day: Date? = null
+) : BottomSheetDialogFragment() {
 
     private val isDatePicker = isDatePicker
     private val isTimePicker = isTimePicker
@@ -32,9 +32,9 @@ class BottomSheetActionList (
     override fun setupDialog(dialog: Dialog, style: Int) {
         super.setupDialog(dialog, style)
         val view = View.inflate(context, R.layout.bottom_sheet_action_list, null)
-        dialog.setContentView( view )
+        dialog.setContentView(view)
 
-        val layout = GridLayoutManager( activity, 2 )
+        val layout = GridLayoutManager(activity, 2)
         val actionList: RecyclerView = view.findViewById(R.id.action_list)
 
         actionList.run {
@@ -42,6 +42,7 @@ class BottomSheetActionList (
             adapter = RealmAdapter(targetActions)
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,13 +51,13 @@ class BottomSheetActionList (
         return inflater.inflate(R.layout.bottom_sheet_action_list, container, false)
     }
 
-    private inner class ActionListHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val action : ConstraintLayout = itemView.findViewById(R.id.action_row_in_bottom_sheet)
-        val name : TextView = itemView.findViewById(R.id.action_name_in_bottom_sheet)
+    private inner class ActionListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val action: ConstraintLayout = itemView.findViewById(R.id.action_row_in_bottom_sheet)
+        val name: TextView = itemView.findViewById(R.id.action_name_in_bottom_sheet)
     }
 
-    private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>)
-        : RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, true) {
+    private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>) :
+        RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionListHolder {
             val row = LayoutInflater.from(context)
@@ -69,7 +70,9 @@ class BottomSheetActionList (
             val name = actionList[position]?.name ?: return
 
             val cal = Calendar.getInstance()
-            if( this@BottomSheetActionList.date != null){ cal.time = date }
+            if (this@BottomSheetActionList.date != null) {
+                cal.time = date
+            }
 
             holder.name.text = name
             holder.action.setOnClickListener { view ->
@@ -89,12 +92,12 @@ class BottomSheetActionList (
                 dismiss()
             }
 
-            if ( !isDatePicker ) {
-               holder.action.setOnLongClickListener { view ->
-                   Event().insertByTimePicker(name, view.context, cal)
-                   dismiss()
-                   return@setOnLongClickListener false
-               }
+            if (!isDatePicker) {
+                holder.action.setOnLongClickListener { view ->
+                    Event().insertByTimePicker(name, view.context, cal)
+                    dismiss()
+                    return@setOnLongClickListener false
+                }
             }
         }
 

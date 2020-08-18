@@ -8,16 +8,17 @@ class Migration : RealmMigration {
     override fun migrate(realm: DynamicRealm, oldVersion: Long, newVersion: Long) {
         val scheme = realm.schema
         var verCount = oldVersion
-        if( verCount == 1L) {
+        if (verCount == 1L) {
             scheme.apply {
                 rename("Event", "Action")
                 rename("EventLog", "Event")
-                get("Medicine")?.addField("is_use_as_needed", Boolean::class.java)?.setNullable("is_use_as_needed",true)
+                get("Medicine")?.addField("is_use_as_needed", Boolean::class.java)
+                    ?.setNullable("is_use_as_needed", true)
                 get("Event")?.renameField("event_name", "name")
             }
             verCount++
         }
-        if ( verCount == 2L ){
+        if (verCount == 2L) {
             scheme.apply {
                 create("Activity").apply {
                     addField("name", String::class.java)
@@ -25,7 +26,7 @@ class Migration : RealmMigration {
                     addField("startTime", Date::class.java)
                 }
             }
-            scheme.apply{
+            scheme.apply {
                 create("DailyActivity").apply {
                     addField("day", Date::class.java)
                     addRealmListField("activityStack", get("Activity")!!)

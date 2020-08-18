@@ -16,15 +16,15 @@ import io.realm.kotlin.where
 import systems.autumnsky.linden_free.R
 import java.util.*
 
-open class Event (
+open class Event(
     @PrimaryKey open var id: Long? = null,
     open var time: Date? = null,
     open var name: String? = null,
     open var quantity: Double? = null
-): RealmObject() {
+) : RealmObject() {
 
-    fun insert(action: String, timing: Calendar? = null, qty :Double? = null){
-        val cal = when ( timing ){
+    fun insert(action: String, timing: Calendar? = null, qty: Double? = null) {
+        val cal = when (timing) {
             null -> Calendar.getInstance()
             else -> timing
         }
@@ -33,8 +33,8 @@ open class Event (
         cal.set(Calendar.MILLISECOND, 0)
 
         Realm.getDefaultInstance().executeTransaction { realm ->
-            val newId: Long = (realm.where<Event>().max("id")?.toLong()?:0) + 1
-            val eventLog = realm.createObject<Event>(newId).apply{
+            val newId: Long = (realm.where<Event>().max("id")?.toLong() ?: 0) + 1
+            val eventLog = realm.createObject<Event>(newId).apply {
                 time = cal.time
                 name = action
                 quantity = qty
@@ -45,17 +45,17 @@ open class Event (
         DailyActivity().refreshDailyStack(cal)
     }
 
-    private fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null ){
-        newCal.set( Calendar.SECOND, 0)
-        newCal.set( Calendar.MILLISECOND, 0)
+    private fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null) {
+        newCal.set(Calendar.SECOND, 0)
+        newCal.set(Calendar.MILLISECOND, 0)
 
         val realm = Realm.getDefaultInstance()
         val found = realm.where<Event>()
-                .equalTo("time", oldCal.time)
-                .equalTo("name", action)
-                .findFirst()
+            .equalTo("time", oldCal.time)
+            .equalTo("name", action)
+            .findFirst()
 
-        if ( found == null){
+        if (found == null) {
             insert(action, newCal, qty)
         } else {
             realm.executeTransaction {
@@ -70,11 +70,11 @@ open class Event (
         DailyActivity().refreshDailyStack(newCal)
     }
 
-    fun delete(id :Long){
-        Realm.getDefaultInstance().apply{
+    fun delete(id: Long) {
+        Realm.getDefaultInstance().apply {
 
             val day = Calendar.getInstance()
-            where<Event>().equalTo("id", id).findFirst()?.time?.let{
+            where<Event>().equalTo("id", id).findFirst()?.time?.let {
                 day.time = it
             }
 
@@ -84,10 +84,14 @@ open class Event (
 
             DailyActivity().refreshDailyStack(day)
 
-        } .also { it.close() }
+        }.also { it.close() }
     }
 
-    fun insertByTimePicker( action: String, context: Context, cal :Calendar = Calendar.getInstance()){
+    fun insertByTimePicker(
+        action: String,
+        context: Context,
+        cal: Calendar = Calendar.getInstance()
+    ) {
         TimePickerDialog(
             context,
             TimePickerDialog.OnTimeSetListener { _, hour, min ->
@@ -95,7 +99,7 @@ open class Event (
                     set(Calendar.HOUR_OF_DAY, hour)
                     set(Calendar.MINUTE, min)
                 }
-                insert( action, cal)
+                insert(action, cal)
             },
             cal.get(Calendar.HOUR_OF_DAY),
             cal.get(Calendar.MINUTE),
@@ -103,7 +107,11 @@ open class Event (
         ).show()
     }
 
-    fun insertByDatePicker( action: String, context: Context, cal :Calendar = Calendar.getInstance()){
+    fun insertByDatePicker(
+        action: String,
+        context: Context,
+        cal: Calendar = Calendar.getInstance()
+    ) {
         DatePickerDialog(
             context,
             DatePickerDialog.OnDateSetListener { _, year, month, day ->
@@ -117,12 +125,13 @@ open class Event (
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
             cal.get(Calendar.DAY_OF_MONTH)
-        ).apply{
+        ).apply {
             datePicker.maxDate = cal.timeInMillis
             show()
         }
     }
-    fun insertMedicineLog( medicines: RecyclerView, timing :Calendar? = Calendar.getInstance() ) {
+
+    fun insertMedicineLog(medicines: RecyclerView, timing: Calendar? = Calendar.getInstance()) {
         for (i in 0..medicines.childCount) {
             medicines.findViewHolderForLayoutPosition(i)?.let {
                 val medicine =
@@ -131,26 +140,38 @@ open class Event (
                     it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()
                         ?.toDoubleOrNull()
 
-                insert(  action = medicine, timing = timing, qty = quantity)
+                insert(action = medicine, timing = timing, qty = quantity)
             }
         }
     }
 
-    fun insertMedicineLogByTimePicker( medicines: RecyclerView, button: Button, cal: Calendar): Calendar? {
+    fun insertMedicineLogByTimePicker(
+        medicines: RecyclerView,
+        button: Button,
+        cal: Calendar
+    ): Calendar? {
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
 
-            insertMedicineLog( medicines, cal)
+            insertMedicineLog(medicines, cal)
 
             button.apply {
-                text = button.context.getString(R.string.dose).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,cal.time).toString()
-                setBackgroundColor(getColor(button.context,
-                    R.color.colorPrimary
-                ))
-                setTextColor(getColor(button.context,
-                    R.color.materialLight
-                ))
+                text = button.context.getString(R.string.dose)
+                    .toString() + " " + android.text.format.DateFormat.format("HH:mm", cal.time)
+                    .toString()
+                setBackgroundColor(
+                    getColor(
+                        button.context,
+                        R.color.colorPrimary
+                    )
+                )
+                setTextColor(
+                    getColor(
+                        button.context,
+                        R.color.materialLight
+                    )
+                )
             }
         }
 
@@ -164,9 +185,9 @@ open class Event (
         return cal
     }
 
-    fun updateMedicineLog( medicines: RecyclerView, button: Button, oldCal: Calendar? ) :Calendar?{
+    fun updateMedicineLog(medicines: RecyclerView, button: Button, oldCal: Calendar?): Calendar? {
         val newCal = Calendar.getInstance()
-        if( oldCal != null) {
+        if (oldCal != null) {
             newCal.time = oldCal.time
         }
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
@@ -181,13 +202,17 @@ open class Event (
                         it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()
                             ?.toDoubleOrNull()
 
-                    if( oldCal != null) {
+                    if (oldCal != null) {
                         update(medicine, oldCal, newCal, quantity)
-                    }else{
+                    } else {
                         insert(medicine, newCal, quantity)
                     }
 
-                    button.text = button.context.getString(R.string.dose).toString() + " " + android.text.format.DateFormat.format("HH:mm" ,newCal.time).toString()
+                    button.text = button.context.getString(R.string.dose)
+                        .toString() + " " + android.text.format.DateFormat.format(
+                        "HH:mm",
+                        newCal.time
+                    ).toString()
 
                 }
             }

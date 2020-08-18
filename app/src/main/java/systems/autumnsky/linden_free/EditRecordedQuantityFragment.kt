@@ -18,17 +18,21 @@ class EditRecordedQuantityFragment : DialogFragment() {
         val builder = AlertDialog.Builder(activity)
 
         arguments?.let {
-            view.findViewById<TextView>(R.id.edit_quantity_medicine_label).text = it.getString("MedicineName")
+            view.findViewById<TextView>(R.id.edit_quantity_medicine_label).text =
+                it.getString("MedicineName")
             view.findViewById<EditText>(R.id.input_fixed_quantity).setText(it.getString("Quantity"))
 
             builder.apply {
                 setView(view)
                 setPositiveButton("SAVE") { _, _ ->
                     val realm = Realm.getDefaultInstance()
-                    val logRecord = realm.where<Event>().equalTo("id", it.getString("Id")!!.toInt()).findFirst()
+                    val logRecord =
+                        realm.where<Event>().equalTo("id", it.getString("Id")!!.toInt()).findFirst()
 
                     realm.executeTransaction {
-                        logRecord?.quantity = view.findViewById<EditText>(R.id.input_fixed_quantity).text.toString().toDouble()
+                        logRecord?.quantity =
+                            view.findViewById<EditText>(R.id.input_fixed_quantity).text.toString()
+                                .toDouble()
                     }
 
                     realm.close()

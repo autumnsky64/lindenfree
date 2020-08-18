@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-            android:id="@+id/navigation_medicine"
-            android:icon="@drawable/ic_capsule"
-            android:title="@string/title_medicine"
-            android:iconTint="#00FFFFFF"/>
+        android:id="@+id/navigation_medicine"
+        android:icon="@drawable/ic_capsule"
+        android:iconTint="#00FFFFFF"
+        android:title="@string/title_medicine" />
 
     <item
         android:id="@+id/navigation_home"

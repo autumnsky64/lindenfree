@@ -24,31 +24,32 @@ import java.text.DecimalFormat
 
 class MedicineActivity : AppCompatActivity() {
 
-    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_chart -> {
-                val intent = Intent(applicationContext, ChartActivity::class.java)
-                startActivity(intent)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_home -> {
-                //初回起動時のヒント
-                findViewById<ConstraintLayout>(R.id.tutorial_medicine)?.let{
-                    it.visibility = View.INVISIBLE
+    private val onNavigationItemSelectedListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_chart -> {
+                    val intent = Intent(applicationContext, ChartActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
                 }
+                R.id.navigation_home -> {
+                    //初回起動時のヒント
+                    findViewById<ConstraintLayout>(R.id.tutorial_medicine)?.let {
+                        it.visibility = View.INVISIBLE
+                    }
 
-                val intent = Intent(applicationContext, MainActivity::class.java)
-                startActivity(intent)
-                return@OnNavigationItemSelectedListener true
+                    val intent = Intent(applicationContext, MainActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_medicine -> {
+                    val intent = Intent(applicationContext, MedicineActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
             }
-            R.id.navigation_medicine -> {
-                val intent = Intent(applicationContext, MedicineActivity::class.java)
-                startActivity(intent)
-                return@OnNavigationItemSelectedListener true
-            }
+            false
         }
-        false
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.medicine_action_button, menu)
@@ -56,14 +57,18 @@ class MedicineActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when( item.itemId ){
+        when (item.itemId) {
             R.id.add_medicine -> {
 
-                EditMedicineFragment().show(supportFragmentManager,"medicine")
+                EditMedicineFragment().show(supportFragmentManager, "medicine")
 
                 //初回起動時のツールチップを消す
-                findViewById<TextView>(R.id.description_add_medicine)?.let{ it.visibility = View.INVISIBLE }
-                findViewById<ImageView>(R.id.arrow_add_medicine)?.let{ it.visibility = View.INVISIBLE }
+                findViewById<TextView>(R.id.description_add_medicine)?.let {
+                    it.visibility = View.INVISIBLE
+                }
+                findViewById<ImageView>(R.id.arrow_add_medicine)?.let {
+                    it.visibility = View.INVISIBLE
+                }
 
             }
 
@@ -88,23 +93,34 @@ class MedicineActivity : AppCompatActivity() {
             }
         }
 
-        val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT){
-            override fun onMove( recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
+        val helper = ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
                 return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
-                AlertDialog.Builder(this@MedicineActivity).run{
+                AlertDialog.Builder(this@MedicineActivity).run {
                     setCancelable(false)
-                    setTitle(getString(R.string.title_delete_medicine, viewHolder.itemView.medicine_name.text.toString()))
+                    setTitle(
+                        getString(
+                            R.string.title_delete_medicine,
+                            viewHolder.itemView.medicine_name.text.toString()
+                        )
+                    )
                     setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
                         // medicine tableからの削除
                         val id = viewHolder.itemView.medicine_id.text.toString()
 
                         Realm.getDefaultInstance().apply {
                             val targetMedicine = where<Medicine>().equalTo("id", id).findFirst()
-                            val targetEvent = where<Action>().equalTo("medicine.id", targetMedicine?.id).findAll()
+                            val targetEvent =
+                                where<Action>().equalTo("medicine.id", targetMedicine?.id).findAll()
 
                             executeTransaction {
                                 targetEvent?.deleteAllFromRealm()
@@ -133,15 +149,18 @@ class MedicineActivity : AppCompatActivity() {
         showTutorial()
     }
 
-    private fun showTutorial(){
-        if( (application as LindenFreeApp).isFirstLaunch
-            && Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0 ) {
-                val decorView = this@MedicineActivity.window.decorView as ViewGroup
-                decorView.addView(
-                    LayoutInflater.from(this@MedicineActivity).inflate(R.layout.tutorial_medicine_activity, null)
-                )
+    private fun showTutorial() {
+        if ((application as LindenFreeApp).isFirstLaunch
+            && Realm.getDefaultInstance().where<Medicine>().findAll().count() == 0
+        ) {
+            val decorView = this@MedicineActivity.window.decorView as ViewGroup
+            decorView.addView(
+                LayoutInflater.from(this@MedicineActivity)
+                    .inflate(R.layout.tutorial_medicine_activity, null)
+            )
         }
     }
+
     // 薬テーブルの一覧表示
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val medicine: ConstraintLayout = itemView.findViewById(R.id.medicine)
@@ -156,12 +175,13 @@ class MedicineActivity : AppCompatActivity() {
         val useAsNeededLabel: TextView = itemView.findViewById(R.id.is_use_as_needed)
     }
 
-    private inner class RealmAdapter(private val medicines: OrderedRealmCollection<Medicine>)
-        : RealmRecyclerViewAdapter<Medicine, MedicineListHolder>(medicines, true) {
+    private inner class RealmAdapter(private val medicines: OrderedRealmCollection<Medicine>) :
+        RealmRecyclerViewAdapter<Medicine, MedicineListHolder>(medicines, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
 
-            val row = LayoutInflater.from(applicationContext).inflate(R.layout.medicine_row, parent, false)
+            val row = LayoutInflater.from(applicationContext)
+                .inflate(R.layout.medicine_row, parent, false)
             return MedicineListHolder(row)
         }
 
@@ -172,28 +192,28 @@ class MedicineActivity : AppCompatActivity() {
 
             // 量の表示 0の時はラベルとかも非表示
             val regQty = medicine?.regular_quantity
-            if ( regQty != null){
-                holder.run{
+            if (regQty != null) {
+                holder.run {
                     quantity.text = DecimalFormat("#.##").format(regQty)
                     regularUnitLabel.visibility = View.VISIBLE
                 }
 
             } else {
-                holder.run{
+                holder.run {
                     quantity.text = ""
                     regularUnitLabel.visibility = View.INVISIBLE
                 }
             }
 
             val stepQty = medicine?.adjustment_step
-            if ( stepQty != null ){
-                holder.run{
+            if (stepQty != null) {
+                holder.run {
                     step.text = DecimalFormat("#.##").format(stepQty)
                     adjustmentLabel.visibility = View.VISIBLE
                     adjustmentUnitLabel.visibility = View.VISIBLE
                 }
             } else {
-                holder.run{
+                holder.run {
                     step.text = ""
                     adjustmentLabel.visibility = View.INVISIBLE
                     adjustmentUnitLabel.visibility = View.INVISIBLE
@@ -201,20 +221,22 @@ class MedicineActivity : AppCompatActivity() {
             }
 
             val isUseAsNeeded = medicine?.is_use_as_needed
-            if( isUseAsNeeded != null && isUseAsNeeded ){ holder.useAsNeededLabel.visibility = View.VISIBLE }
+            if (isUseAsNeeded != null && isUseAsNeeded) {
+                holder.useAsNeededLabel.visibility = View.VISIBLE
+            }
 
             // タップで編集
-            holder.medicine.setOnClickListener{
+            holder.medicine.setOnClickListener {
                 // 薬情報の編集はEditMedicineFragmentダイアログで行う
                 EditMedicineFragment().run {
                     arguments = Bundle().apply {
                         putString("MedicineId", medicine?.id)
                         putString("Name", medicine?.name)
-                        putDouble("Quantity", medicine?.regular_quantity?:0.0)
-                        putDouble("Step", medicine?.adjustment_step?:0.0)
-                        putBoolean("IsUseAsNeeded", medicine?.is_use_as_needed?:false)
+                        putDouble("Quantity", medicine?.regular_quantity ?: 0.0)
+                        putDouble("Step", medicine?.adjustment_step ?: 0.0)
+                        putBoolean("IsUseAsNeeded", medicine?.is_use_as_needed ?: false)
                     }
-                    show(supportFragmentManager,"medicine")
+                    show(supportFragmentManager, "medicine")
                 }
             }
         }

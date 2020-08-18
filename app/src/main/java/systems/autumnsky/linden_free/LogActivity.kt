@@ -34,7 +34,8 @@ import java.util.*
 
 class LogActivity : AppCompatActivity() {
 
-    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+    private val onNavigationItemSelectedListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_chart -> {
                     val intent = Intent(applicationContext, LogActivity::class.java)
@@ -63,12 +64,15 @@ class LogActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.dl_log -> {
-                if (ActivityCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE )
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
                     != PackageManager.PERMISSION_GRANTED
                 ) {
                     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     ActivityCompat.requestPermissions(this, permissions, 1000)
-                }else{
+                } else {
                     createCsv()
                 }
             }
@@ -80,7 +84,11 @@ class LogActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>, grantResults: IntArray ) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         if (requestCode == 1000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             createCsv()
         }
@@ -88,7 +96,7 @@ class LogActivity : AppCompatActivity() {
 
     private val WRITE_REQUEST_CODE: Int = 563
 
-    private fun createCsv(){
+    private fun createCsv() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "text/plain"
@@ -99,13 +107,13 @@ class LogActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        if (requestCode != WRITE_REQUEST_CODE || resultCode != Activity.RESULT_OK ) {
+        if (requestCode != WRITE_REQUEST_CODE || resultCode != Activity.RESULT_OK) {
             super.onActivityResult(requestCode, resultCode, data)
             return
         }
 
-        data?.data?.let{ fileUri ->
-            contentResolver.openOutputStream( fileUri, "wa" )?.let{
+        data?.data?.let { fileUri ->
+            contentResolver.openOutputStream(fileUri, "wa")?.let {
 
                 BufferedOutputStream(it, Context.MODE_APPEND).run {
                     val header = "Time\tEvent\tQuantity\n"
@@ -115,8 +123,9 @@ class LogActivity : AppCompatActivity() {
                         .sort("id", Sort.ASCENDING)
                         .findAll()
                         .forEach { record ->
-                            val timeString = DateFormat.format("yyyy/MM/dd kk:mm", record.time )
-                            val quantityString = if( record.quantity != null ) DecimalFormat("#.##").format(record.quantity!!) else ""
+                            val timeString = DateFormat.format("yyyy/MM/dd kk:mm", record.time)
+                            val quantityString =
+                                if (record.quantity != null) DecimalFormat("#.##").format(record.quantity!!) else ""
 
                             write("${timeString}\t${record.name}\t${quantityString}\n".toByteArray())
                         }
@@ -124,7 +133,11 @@ class LogActivity : AppCompatActivity() {
                     close()
                 }
 
-                Snackbar.make(findViewById(R.id.snack_bar_container), getText(R.string.snackbar_save_file_message), Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    findViewById(R.id.snack_bar_container),
+                    getText(R.string.snackbar_save_file_message),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -136,16 +149,18 @@ class LogActivity : AppCompatActivity() {
 
         val layout = LinearLayoutManager(applicationContext)
         val key = arrayOf("time", "id")
-        val sort = arrayOf( Sort.DESCENDING, Sort.DESCENDING)
+        val sort = arrayOf(Sort.DESCENDING, Sort.DESCENDING)
         val eventLog = Realm.getDefaultInstance().where<Event>().findAll().sort(key, sort)
 
         val logTable = findViewById<RecyclerView>(R.id.log_table_body).apply {
             layoutManager = layout
             adapter = RealmAdapter(eventLog).apply {
                 //追記時に最上部にスクロールする
-                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                        findViewById<RecyclerView>(R.id.log_table_body).scrollToPosition(positionStart)
+                        findViewById<RecyclerView>(R.id.log_table_body).scrollToPosition(
+                            positionStart
+                        )
                     }
                 })
             }
@@ -153,8 +168,13 @@ class LogActivity : AppCompatActivity() {
         }
 
         //swipe操作
-        val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT){
-            override fun onMove( recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
+        val helper = ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
                 return false
             }
 
@@ -167,12 +187,12 @@ class LogActivity : AppCompatActivity() {
                 AlertDialog.Builder(this@LogActivity)
                     .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
-                    .setPositiveButton(getText(R.string.dialog_delete)){ _, _ ->
+                    .setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
 
                         id.let { Event().delete(it.toLong()) }
 
                     }
-                    .setNegativeButton(getText(R.string.dialog_cancel)){ _ , _ ->
+                    .setNegativeButton(getText(R.string.dialog_cancel)) { _, _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
                         logTable.adapter?.notifyDataSetChanged()
                     }
@@ -188,9 +208,10 @@ class LogActivity : AppCompatActivity() {
 
         //FAB
         findViewById<View>(R.id.insert_event).setOnClickListener {
-            val actions = Realm.getDefaultInstance().where<Action>().notEqualTo("name", getString(R.string.dose)).findAll()
-            val actionList = BottomSheetActionList( actions )
-            actionList.show(supportFragmentManager, actionList.tag )
+            val actions = Realm.getDefaultInstance().where<Action>()
+                .notEqualTo("name", getString(R.string.dose)).findAll()
+            val actionList = BottomSheetActionList(actions)
+            actionList.show(supportFragmentManager, actionList.tag)
         }
 
         //下部ナビゲーション
@@ -201,17 +222,18 @@ class LogActivity : AppCompatActivity() {
     }
 
     private inner class LogHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val id :TextView = itemView.findViewById(R.id.id_cell)
-        val time :TextView = itemView.findViewById(R.id.time_cell)
-        val event :TextView = itemView.findViewById(R.id.event_cell)
-        val quantity :TextView = itemView.findViewById(R.id.qty_cell)
+        val id: TextView = itemView.findViewById(R.id.id_cell)
+        val time: TextView = itemView.findViewById(R.id.time_cell)
+        val event: TextView = itemView.findViewById(R.id.event_cell)
+        val quantity: TextView = itemView.findViewById(R.id.qty_cell)
     }
 
     private inner class RealmAdapter(private val log: OrderedRealmCollection<Event>) :
         RealmRecyclerViewAdapter<Event, LogHolder>(log, true) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder {
-            val row = LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
+            val row =
+                LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
             return LogHolder(row)
         }
 
@@ -245,8 +267,8 @@ class LogActivity : AppCompatActivity() {
                                 }
                                 val realm = Realm.getDefaultInstance()
                                 realm.executeTransaction {
-                                    cal.set( Calendar.SECOND, 0)
-                                    cal.set( Calendar.MILLISECOND, 0)
+                                    cal.set(Calendar.SECOND, 0)
+                                    cal.set(Calendar.MILLISECOND, 0)
                                     logRecord.time = cal.time
                                 }
                                 realm.close()

@@ -8,17 +8,19 @@ import io.realm.kotlin.createObject
 import io.realm.kotlin.where
 import java.util.*
 
-open class DailyActivity (
+open class DailyActivity(
     open var day: Date? = null,
     open var activityStack: RealmList<Activity>? = null,
     open var medicineStack: RealmList<Activity>? = null
-): RealmObject() {
+) : RealmObject() {
 
-    fun insert (cal: Calendar) : DailyActivity? {
+    fun insert(cal: Calendar): DailyActivity? {
 
         val realm = Realm.getDefaultInstance()
 
-        var lastDay = realm.where<DailyActivity>().lessThan("day", cal.time).sort("day", Sort.DESCENDING) .findFirst()?.day
+        var lastDay =
+            realm.where<DailyActivity>().lessThan("day", cal.time).sort("day", Sort.DESCENDING)
+                .findFirst()?.day
                 ?: Calendar.getInstance().apply { time = cal.time }.time
 
         // 現在からlastDayまで日付を遡りつつ1日ずつインサート
@@ -41,14 +43,15 @@ open class DailyActivity (
 
         realm.close()
 
-        return Realm.getDefaultInstance().where<DailyActivity>().equalTo("day", cal.time).findFirst()
+        return Realm.getDefaultInstance().where<DailyActivity>().equalTo("day", cal.time)
+            .findFirst()
     }
 
-    fun refreshDailyStack(date: Calendar){
+    fun refreshDailyStack(date: Calendar) {
 
         val realm = Realm.getDefaultInstance()
 
-        val currentDay = Calendar.getInstance().apply{
+        val currentDay = Calendar.getInstance().apply {
             time = date.time
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -57,19 +60,22 @@ open class DailyActivity (
 
         val currentDayLastSec = Calendar.getInstance().apply {
             time = currentDay.time
-            set( Calendar.HOUR_OF_DAY, 23)
-            set( Calendar.MINUTE, 59)
-            set( Calendar.SECOND, 59)
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
         }
 
         //targetDayがなければインサート グラフ化するイベントがなくても日付レコードは必要
-        val targetDay = realm.where<DailyActivity>().equalTo("day", currentDay.time).findFirst() ?: insert(currentDay)
+        val targetDay =
+            realm.where<DailyActivity>().equalTo("day", currentDay.time).findFirst() ?: insert(
+                currentDay
+            )
 
         //sleep/awake イベント時刻を取得 イベントがなければここで終了
         val events = realm.where<Event>()
             .between("time", currentDay.time, currentDayLastSec.time)
-            .`in`("name", arrayOf("Sleep","Awake","起床","入眠"))
-            .sort(arrayOf("time","id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
+            .`in`("name", arrayOf("Sleep", "Awake", "起床", "入眠"))
+            .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
             .findAll() ?: return
 
         realm.beginTransaction()
@@ -97,7 +103,7 @@ open class DailyActivity (
                 nextDay.add(Calendar.DATE, 1)
 
                 val lastAct = realm.createObject<Activity>()
-                lastAct.apply{
+                lastAct.apply {
                     name = event.name as String
                     length = nextDay.timeInMillis - event.time!!.time
                     startTime = event.time
@@ -105,8 +111,8 @@ open class DailyActivity (
 
                 activities.add(lastAct)
 
-                }
             }
+        }
 
         targetDay?.activityStack = activities
 
@@ -114,7 +120,7 @@ open class DailyActivity (
 
         //medicineStackの更新
         //登録している薬をArrayに
-        val medicines :Array<String> = realm.where<Medicine>().findAll().mapNotNull {
+        val medicines: Array<String> = realm.where<Medicine>().findAll().mapNotNull {
             it.name
         }.toTypedArray()
 
@@ -123,7 +129,7 @@ open class DailyActivity (
 
             .between("time", currentDay.time, currentDayLastSec.time)
             .`in`("name", medicines)
-            .sort(arrayOf("time","id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
+            .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
             .findAll() ?: return
 
         realm.beginTransaction()
@@ -145,11 +151,11 @@ open class DailyActivity (
         realm.close()
     }
 
-    private fun findActivityName(action: String ) :String?{
+    private fun findActivityName(action: String): String? {
         //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
-        var activityName :String?
+        var activityName: String?
 
-        when (action){
+        when (action) {
             "Sleep" -> activityName = "Awake"
             "Awake" -> activityName = "Sleep"
             "起床" -> activityName = "睡眠"

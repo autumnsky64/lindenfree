@@ -55,7 +55,7 @@ class SleepAwakeBehaviorTest {
             .sort("time", Sort.DESCENDING)
             .equalTo("event_name", "Sleep")
             .findFirst()?.time
-                .let { DateFormat.format("hh:mm", it).toString() }
+            .let { DateFormat.format("hh:mm", it).toString() }
 
         val textView = onView(withId(R.id.in_sleep_time))
         textView.check(matches(withText(timeString)))

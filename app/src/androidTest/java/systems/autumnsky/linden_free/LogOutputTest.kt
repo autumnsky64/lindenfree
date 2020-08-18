@@ -237,7 +237,7 @@ class LogOutputTest {
 
         val appCompatButton5 = onView(
             allOf(
-                withId(R.id.dose_button) , isDisplayed()
+                withId(R.id.dose_button), isDisplayed()
             )
         )
         appCompatButton5.perform(click())
@@ -255,7 +255,7 @@ class LogOutputTest {
         )
         spinner.perform(click())
 
-        val appCompatButton6 =onView(
+        val appCompatButton6 = onView(
             allOf(
                 withId(R.id.sleep_button), withText("Sleep"),
                 childAtPosition(

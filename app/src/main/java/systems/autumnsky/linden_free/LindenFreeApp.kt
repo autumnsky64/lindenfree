@@ -29,32 +29,33 @@ class LindenFreeApp : Application() {
         val config = builder.build()
         Realm.setDefaultConfiguration(config)
 
-        if (isFirstLaunch){
+        if (isFirstLaunch) {
             insertDefaultActions()
         }
 
         //既存のイベントデータから、DailyCycleテーブルに日ごとのデータを入れる
         //マイグレーション直後はDailyCycleにデータがなく、Eventだけにデータのある状態のはず
         val realm = Realm.getDefaultInstance()
-        if( realm.where<DailyActivity>().findAll().count() == 0
-            && realm.where<Event>().findAll().count() > 0 ){
+        if (realm.where<DailyActivity>().findAll().count() == 0
+            && realm.where<Event>().findAll().count() > 0
+        ) {
 
             val lastDay = Calendar.getInstance()
-            realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()?.time?.let{
+            realm.where<Event>().sort("time", Sort.DESCENDING).findFirst()?.time?.let {
                 lastDay.time = it
             }
 
             val currentDay = Calendar.getInstance()
-            realm.where<Event>().sort("time", Sort.ASCENDING).findFirst()?.time?.let{
+            realm.where<Event>().sort("time", Sort.ASCENDING).findFirst()?.time?.let {
                 currentDay.time = it
-                currentDay.apply{
+                currentDay.apply {
                     set(Calendar.MINUTE, 0)
                     set(Calendar.HOUR, 0)
                 }
             }
 
-            while ( currentDay < lastDay ){
-                DailyActivity().refreshDailyStack( currentDay )
+            while (currentDay < lastDay) {
+                DailyActivity().refreshDailyStack(currentDay)
                 currentDay.add(Calendar.DATE, 1)
             }
         }
@@ -72,7 +73,7 @@ class LindenFreeApp : Application() {
         val realm = Realm.getDefaultInstance()
 
         defaultEvents.forEach { actionName ->
-            if( realm.where<Action>().equalTo("name", actionName ).findAll().count()== 0 ){
+            if (realm.where<Action>().equalTo("name", actionName).findAll().count() == 0) {
                 realm.executeTransaction {
                     val action = realm.createObject<Action>(UUID.randomUUID().toString())
                     action.name = actionName
