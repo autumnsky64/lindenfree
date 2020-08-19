@@ -18,33 +18,47 @@ open class DailyActivity(
 
         val realm = Realm.getDefaultInstance()
 
-        var lastDay =
-            realm.where<DailyActivity>().lessThan("day", cal.time).sort("day", Sort.DESCENDING)
-                .findFirst()?.day
+        val lastDay = realm.where<DailyActivity>().maximumDate("day")
                 ?: Calendar.getInstance().apply { time = cal.time }.time
 
-        // 現在からlastDayまで日付を遡りつつ1日ずつインサート
-        var currentDay = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+
+        var startDay: Calendar
+        var targetDay: Calendar
+
+        if ( lastDay > cal.time ) {
+            //既に記録した一番古い日より、古い日付の記録を入れる時
+            startDay = Calendar.getInstance().apply{ time = cal.time }
+            targetDay = Calendar.getInstance().apply {
+                realm.where<DailyActivity>().minimumDate("day").let {
+                    time = it
+                    add(Calendar.DAY_OF_MONTH, -1)
+                }
+            }
+        } else {
+            //前回記録日より記録しようとする日が新しい場合、実際の利用ではほぼこちらのはず
+            startDay = Calendar.getInstance().apply{ time = lastDay }
+            targetDay = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
         }
 
-        while (lastDay <= currentDay.time) {
+        // 現在からlastDayまで日付を遡りつつ1日ずつインサート
+        while (startDay.time <= targetDay.time) {
             realm.executeTransaction {
                 it.copyToRealm(
                     it.createObject<DailyActivity>().apply {
-                        day = currentDay.time
+                        day = startDay.time
                     })
             }
-            currentDay.add(Calendar.DAY_OF_MONTH, -1)
+            startDay.add(Calendar.DAY_OF_MONTH, +1)
         }
 
         realm.close()
 
-        return Realm.getDefaultInstance().where<DailyActivity>().equalTo("day", cal.time)
-            .findFirst()
+        return Realm.getDefaultInstance().where<DailyActivity>().equalTo("day", cal.time) .findFirst()
     }
 
     fun refreshDailyStack(date: Calendar) {

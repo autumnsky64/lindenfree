@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -141,6 +142,10 @@ class ChartActivity : AppCompatActivity() {
                 val r: Float = (canvas.height * 0.2).toFloat()
                 canvas.drawCircle(x, y, r, dotPaint)
             }
+
+            day?.let{
+                addDayLabel(day, canvas)
+            }
         }
 
         private fun bar(activity: Activity, canvas: Canvas): Rect {
@@ -158,6 +163,21 @@ class ChartActivity : AppCompatActivity() {
             return Rect(left, 0, right, canvas.height)
         }
 
+        private fun addDayLabel(day: Date, canvas: Canvas){
+            when (DateFormat.format("d", day) as String) {
+                "1","10","20" -> {
+                    val size :Float = ( canvas.height * 0.66 ).toFloat()
+                    val padding :Float = (( canvas.height - size ) * 0.25 ).toFloat()
+                    val dayLabel = DateFormat.format("M/d", day) as String
+                    val paint = Paint().apply {
+                        color = Color.rgb(100, 100, 100)
+                        textSize = size
+                        isAntiAlias = true }
+
+                    canvas.drawText( dayLabel, 10f, size + padding, paint )
+                }
+            }
+        }
         private fun ratioOfDay(second: Float): Float {
             return second / (24 * 60 * 60)
         }
@@ -192,9 +212,7 @@ class ChartActivity : AppCompatActivity() {
                 } else {
                     canvas.drawLine(startX, startY, endX, endY, hourLine)
                 }
-
             }
-
         }
 
         override fun setAlpha(alpha: Int) {

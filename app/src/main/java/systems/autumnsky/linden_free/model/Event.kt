@@ -157,9 +157,8 @@ open class Event(
             insertMedicineLog(medicines, cal)
 
             button.apply {
-                text = button.context.getString(R.string.dose)
-                    .toString() + " " + android.text.format.DateFormat.format("HH:mm", cal.time)
-                    .toString()
+                text = button.context.getString(R.string.dose) +
+                        " " + android.text.format.DateFormat.format("HH:mm", cal.time).toString()
                 setBackgroundColor(
                     getColor(
                         button.context,
@@ -208,11 +207,8 @@ open class Event(
                         insert(medicine, newCal, quantity)
                     }
 
-                    button.text = button.context.getString(R.string.dose)
-                        .toString() + " " + android.text.format.DateFormat.format(
-                        "HH:mm",
-                        newCal.time
-                    ).toString()
+                    button.text = button.context.getString(R.string.dose) +
+                            " " + android.text.format.DateFormat.format( "HH:mm", newCal.time ).toString()
 
                 }
             }
