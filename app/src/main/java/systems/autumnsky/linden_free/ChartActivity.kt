@@ -105,7 +105,12 @@ class ChartActivity : AppCompatActivity() {
             val day = days[position].day
             val cycles = days[position].activityStack
             val takenMedicines = days[position].medicineStack
-            element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines))
+
+            if( position > 0){
+                element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines))
+            } else {
+                element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines, isFirstRow = true))
+            }
         }
 
         override fun getItemCount(): Int {
@@ -116,12 +121,14 @@ class ChartActivity : AppCompatActivity() {
     class DrawPattern(
         day: Date?,
         activityStack: RealmList<Activity>?,
-        medicineStack: RealmList<Activity>?
+        medicineStack: RealmList<Activity>?,
+        isFirstRow: Boolean = false
     ) : Drawable() {
 
         val day = day
         val activityStack = activityStack
         val medicineStack = medicineStack
+        val isfirstRow = isFirstRow
 
         //1日分のグラフ描画
         override fun draw(canvas: Canvas) {
@@ -143,8 +150,15 @@ class ChartActivity : AppCompatActivity() {
                 canvas.drawCircle(x, y, r, dotPaint)
             }
 
-            day?.let{
-                addDayLabel(day, canvas)
+            when (DateFormat.format("d", day) as String) {
+                "1","10","20" -> {
+                    addDayLabel(day!!, canvas)
+                }
+                else -> {
+                    if ( isfirstRow ) {
+                        addDayLabel(day!!, canvas)
+                    }
+                }
             }
         }
 
@@ -164,20 +178,19 @@ class ChartActivity : AppCompatActivity() {
         }
 
         private fun addDayLabel(day: Date, canvas: Canvas){
-            when (DateFormat.format("d", day) as String) {
-                "1","10","20" -> {
-                    val size :Float = ( canvas.height * 0.66 ).toFloat()
-                    val padding :Float = (( canvas.height - size ) * 0.25 ).toFloat()
-                    val dayLabel = DateFormat.format("M/d", day) as String
-                    val paint = Paint().apply {
-                        color = Color.rgb(100, 100, 100)
-                        textSize = size
-                        isAntiAlias = true }
 
-                    canvas.drawText( dayLabel, 10f, size + padding, paint )
-                }
+            val size :Float = ( canvas.height * 0.66 ).toFloat()
+            val padding :Float = (( canvas.height - size ) * 0.25 ).toFloat()
+            val dayLabel = DateFormat.format("M/d", day) as String
+            val paint = Paint().apply {
+                color = Color.rgb(100, 100, 100)
+                textSize = size
+                isAntiAlias = true
             }
+
+            canvas.drawText( dayLabel, 10f, size + padding, paint )
         }
+
         private fun ratioOfDay(second: Float): Float {
             return second / (24 * 60 * 60)
         }
