@@ -1,6 +1,5 @@
 package systems.autumnsky.linden_free
 
-import android.app.TimePickerDialog
 import android.content.Intent
 import android.icu.text.DecimalFormat
 import android.icu.text.SimpleDateFormat
@@ -22,7 +21,6 @@ import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.log_row.view.*
 import systems.autumnsky.linden_free.model.Action
-import systems.autumnsky.linden_free.model.DailyActivity
 import systems.autumnsky.linden_free.model.Event
 import systems.autumnsky.linden_free.model.Medicine
 import java.util.*
@@ -251,9 +249,9 @@ class MainActivity : AppCompatActivity() {
             val actions = realm.where<Action>()
                 .not().`in`("name", stringArray)
                 .beginGroup()
-                .isNull("medicine")
-                .or()
-                .equalTo("medicine.is_use_as_needed", true)
+                    .isNull("medicine")
+                        .or()
+                    .equalTo("medicine.is_use_as_needed", true)
                 .endGroup()
                 .findAll()
 
@@ -305,12 +303,12 @@ class MainActivity : AppCompatActivity() {
                 putString("InSleepTime", inSleepTime)
             }
             show(supportFragmentManager, "InSleep")
-
         }
     }
 
     //薬の一覧
     private inner class MedicineListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val id: TextView = itemView.findViewById(R.id.id_cell_medicine)
         val name: TextView = itemView.findViewById(R.id.medicine_name_with_spinner)
         val quantitySpinner: Spinner = itemView.findViewById(R.id.adjust_spinner)
         val unitLabel: TextView = itemView.findViewById(R.id.adjust_spinner_unit_label)
@@ -333,11 +331,13 @@ class MainActivity : AppCompatActivity() {
                 time =
                     SimpleDateFormat("yyyy/MM/dd").parse(findViewById<TextView>(R.id.date_label).text.toString())
             }
-            val recordedQuantity =
-                Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time)
+            val recordedMedicine = Realm.getDefaultInstance().where<Event>().greaterThan("time", todaysFirstSec.time)
                     .equalTo("name", medicineName).sort("time", Sort.ASCENDING)
-                    .findFirst()?.quantity
+                    .findFirst()
 
+            holder.id.text = recordedMedicine?.id.toString()
+
+            val recordedQuantity = recordedMedicine?.quantity
             setupSpinner(
                 holder.quantitySpinner,
                 holder.unitLabel,
@@ -408,31 +408,28 @@ class MainActivity : AppCompatActivity() {
                 quantityCell.text =
                     todaysEvent[position]?.quantity?.let { DecimalFormat("#.##").format(it) + " mg" }
             }
-            //LogActivityからのコピペ
-            //TODO: Eventモデルのアップデートメソッドを使うよう変更する
+
             holder.timeCell.setOnClickListener {
                 val cal = Calendar.getInstance().apply { time = todaysEvent[position].time!! }
-
-                TimePickerDialog(
-                    this@MainActivity,
-                    TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                        cal.apply {
-                            set(Calendar.HOUR_OF_DAY, hour)
-                            set(Calendar.MINUTE, min)
+                Event().insertByTimePicker(
+                    context = this@MainActivity,
+                    action = todaysEvent[position]?.name.toString(),
+                    cal = cal,
+                    id = todaysEvent[position]?.id.toString().toLong()
+                )
+            }
+            val quantity = holder.quantityCell
+            if (quantity != null) {
+                holder.quantityCell.setOnClickListener {
+                    EditRecordedQuantityFragment().run {
+                        arguments = Bundle().apply {
+                            putString("Id", holder.id!!.text.toString())
+                            putString("MedicineName", holder.nameCell.toString())
+                            putString("Quantity", quantity.toString())
                         }
-                        val realm = Realm.getDefaultInstance()
-                        realm.executeTransaction {
-                            cal.set(Calendar.SECOND, 0)
-                            cal.set(Calendar.MILLISECOND, 0)
-                            todaysEvent[position].time = cal.time
-                        }
-                        realm.close()
-                        DailyActivity().refreshDailyStack(cal)
-                    },
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
-                    true
-                ).show()
+                        show(supportFragmentManager, "EditQuantity")
+                    }
+                }
             }
         }
 

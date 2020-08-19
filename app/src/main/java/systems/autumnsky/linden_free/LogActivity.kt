@@ -268,60 +268,32 @@ class LogActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: LogHolder, position: Int) {
-            val logRecord = log[position]
+            val record = log[position]
             holder.run {
-                id.text = logRecord.id?.toString()
-                time.text = logRecord.time?.let { DateFormat.format("yy/MM/dd kk:mm", it) }
-                event.text = logRecord.name
-                quantity.text = logRecord.quantity?.let { DecimalFormat("#.##").format(it) + "mg" }
+                id.text = record.id?.toString()
+                time.text = record.time?.let { DateFormat.format("yy/MM/dd kk:mm", it) }
+                event.text = record.name
+                quantity.text = record.quantity?.let { DecimalFormat("#.##").format(it) + "mg" }
             }
 
-            holder.time.setOnClickListener {
-                val cal = Calendar.getInstance().apply { time = logRecord.time!! }
-
-                //DatePickerで日付セット -> TimePickerで日付セット -> DB Update
-                DatePickerDialog(
-                    this@LogActivity,
-                    DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                        cal.apply {
-                            set(Calendar.YEAR, year)
-                            set(Calendar.MONTH, month)
-                            set(Calendar.DAY_OF_MONTH, day)
-                        }
-                        TimePickerDialog(
-                            this@LogActivity,
-                            TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                                cal.apply {
-                                    set(Calendar.HOUR_OF_DAY, hour)
-                                    set(Calendar.MINUTE, min)
-                                }
-                                val realm = Realm.getDefaultInstance()
-                                realm.executeTransaction {
-                                    cal.set(Calendar.SECOND, 0)
-                                    cal.set(Calendar.MILLISECOND, 0)
-                                    logRecord.time = cal.time
-                                }
-                                realm.close()
-
-                            },
-                            cal.get(Calendar.HOUR_OF_DAY),
-                            cal.get(Calendar.MINUTE),
-                            true
-                        ).show()
-                    },
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
-                ).show()
+            holder.time.setOnClickListener { view ->
+                record.name.let{
+                    Event().insertByDatePicker(
+                        context = view.context,
+                        action = it.toString(),
+                        id = record.id,
+                        cal = Calendar.getInstance().apply { time = record.time!! }
+                    )
+                }
             }
 
-            val quantity = logRecord.quantity
+            val quantity = record.quantity
             if (quantity != null) {
                 holder.quantity.setOnClickListener {
                     EditRecordedQuantityFragment().run {
                         arguments = Bundle().apply {
-                            putString("Id", logRecord.id!!.toString())
-                            putString("MedicineName", logRecord.name)
+                            putString("Id", record.id!!.toString())
+                            putString("MedicineName", record.name)
                             putString("Quantity", quantity.toString())
                         }
                         show(supportFragmentManager, "EditQuantity")

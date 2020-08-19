@@ -23,36 +23,38 @@ open class Event(
     open var quantity: Double? = null
 ) : RealmObject() {
 
-    fun insert(action: String, timing: Calendar? = null, qty: Double? = null) {
-        val cal = when (timing) {
-            null -> Calendar.getInstance()
-            else -> timing
+    fun insert(action: String, timing: Calendar = Calendar.getInstance(), qty: Double? = null) : Long? {
+
+        timing.apply {
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }
 
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
+        val realm = Realm.getDefaultInstance()
+        val newId: Long = (realm.where<Event>().max("id")?.toLong() ?: 0) + 1
 
-        Realm.getDefaultInstance().executeTransaction { realm ->
-            val newId: Long = (realm.where<Event>().max("id")?.toLong() ?: 0) + 1
-            val eventLog = realm.createObject<Event>(newId).apply {
-                time = cal.time
+        realm.executeTransaction {
+            val eventLog = it.createObject<Event>(newId).apply {
+                time = timing.time
                 name = action
                 quantity = qty
             }
-            realm.copyToRealm(eventLog)
-            realm.close()
+            it.copyToRealm(eventLog)
+            it.close()
         }
-        DailyActivity().refreshDailyStack(cal)
+
+        DailyActivity().refreshDailyStack(timing)
+
+        return newId
     }
 
-    private fun update(action: String, oldCal: Calendar, newCal: Calendar, qty: Double? = null) {
+    private fun update(action: String, id: Long, newCal: Calendar, qty: Double? = null) {
         newCal.set(Calendar.SECOND, 0)
         newCal.set(Calendar.MILLISECOND, 0)
 
         val realm = Realm.getDefaultInstance()
         val found = realm.where<Event>()
-            .equalTo("time", oldCal.time)
-            .equalTo("name", action)
+            .equalTo("id", id)
             .findFirst()
 
         if (found == null) {
@@ -90,7 +92,8 @@ open class Event(
     fun insertByTimePicker(
         action: String,
         context: Context,
-        cal: Calendar = Calendar.getInstance()
+        cal: Calendar = Calendar.getInstance(),
+        id: Long? = null
     ) {
         TimePickerDialog(
             context,
@@ -99,7 +102,11 @@ open class Event(
                     set(Calendar.HOUR_OF_DAY, hour)
                     set(Calendar.MINUTE, min)
                 }
-                insert(action, cal)
+                if(id != null){
+                    update(action, id, newCal = cal)
+                } else {
+                    insert(action, cal)
+                }
             },
             cal.get(Calendar.HOUR_OF_DAY),
             cal.get(Calendar.MINUTE),
@@ -110,7 +117,8 @@ open class Event(
     fun insertByDatePicker(
         action: String,
         context: Context,
-        cal: Calendar = Calendar.getInstance()
+        cal: Calendar = Calendar.getInstance(),
+        id: Long? = null
     ) {
         DatePickerDialog(
             context,
@@ -120,7 +128,7 @@ open class Event(
                     set(Calendar.MONTH, month)
                     set(Calendar.DAY_OF_MONTH, day)
                 }
-                insertByTimePicker(action, context, cal)
+                insertByTimePicker(action, context, cal, id)
             },
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
@@ -131,18 +139,16 @@ open class Event(
         }
     }
 
-    fun insertMedicineLog(medicines: RecyclerView, timing: Calendar? = Calendar.getInstance()) {
+    fun insertMedicineLog(medicines: RecyclerView) {
         for (i in 0..medicines.childCount) {
             medicines.findViewHolderForLayoutPosition(i)?.let {
-                val medicine =
-                    it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
-                val quantity =
-                    it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()
-                        ?.toDoubleOrNull()
-
-                insert(action = medicine, timing = timing, qty = quantity)
+                val medicine = it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
+                val quantity = it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString() ?.toDoubleOrNull()
+                val insertedId = insert(action = medicine, qty = quantity).toString()
+                it.itemView.findViewById<TextView>(R.id.id_cell_medicine).text = insertedId
             }
         }
+        medicines.adapter?.notifyDataSetChanged()
     }
 
     fun insertMedicineLogByTimePicker(
@@ -154,7 +160,7 @@ open class Event(
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
 
-            insertMedicineLog(medicines, cal)
+            insertMedicineLog(medicines)
 
             button.apply {
                 text = button.context.getString(R.string.dose) +
@@ -195,16 +201,18 @@ open class Event(
 
             for (i in 0..medicines.childCount) {
                 medicines.findViewHolderForLayoutPosition(i)?.let {
+                    val id =
+                        it.itemView.findViewById<TextView>(R.id.id_cell_medicine).text.toString().toLong()
                     val medicine =
                         it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
                     val quantity =
                         it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()
                             ?.toDoubleOrNull()
 
-                    if (oldCal != null) {
-                        update(medicine, oldCal, newCal, quantity)
-                    } else {
+                    if (id == null){
                         insert(medicine, newCal, quantity)
+                    } else {
+                        update(medicine, newCal = newCal, id = id, qty = quantity)
                     }
 
                     button.text = button.context.getString(R.string.dose) +
@@ -224,5 +232,4 @@ open class Event(
 
         return newCal
     }
-
 }

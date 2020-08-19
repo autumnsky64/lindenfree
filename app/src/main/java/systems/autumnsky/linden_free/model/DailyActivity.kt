@@ -29,7 +29,7 @@ open class DailyActivity(
             //既に記録した一番古い日より、古い日付の記録を入れる時
             startDay = Calendar.getInstance().apply{ time = cal.time }
             targetDay = Calendar.getInstance().apply {
-                realm.where<DailyActivity>().minimumDate("day").let {
+                realm.where<DailyActivity>().minimumDate("day")?.let {
                     time = it
                     add(Calendar.DAY_OF_MONTH, -1)
                 }
@@ -140,7 +140,6 @@ open class DailyActivity(
 
         //服薬の時刻を取得
         val takenMedicines = realm.where<Event>()
-
             .between("time", currentDay.time, currentDayLastSec.time)
             .`in`("name", medicines)
             .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
