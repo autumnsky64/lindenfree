@@ -167,11 +167,10 @@ class ChartActivity : AppCompatActivity() {
             val barPaint = Paint().apply { color = Color.rgb(101, 202, 239) }
             val dotPaint = Paint().apply { color = Color.rgb(255, 193, 7) }
 
-            activityStack?.forEach { cycle ->
-                if (cycle.name != "Sleep" && cycle.name != "睡眠") {
-                    return@forEach
-                }
-                canvas.drawRect(bar(cycle, canvas), barPaint)
+            activityStack?.filter { activity ->
+                    arrayOf("Sleep", "睡眠", "入眠").contains(activity.name)
+                }?.forEach {
+                    canvas.drawRect(bar(it, canvas), barPaint)
             }
 
             medicineStack?.forEach { medicine ->

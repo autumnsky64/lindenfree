@@ -418,7 +418,7 @@ class MainActivity : AppCompatActivity() {
                     id = todaysEvent[position]?.id.toString().toLong()
                 )
             }
-            val quantity = holder.quantityCell
+            val quantity = holder.quantityCell.text
             if (quantity != null) {
                 holder.quantityCell.setOnClickListener {
                     EditRecordedQuantityFragment().run {

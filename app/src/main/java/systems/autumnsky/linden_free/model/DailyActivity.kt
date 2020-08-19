@@ -89,7 +89,7 @@ open class DailyActivity(
         val events = realm.where<Event>()
             .between("time", currentDay.time, currentDayLastSec.time)
             .`in`("name", arrayOf("Sleep", "Awake", "起床", "入眠"))
-            .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
+            .sort("time", Sort.ASCENDING)
             .findAll() ?: return
 
         realm.beginTransaction()
@@ -114,7 +114,7 @@ open class DailyActivity(
 
             if (index == events.lastIndex) {
                 val nextDay = Calendar.getInstance().apply { time = currentDay.time }
-                nextDay.add(Calendar.DATE, 1)
+                nextDay.add(Calendar.DAY_OF_MONTH, 1)
 
                 val lastAct = realm.createObject<Activity>()
                 lastAct.apply {
