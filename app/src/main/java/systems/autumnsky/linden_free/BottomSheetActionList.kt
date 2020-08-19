@@ -31,6 +31,7 @@ class BottomSheetActionList(
 
     override fun setupDialog(dialog: Dialog, style: Int) {
         super.setupDialog(dialog, style)
+
         val view = View.inflate(context, R.layout.bottom_sheet_action_list, null)
         dialog.setContentView(view)
 

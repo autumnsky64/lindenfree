@@ -1,5 +1,7 @@
 package systems.autumnsky.linden_free
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
@@ -76,8 +78,38 @@ class ChartActivity : AppCompatActivity() {
         findViewById<View>(R.id.insert_event).setOnClickListener {
             val actions = Realm.getDefaultInstance().where<Action>()
                 .notEqualTo("name", getString(R.string.dose)).findAll()
-            val actionList = BottomSheetActionList(actions)
-            actionList.show(supportFragmentManager, actionList.tag)
+
+            val cal = Calendar.getInstance()
+            DatePickerDialog(
+                this,
+                DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                    cal.apply {
+                        set(Calendar.YEAR, year)
+                        set(Calendar.MONTH, month)
+                        set(Calendar.DAY_OF_MONTH, day)
+                    }
+                    TimePickerDialog(
+                        this,
+                        TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                            cal.apply {
+                                set(Calendar.HOUR_OF_DAY, hour)
+                                set(Calendar.MINUTE, min)
+                            }
+                            val actionList = BottomSheetActionList(actions, isDatePicker = false, isTimePicker = false, day = cal.time)
+                            actionList.show(supportFragmentManager, actionList.tag)
+                        },
+                        cal.get(Calendar.HOUR_OF_DAY),
+                        cal.get(Calendar.MINUTE),
+                        true
+                    ).show()
+                },
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+            ).apply {
+                datePicker.maxDate = cal.timeInMillis
+                show()
+            }
         }
 
         //下部ナビゲーション
