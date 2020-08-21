@@ -2,17 +2,22 @@ package systems.autumnsky.linden_free
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.format.DateFormat
 import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import io.realm.*
 import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.Action
@@ -52,6 +57,7 @@ class ChartActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.dl_chart -> {
+                saveChartPng()
             }
             R.id.show_table -> {
                 val intent = Intent(applicationContext, LogActivity::class.java)
@@ -59,6 +65,31 @@ class ChartActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun saveChartPng(){
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "sleep-medicine-chart.png")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.IS_PENDING, "1")
+        }
+
+        val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        contentResolver.run {
+            insert(contentUri, contentValues)?.let{ uri ->
+                openOutputStream(uri)?.let{ stream ->
+                    val chartView = findViewById<ConstraintLayout>(R.id.chart_area)
+                    chartView.drawToBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream )
+                    stream.close()
+
+                    Snackbar.make(
+                        findViewById(R.id.snack_bar_container),
+                        getText(R.string.snackbar_save_png_message),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,7 +196,10 @@ class ChartActivity : AppCompatActivity() {
         //1日分のグラフ描画
         override fun draw(canvas: Canvas) {
             val barPaint = Paint().apply { color = Color.rgb(101, 202, 239) }
-            val dotPaint = Paint().apply { color = Color.rgb(255, 193, 7) }
+            val dotPaint = Paint().apply {
+                color = Color.rgb(255, 193, 7)
+                isAntiAlias = true
+            }
 
             activityStack?.filter { activity ->
                     arrayOf("Sleep", "睡眠", "入眠").contains(activity.name)
@@ -175,9 +209,9 @@ class ChartActivity : AppCompatActivity() {
 
             medicineStack?.forEach { medicine ->
                 val timing: Float = ((medicine.startTime!!.time - day!!.time) / 1000).toFloat()
-                val x: Float = ratioOfDay(timing) * canvas.width
-                val y: Float = (canvas.height * 0.5).toFloat()
-                val r: Float = (canvas.height * 0.2).toFloat()
+                val x: Float = ratioOfDay(timing) * bounds.right
+                val y: Float = bounds.exactCenterY()
+                val r: Float = (bounds.height() * 0.2).toFloat()
                 canvas.drawCircle(x, y, r, dotPaint)
             }
 
@@ -210,8 +244,8 @@ class ChartActivity : AppCompatActivity() {
 
         private fun addDayLabel(day: Date, canvas: Canvas){
 
-            val size :Float = ( canvas.height * 0.66 ).toFloat()
-            val padding :Float = (( canvas.height - size ) * 0.25 ).toFloat()
+            val size :Float = ( bounds.height() * 0.66 ).toFloat()
+            val padding :Float = (( bounds.height() - size ) * 0.25 ).toFloat()
             val dayLabel = DateFormat.format("M/d", day) as String
             val paint = Paint().apply {
                 color = Color.rgb(100, 100, 100)

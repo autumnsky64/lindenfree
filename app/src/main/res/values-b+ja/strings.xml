@@ -37,4 +37,5 @@
     <string name="bottom_sheet_title">時刻を記録</string>
 
     <string name="snackbar_save_file_message">睡眠・服薬記録のテキストファイルを保存しました</string>
+    <string name="snackbar_save_png_message">睡眠・服薬記録のグラフを保存しました</string>
 </resources>
