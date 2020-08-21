@@ -68,26 +68,31 @@ class ChartActivity : AppCompatActivity() {
     }
 
     private fun saveChartPng(){
+        val dateStr = DateFormat.format("yyMMdd-HHmm", Calendar.getInstance())
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "sleep-medicine-chart.png")
+            put(MediaStore.Images.Media.DISPLAY_NAME, "sleep-medicine-chart-${dateStr}.png")
             put(MediaStore.Images.Media.MIME_TYPE, "image/png")
             put(MediaStore.Images.Media.IS_PENDING, "1")
         }
 
         val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         contentResolver.run {
-            insert(contentUri, contentValues)?.let{ uri ->
-                openOutputStream(uri)?.let{ stream ->
-                    val chartView = findViewById<ConstraintLayout>(R.id.chart_area)
-                    chartView.drawToBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream )
-                    stream.close()
+            insert(contentUri, contentValues)?.let { uri ->
 
-                    Snackbar.make(
-                        findViewById(R.id.snack_bar_container),
-                        getText(R.string.snackbar_save_png_message),
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                openOutputStream(uri)?.let { stream ->
+                    val chartView = findViewById<ConstraintLayout>(R.id.chart_area)
+                    chartView.drawToBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream)
+                    stream.close()
                 }
+
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                update( uri, contentValues, null, null)
+
+                Snackbar.make(
+                    findViewById(R.id.snack_bar_container),
+                    getText(R.string.snackbar_save_png_message),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
     }
