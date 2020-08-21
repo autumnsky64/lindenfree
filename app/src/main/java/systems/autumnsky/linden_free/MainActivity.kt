@@ -418,13 +418,13 @@ class MainActivity : AppCompatActivity() {
                     id = todaysEvent[position]?.id.toString().toLong()
                 )
             }
-            val quantity = holder.quantityCell.text
+            val quantity = todaysEvent[position].quantity
             if (quantity != null) {
                 holder.quantityCell.setOnClickListener {
                     EditRecordedQuantityFragment().run {
                         arguments = Bundle().apply {
-                            putString("Id", holder.id!!.text.toString())
-                            putString("MedicineName", holder.nameCell.toString())
+                            putString("Id", holder.id.text.toString())
+                            putString("MedicineName", holder.nameCell.text.toString())
                             putString("Quantity", quantity.toString())
                         }
                         show(supportFragmentManager, "EditQuantity")

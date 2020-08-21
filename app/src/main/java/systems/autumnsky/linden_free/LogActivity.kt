@@ -276,11 +276,11 @@ class LogActivity : AppCompatActivity() {
                 quantity.text = record.quantity?.let { DecimalFormat("#.##").format(it) + "mg" }
             }
 
-            holder.time.setOnClickListener { view ->
-                record.name.let{
+            holder.time.setOnClickListener {
+                record.name?.let{
                     Event().insertByDatePicker(
-                        context = view.context,
-                        action = it.toString(),
+                        context = this@LogActivity,
+                        action = it,
                         id = record.id,
                         cal = Calendar.getInstance().apply { time = record.time!! }
                     )

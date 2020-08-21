@@ -93,6 +93,7 @@ open class Event(
         action: String,
         context: Context,
         cal: Calendar = Calendar.getInstance(),
+        qty: Double? = null,
         id: Long? = null
     ) {
         TimePickerDialog(
@@ -103,9 +104,9 @@ open class Event(
                     set(Calendar.MINUTE, min)
                 }
                 if(id != null){
-                    update(action, id, newCal = cal)
+                    update(action, id, newCal = cal, qty = qty)
                 } else {
-                    insert(action, cal)
+                    insert(action, cal, qty = qty)
                 }
             },
             cal.get(Calendar.HOUR_OF_DAY),
@@ -118,6 +119,7 @@ open class Event(
         action: String,
         context: Context,
         cal: Calendar = Calendar.getInstance(),
+        qty: Double? = null,
         id: Long? = null
     ) {
         DatePickerDialog(
@@ -128,7 +130,7 @@ open class Event(
                     set(Calendar.MONTH, month)
                     set(Calendar.DAY_OF_MONTH, day)
                 }
-                insertByTimePicker(action, context, cal, id)
+                insertByTimePicker(action, context, cal, qty, id)
             },
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),

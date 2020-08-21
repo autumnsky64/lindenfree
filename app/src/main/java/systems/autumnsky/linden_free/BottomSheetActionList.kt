@@ -75,18 +75,20 @@ class BottomSheetActionList(
                 cal.time = date
             }
 
+            val qty = actionList[position]?.medicine?.regular_quantity
+
             holder.name.text = name
             holder.action.setOnClickListener { view ->
 
                 when {
                     isDatePicker -> {
-                        Event().insertByDatePicker(name, view.context, cal)
+                        Event().insertByDatePicker(name, view.context, cal, qty )
                     }
                     isTimePicker -> {
-                        Event().insertByTimePicker(name, view.context, cal)
+                        Event().insertByTimePicker(name, view.context, cal, qty)
                     }
                     else -> {
-                        Event().insert(name, cal)
+                        Event().insert(name, cal, qty)
                     }
                 }
 
