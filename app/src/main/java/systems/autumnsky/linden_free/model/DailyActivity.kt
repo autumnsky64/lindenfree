@@ -25,27 +25,30 @@ open class DailyActivity(
         var startDay: Calendar
         var targetDay: Calendar
 
-        if ( lastDay > cal.time ) {
-            //既に記録した一番古い日より、古い日付の記録を入れる時
-            startDay = Calendar.getInstance().apply{ time = cal.time }
-            targetDay = Calendar.getInstance().apply {
-                realm.where<DailyActivity>().minimumDate("day")?.let {
-                    time = it
-                    add(Calendar.DAY_OF_MONTH, -1)
-                }
-            }
-        } else {
+        if ( lastDay < cal.time ) {
             //前回記録日より記録しようとする日が新しい場合、実際の利用ではほぼこちらのはず
-            startDay = Calendar.getInstance().apply{ time = lastDay }
+            startDay = Calendar.getInstance().apply{
+                time = lastDay
+                add( Calendar.DAY_OF_MONTH, +1)
+            }
             targetDay = Calendar.getInstance().apply {
+                time = cal.time
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
             }
+        } else {
+            //既に記録した一番古い日より、古い日付の記録を入れる時
+            startDay = Calendar.getInstance().apply { time = cal.time }
+            targetDay = Calendar.getInstance().apply {
+                realm.where<DailyActivity>().minimumDate("day")?.let { day ->
+                    time = day
+                    add(Calendar.DAY_OF_MONTH, -1)
+                }
+            }
         }
 
-        // 現在からlastDayまで日付を遡りつつ1日ずつインサート
         while (startDay.time <= targetDay.time) {
             realm.executeTransaction {
                 it.copyToRealm(
@@ -56,9 +59,10 @@ open class DailyActivity(
             startDay.add(Calendar.DAY_OF_MONTH, +1)
         }
 
+        val result = realm.where<DailyActivity>().equalTo("day", cal.time) .findFirst()
         realm.close()
 
-        return Realm.getDefaultInstance().where<DailyActivity>().equalTo("day", cal.time) .findFirst()
+        return result
     }
 
     fun refreshDailyStack(date: Calendar) {
