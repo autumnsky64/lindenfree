@@ -83,10 +83,10 @@ class ChartActivity : AppCompatActivity() {
                     val chartView = findViewById<ConstraintLayout>(R.id.chart_area)
                     chartView.drawToBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream)
                     stream.close()
-                }
 
-                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
-                update( uri, contentValues, null, null)
+                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    update( uri, contentValues, null, null)
+                }
 
                 Snackbar.make(
                     findViewById(R.id.snack_bar_container),
