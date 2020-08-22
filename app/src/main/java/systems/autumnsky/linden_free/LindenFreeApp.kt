@@ -60,13 +60,19 @@ class LindenFreeApp : Application() {
             }
         }
 
+        //version8で 就寝 アクションは削除
+        val version = this.packageManager.getPackageInfo(this.packageName, 0).longVersionCode
+        if( version > 7L ){
+            realm.executeTransaction {
+                 realm.where<Action>().equalTo("name", getString(R.string.in_bed)).findFirst()?.deleteFromRealm()
+            }
+        }
     }
 
     private fun insertDefaultActions() {
         val defaultEvents = mutableListOf(
             getString(R.string.awake),
             getString(R.string.dose),
-            getString(R.string.in_bed),
             getString(R.string.sleep)
         )
 

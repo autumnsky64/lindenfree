@@ -13,10 +13,10 @@ android {
     buildToolsVersion '29.0.1'
     defaultConfig {
         applicationId 'systems.autumnsky.linden_free'
-        minSdkVersion 25
+        minSdkVersion 29
         targetSdkVersion 29
-        versionCode 5
-        versionName '0.2.2'
+        versionCode 8
+        versionName '0.3'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
