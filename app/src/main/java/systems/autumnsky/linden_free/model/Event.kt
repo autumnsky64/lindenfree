@@ -211,7 +211,7 @@ open class Event(
                         it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString()
                             ?.toDoubleOrNull()
 
-                    if (id == null){
+                    if (id == 0L){
                         insert(medicine, newCal, quantity)
                     } else {
                         update(medicine, newCal = newCal, id = id, qty = quantity)
