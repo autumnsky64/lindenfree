@@ -179,6 +179,12 @@ class ChartActivity : AppCompatActivity() {
             } else {
                 element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines, isFirstRow = true))
             }
+
+            element.itemView.setOnClickListener {
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                intent.putExtra("Day", DateFormat.format("yyyy/MM/dd", day))
+                startActivity(intent)
+            }
         }
 
         override fun getItemCount(): Int {
@@ -200,16 +206,20 @@ class ChartActivity : AppCompatActivity() {
 
         //1日分のグラフ描画
         override fun draw(canvas: Canvas) {
-            val barPaint = Paint().apply { color = Color.rgb(101, 202, 239) }
+            val barPaint = Paint().apply { color = Color.argb(200, 80, 190, 230) }
             val dotPaint = Paint().apply {
-                color = Color.rgb(255, 193, 7)
+                color = Color.argb(200, 255, 193, 7)
                 isAntiAlias = true
             }
 
             activityStack?.filter { activity ->
                     arrayOf("Sleep", "睡眠", "入眠").contains(activity.name)
-                }?.forEach {
-                    canvas.drawRect(bar(it, canvas), barPaint)
+                }?.forEachIndexed { index, activity ->
+                    if ( index != activityStack.lastIndex) {
+                        canvas.drawRect(bar(activity, canvas), barPaint)
+                    } else {
+                        canvas.drawRect(bar(activity, canvas, isLastOfDay = true), barPaint)
+                    }
             }
 
             medicineStack?.forEach { medicine ->
@@ -232,13 +242,16 @@ class ChartActivity : AppCompatActivity() {
             }
         }
 
-        private fun bar(activity: Activity, canvas: Canvas): Rect {
+        private fun bar(activity: Activity, canvas: Canvas, isLastOfDay: Boolean = false): Rect {
             val startSec: Float = ((activity.startTime!!.time - day!!.time) / 1000).toFloat()
             val left = (ratioOfDay(startSec) * canvas.width).toInt()
 
+            var right: Int
             val length: Float = (activity.length!! / 1000).toFloat()
-            var right = ((ratioOfDay(length) * canvas.width) + left).toInt()
-
+            when ( isLastOfDay ) {
+                true -> right = bounds.width()
+                false -> right = ((ratioOfDay(length) * canvas.width) + left).toInt()
+            }
             //5分以上でないと1px以上にならないため
             if ((right - left) < 1) {
                 right += 1
@@ -253,7 +266,7 @@ class ChartActivity : AppCompatActivity() {
             val padding :Float = (( bounds.height() - size ) * 0.25 ).toFloat()
             val dayLabel = DateFormat.format("M/d", day) as String
             val paint = Paint().apply {
-                color = Color.rgb(100, 100, 100)
+                color = Color.rgb(90, 100, 100)
                 textSize = size
                 isAntiAlias = true
             }
