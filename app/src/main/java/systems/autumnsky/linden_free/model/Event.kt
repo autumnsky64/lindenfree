@@ -141,12 +141,12 @@ open class Event(
         }
     }
 
-    fun insertMedicineLog(medicines: RecyclerView) {
+    fun insertMedicineLog(medicines: RecyclerView, time: Calendar = Calendar.getInstance()) {
         for (i in 0..medicines.childCount) {
             medicines.findViewHolderForLayoutPosition(i)?.let {
                 val medicine = it.itemView.findViewById<TextView>(R.id.medicine_name_with_spinner).text.toString()
                 val quantity = it.itemView.findViewById<Spinner>(R.id.adjust_spinner).selectedItem?.toString() ?.toDoubleOrNull()
-                val insertedId = insert(action = medicine, qty = quantity).toString()
+                val insertedId = insert(action = medicine, qty = quantity, timing = time).toString()
                 it.itemView.findViewById<TextView>(R.id.id_cell_medicine).text = insertedId
             }
         }
@@ -162,7 +162,7 @@ open class Event(
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, min)
 
-            insertMedicineLog(medicines)
+            insertMedicineLog(medicines, cal)
 
             button.apply {
                 text = button.context.getString(R.string.dose) +
