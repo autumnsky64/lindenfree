@@ -415,7 +415,8 @@ class MainActivity : AppCompatActivity() {
                     context = this@MainActivity,
                     action = todaysEvent[position]?.name.toString(),
                     cal = cal,
-                    id = todaysEvent[position]?.id.toString().toLong()
+                    id = todaysEvent[position]?.id.toString().toLong(),
+                    qty = todaysEvent[position]?.quantity
                 )
             }
             val quantity = todaysEvent[position].quantity
