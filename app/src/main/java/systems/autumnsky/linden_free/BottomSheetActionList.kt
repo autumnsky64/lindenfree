@@ -97,7 +97,7 @@ class BottomSheetActionList(
 
             if (!isDatePicker) {
                 holder.action.setOnLongClickListener { view ->
-                    Event().insertByTimePicker(name, view.context, cal)
+                    Event().insertByTimePicker(name, view.context, cal, qty)
                     dismiss()
                     return@setOnLongClickListener false
                 }
