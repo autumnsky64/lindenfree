@@ -25,7 +25,6 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
-import kotlinx.android.synthetic.main.log_row.view.*
 import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Event
 import java.io.BufferedOutputStream
@@ -89,6 +88,7 @@ class LogActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1000 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             createCsv()
         }
@@ -179,10 +179,10 @@ class LogActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val timeString = viewHolder.itemView.time_cell.text.toString()
-                val eventName = viewHolder.itemView.event_cell.text.toString()
-                val quantityString = viewHolder.itemView.qty_cell.text.toString()
-                val id = viewHolder.itemView.id_cell.text.toString()
+                val timeString = viewHolder.itemView.findViewById<TextView>(R.id.time_cell).text.toString()
+                val eventName = viewHolder.itemView.findViewById<TextView>(R.id.event_cell).text.toString()
+                val quantityString = viewHolder.itemView.findViewById<TextView>(R.id.qty_cell).text.toString()
+                val id = viewHolder.itemView.findViewById<TextView>(R.id.id_cell).text.toString()
 
                 AlertDialog.Builder(this@LogActivity)
                     .setTitle(getText(R.string.title_delete_record))

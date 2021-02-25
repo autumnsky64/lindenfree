@@ -19,7 +19,6 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
-import kotlinx.android.synthetic.main.log_row.view.*
 import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Event
 import systems.autumnsky.linden_free.model.Medicine
@@ -189,16 +188,16 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val timeString = viewHolder.itemView.time_cell.text.toString()
-                val eventName = viewHolder.itemView.event_cell.text.toString()
-                val quantityString = viewHolder.itemView.qty_cell.text.toString()
+                val timeString = viewHolder.itemView.findViewById<TextView>(R.id.time_cell).text.toString()
+                val eventName = viewHolder.itemView.findViewById<TextView>(R.id.event_cell).text.toString()
+                val quantityString = viewHolder.itemView.findViewById<TextView>(R.id.qty_cell).text.toString()
 
                 AlertDialog.Builder(this@MainActivity)
                     .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
                     .setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
 
-                        viewHolder.itemView.id_cell.text?.toString()?.toLong()?.let {
+                        viewHolder.itemView.findViewById<TextView>(R.id.id_cell).text?.toString()?.toLong()?.let {
                             Event().delete(it)
                         }
                     }

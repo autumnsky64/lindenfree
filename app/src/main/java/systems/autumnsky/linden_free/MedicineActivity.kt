@@ -17,7 +17,6 @@ import io.realm.OrderedRealmCollection
 import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.kotlin.where
-import kotlinx.android.synthetic.main.medicine_row.view.*
 import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Medicine
 import java.text.DecimalFormat
@@ -110,12 +109,12 @@ class MedicineActivity : AppCompatActivity() {
                     setTitle(
                         getString(
                             R.string.title_delete_medicine,
-                            viewHolder.itemView.medicine_name.text.toString()
+                            viewHolder.itemView.findViewById<TextView>(R.id.medicine_name).text.toString()
                         )
                     )
                     setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
                         // medicine tableからの削除
-                        val id = viewHolder.itemView.medicine_id.text.toString()
+                        val id = viewHolder.itemView.findViewById<TextView>(R.id.medicine_id).text.toString()
 
                         Realm.getDefaultInstance().apply {
                             val targetMedicine = where<Medicine>().equalTo("id", id).findFirst()
