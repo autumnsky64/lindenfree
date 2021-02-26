@@ -1,6 +1,5 @@
 package systems.autumnsky.linden_free
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.realm.OrderedRealmCollection
-import io.realm.RealmRecyclerViewAdapter
 import io.realm.RealmResults
 import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Event
@@ -29,26 +27,20 @@ class BottomSheetActionList(
     private val targetActions = actions
     private val date = day
 
-    override fun setupDialog(dialog: Dialog, style: Int) {
-
-        val view = View.inflate(context, R.layout.bottom_sheet_action_list, null)
-        dialog.setContentView(view)
-
-        val layout = GridLayoutManager(activity, 2)
-        val actionList: RecyclerView = view.findViewById(R.id.action_list)
-
-        actionList.run {
-            layoutManager = layout
-            adapter = RealmAdapter(targetActions)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.bottom_sheet_action_list, container, false)
+        return inflater.inflate(R.layout.bottom_sheet_action_list, container,false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.findViewById<RecyclerView>(R.id.action_list).run {
+            adapter = RealmAdapter(targetActions)
+            layoutManager = GridLayoutManager(activity, 2)
+        }
     }
 
     private inner class ActionListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -57,7 +49,7 @@ class BottomSheetActionList(
     }
 
     private inner class RealmAdapter(private val actionList: OrderedRealmCollection<Action>) :
-        RealmRecyclerViewAdapter<Action, ActionListHolder>(actionList, true) {
+        RecyclerView.Adapter<ActionListHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionListHolder {
             val row = LayoutInflater.from(context)
