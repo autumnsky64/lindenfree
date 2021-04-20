@@ -172,12 +172,11 @@ class ChartActivity : AppCompatActivity() {
         override fun onBindViewHolder(element: Element, position: Int) {
             val day = days[position].day
             val cycles = days[position].activityStack
-            val takenMedicines = days[position].medicineStack
 
             if( position > 0){
-                element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines))
+                element.drawArea.setImageDrawable(DrawPattern(day, cycles))
             } else {
-                element.drawArea.setImageDrawable(DrawPattern(day, cycles, takenMedicines, isFirstRow = true))
+                element.drawArea.setImageDrawable(DrawPattern(day, cycles, isFirstRow = true))
             }
 
             element.itemView.setOnClickListener {
@@ -195,13 +194,11 @@ class ChartActivity : AppCompatActivity() {
     class DrawPattern(
         day: Date?,
         activityStack: RealmList<Activity>?,
-        medicineStack: RealmList<Activity>?,
         isFirstRow: Boolean = false
     ) : Drawable() {
 
         val day = day
         val activityStack = activityStack
-        val medicineStack = medicineStack
         val isfirstRow = isFirstRow
 
         //1日分のグラフ描画
@@ -222,6 +219,7 @@ class ChartActivity : AppCompatActivity() {
                     }
             }
 
+            /*
             medicineStack?.forEach { medicine ->
                 val timing: Float = ((medicine.startTime!!.time - day!!.time) / 1000).toFloat()
                 val x: Float = ratioOfDay(timing) * bounds.right
@@ -229,6 +227,8 @@ class ChartActivity : AppCompatActivity() {
                 val r: Float = (bounds.height() * 0.2).toFloat()
                 canvas.drawCircle(x, y, r, dotPaint)
             }
+
+             */
 
             when (DateFormat.format("d", day) as String) {
                 "1","10","20" -> {

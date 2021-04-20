@@ -393,6 +393,10 @@ class MainActivity : AppCompatActivity() {
     //イベントの一覧
     private inner class EventAdapter(private val todaysEvent: OrderedRealmCollection<Event>) :
         RealmRecyclerViewAdapter<Event, EventListHolder>(todaysEvent, true) {
+        override fun getItemViewType(position: Int): Int {
+            todaysEvent[position].quantity
+            return super.getItemViewType(position)
+        }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventListHolder {
             val card =
                 LayoutInflater.from(applicationContext).inflate(R.layout.activity_card, parent, false)

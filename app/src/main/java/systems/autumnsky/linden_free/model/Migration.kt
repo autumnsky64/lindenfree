@@ -33,7 +33,20 @@ class Migration : RealmMigration {
                     addRealmListField("medicineStack", get("Activity")!!)
                 }
             }
+            verCount++
         }
-
+        if (verCount == 3L) {
+            scheme.create("TakenMedicine").apply {
+                addField("name", String::class.java)
+                addField("quantity", Double::class.java).setNullable("quantity", true)
+            }
+            scheme.apply{
+                get("Activity")?.apply {
+                    addField("endTime", Date::class.java)
+                    addRealmListField("medicines", get("TakenMedicine")!!)
+                }
+                get("DailyActivity")?.removeField("medicineStack")
+            }
+        }
     }
 }

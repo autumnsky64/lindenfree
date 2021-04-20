@@ -11,7 +11,6 @@ import java.util.*
 open class DailyActivity(
     open var day: Date? = null,
     open var activityStack: RealmList<Activity>? = null,
-    open var medicineStack: RealmList<Activity>? = null
 ) : RealmObject() {
 
     fun insert(cal: Calendar): DailyActivity? {
@@ -132,10 +131,6 @@ open class DailyActivity(
             }
         }
 
-        targetDay?.activityStack = activities
-
-        realm.commitTransaction()
-
         //medicineStackの更新
         //登録している薬をArrayに
         val medicines: Array<String> = realm.where<Medicine>().findAll().mapNotNull {
@@ -149,20 +144,16 @@ open class DailyActivity(
             .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
             .findAll() ?: return
 
-        realm.beginTransaction()
-
-        var medicineActivities = RealmList<Activity>()
-
         takenMedicines.forEach { event ->
             val activity = realm.createObject<Activity>()
 
             activity.name = event.name
             activity.startTime = event.time
 
-            medicineActivities.add(activity)
+            activities.add(activity)
         }
 
-        targetDay?.medicineStack = medicineActivities
+        targetDay?.activityStack = activities
 
         realm.commitTransaction()
         realm.close()

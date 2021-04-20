@@ -25,7 +25,7 @@ class LindenFreeApp : Application() {
 
         Realm.init(this)
         val builder = RealmConfiguration.Builder()
-        builder.schemaVersion(3).migration(Migration())
+        builder.schemaVersion(4).migration(Migration())
         val config = builder.build()
         Realm.setDefaultConfiguration(config)
 
