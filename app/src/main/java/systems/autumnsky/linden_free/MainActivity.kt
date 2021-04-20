@@ -394,9 +394,9 @@ class MainActivity : AppCompatActivity() {
     private inner class EventAdapter(private val todaysEvent: OrderedRealmCollection<Event>) :
         RealmRecyclerViewAdapter<Event, EventListHolder>(todaysEvent, true) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventListHolder {
-            val row =
-                LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
-            return EventListHolder(row)
+            val card =
+                LayoutInflater.from(applicationContext).inflate(R.layout.activity_card, parent, false)
+            return EventListHolder(card)
         }
 
         override fun onBindViewHolder(holder: EventListHolder, position: Int) {
@@ -440,10 +440,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private inner class EventListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val id: TextView = itemView.findViewById(R.id.id_cell)
-        val nameCell: TextView = itemView.findViewById(R.id.event_cell)
-        val timeCell: TextView = itemView.findViewById(R.id.time_cell)
-        val quantityCell: TextView = itemView.findViewById(R.id.qty_cell)
+        val id: TextView = itemView.findViewById(R.id.id_cell2)
+        val nameCell: TextView = itemView.findViewById(R.id.event_cell2)
+        val timeCell: TextView = itemView.findViewById(R.id.time_cell2)
+        val quantityCell: TextView = itemView.findViewById(R.id.qty_cell2)
     }
 
     //buttonのIDから、初期のラベルを取得
