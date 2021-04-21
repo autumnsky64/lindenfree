@@ -107,10 +107,12 @@ open class DailyActivity(
             if (index == 0) {
                 activity.length = event.time!!.time - currentDay.timeInMillis
                 activity.startTime = currentDay.time
+                activity.endTime = event.time!!
             } else {
                 val prevTime = events[index - 1]?.time!!
                 activity.length = event.time!!.time - prevTime.time
                 activity.startTime = prevTime
+                activity.endTime = event.time!!
             }
 
             activities.add(activity)

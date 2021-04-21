@@ -1,7 +1,6 @@
 package systems.autumnsky.linden_free
 
 import android.content.Intent
-import android.icu.text.DecimalFormat
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -19,9 +18,7 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
-import systems.autumnsky.linden_free.model.Action
-import systems.autumnsky.linden_free.model.Event
-import systems.autumnsky.linden_free.model.Medicine
+import systems.autumnsky.linden_free.model.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -164,15 +161,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         //その日のイベントリスト
-        val sortKey = arrayOf("time", "id")
-        val sortAscend = arrayOf(Sort.ASCENDING, Sort.ASCENDING)
         val dailyEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
-        realm.where<Event>().between("time", currentDay, currentDayLastSec.time)
-            .sort(sortKey, sortAscend).findAll()?.let {
+        realm.where<DailyActivity>().equalTo("day", currentDay).findFirst()?.activityStack.let {
             dailyEventView.apply {
                 layoutManager =
                     GridLayoutManager(applicationContext, 1, GridLayoutManager.VERTICAL, false)
-                adapter = EventAdapter(it)
+                adapter = EventAdapter(it as OrderedRealmCollection<Activity>)
             }
         }
 
@@ -391,63 +385,78 @@ class MainActivity : AppCompatActivity() {
     }
 
     //イベントの一覧
-    private inner class EventAdapter(private val todaysEvent: OrderedRealmCollection<Event>) :
-        RealmRecyclerViewAdapter<Event, EventListHolder>(todaysEvent, true) {
+    private inner class EventAdapter(private val todaysActivities: OrderedRealmCollection<Activity>) :
+        RealmRecyclerViewAdapter<Activity, RecyclerView.ViewHolder>(todaysActivities, true) {
+        val midnight: Date? = Calendar.getInstance().apply {
+            time = todaysActivities[0].startTime
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.time
+
         override fun getItemViewType(position: Int): Int {
-            todaysEvent[position].quantity
-            return super.getItemViewType(position)
+            val activity = todaysActivities[position]
+            return if ( activity.length != null && activity.startTime != midnight ){
+                2
+            } else {
+                1
+            }
         }
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventListHolder {
-            val card =
-                LayoutInflater.from(applicationContext).inflate(R.layout.activity_card, parent, false)
-            return EventListHolder(card)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+
+            return when (viewType) {
+                1 -> {
+                    SingleRowCard(inflater.inflate(R.layout.card_activity_single_row, parent, false))
+                }
+                2 -> {
+                    WithLengthCard(inflater.inflate(R.layout.card_activity_has_length, parent, false))
+                }
+                else -> {
+                    error("No activity type")
+                }
+            }
         }
 
-        override fun onBindViewHolder(holder: EventListHolder, position: Int) {
-            holder.run {
-                id.text = todaysEvent[position]?.id.toString()
-                nameCell.text = todaysEvent[position]?.name
-                timeCell.text = DateFormat.format("HH:mm", todaysEvent[position]?.time) as String
-                quantityCell.text =
-                    todaysEvent[position]?.quantity?.let { DecimalFormat("#.##").format(it) + " mg" }
-            }
-
-            holder.timeCell.setOnClickListener {
-                val cal = Calendar.getInstance().apply { time = todaysEvent[position].time!! }
-                Event().insertByTimePicker(
-                    context = this@MainActivity,
-                    action = todaysEvent[position]?.name.toString(),
-                    cal = cal,
-                    id = todaysEvent[position]?.id.toString().toLong(),
-                    qty = todaysEvent[position]?.quantity
-                )
-            }
-            val quantity = todaysEvent[position].quantity
-            if (quantity != null) {
-                holder.quantityCell.setOnClickListener {
-                    EditRecordedQuantityFragment().run {
-                        arguments = Bundle().apply {
-                            putString("Id", holder.id.text.toString())
-                            putString("MedicineName", holder.nameCell.text.toString())
-                            putString("Quantity", quantity.toString())
-                        }
-                        show(supportFragmentManager, "EditQuantity")
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            val activity = todaysActivities[position]
+            when ( getItemViewType(position) ) {
+                1 -> {
+                    val card = holder as SingleRowCard
+                    val time = if( activity.startTime == midnight ) activity.endTime else activity.startTime
+                    card.run{
+                        timeCell.text = DateFormat.format("HH:mm", time) as String
+                        nameCell.text = activity.name
                     }
+                }
+                2 -> {
+                    val card = holder as WithLengthCard
+                    card.run{
+                        startTimeCell.text = DateFormat.format("HH:mm", activity.startTime) as String
+                        endTimeCell.text = activity.endTime?.let { DateFormat.format("HH:mm", it) as String }
+                        nameCell.text = activity.name
+                    }
+
                 }
             }
         }
 
         override fun getItemCount(): Int {
-            return todaysEvent.size
+            return todaysActivities.size
         }
 
     }
 
-    private inner class EventListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val id: TextView = itemView.findViewById(R.id.id_cell2)
-        val nameCell: TextView = itemView.findViewById(R.id.event_cell2)
-        val timeCell: TextView = itemView.findViewById(R.id.time_cell2)
-        val quantityCell: TextView = itemView.findViewById(R.id.qty_cell2)
+    private inner class SingleRowCard(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val idCell: TextView = itemView.findViewById(R.id.card_single_id)
+        val nameCell: TextView = itemView.findViewById(R.id.card_single_name)
+        val timeCell: TextView = itemView.findViewById(R.id.card_single_time)
+    }
+
+    private inner class WithLengthCard(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val nameCell: TextView = itemView.findViewById(R.id.card_with_length_name)
+        val startTimeCell: TextView = itemView.findViewById(R.id.card_with_length_start_time)
+        val endTimeCell: TextView = itemView.findViewById(R.id.card_with_length_end_time)
     }
 
     //buttonのIDから、初期のラベルを取得
