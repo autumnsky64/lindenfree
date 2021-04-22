@@ -162,11 +162,11 @@ class MainActivity : AppCompatActivity() {
 
         //その日のイベントリスト
         val dailyEventView = findViewById<RecyclerView>(R.id.todays_sleeping_log)
-        realm.where<DailyActivity>().equalTo("day", currentDay).findFirst()?.activityStack.let {
+        realm.where<DailyActivity>().equalTo("day", currentDay).findFirst()?.activityStack?.let {
             dailyEventView.apply {
                 layoutManager =
                     GridLayoutManager(applicationContext, 1, GridLayoutManager.VERTICAL, false)
-                adapter = EventAdapter(it as OrderedRealmCollection<Activity>)
+                adapter = EventAdapter(it as OrderedRealmCollection<Activity>, currentDay)
             }
         }
 
@@ -385,10 +385,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     //イベントの一覧
-    private inner class EventAdapter(private val todaysActivities: OrderedRealmCollection<Activity>) :
+    private inner class EventAdapter(private val todaysActivities: OrderedRealmCollection<Activity>, private val day: Date) :
         RealmRecyclerViewAdapter<Activity, RecyclerView.ViewHolder>(todaysActivities, true) {
+
         val midnight: Date? = Calendar.getInstance().apply {
-            time = todaysActivities[0].startTime
+            time = day
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.MILLISECOND, 0)

@@ -5,6 +5,7 @@ import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.Sort
 import io.realm.kotlin.createObject
+import io.realm.kotlin.oneOf
 import io.realm.kotlin.where
 import java.util.*
 
@@ -91,7 +92,7 @@ open class DailyActivity(
         //sleep/awake イベント時刻を取得 イベントがなければここで終了
         val events = realm.where<Event>()
             .between("time", currentDay.time, currentDayLastSec.time)
-            .`in`("name", arrayOf("Sleep", "Awake", "起床", "入眠"))
+            .oneOf("name", arrayOf("Sleep", "Awake", "起床", "入眠"))
             .sort("time", Sort.ASCENDING)
             .findAll() ?: return
 
@@ -115,6 +116,9 @@ open class DailyActivity(
                 activity.endTime = event.time!!
             }
 
+            if( activity.name == "Medicine" ){
+
+            }
             activities.add(activity)
 
             if (index == events.lastIndex) {
@@ -133,26 +137,54 @@ open class DailyActivity(
             }
         }
 
-        //medicineStackの更新
         //登録している薬をArrayに
-        val medicines: Array<String> = realm.where<Medicine>().findAll().mapNotNull {
-            it.name
-        }.toTypedArray()
+        val registeredMedicines: Array<String> =
+            realm.where<Medicine>().findAll().mapNotNull { it.name }.toTypedArray()
 
         //服薬の時刻を取得
-        val takenMedicines = realm.where<Event>()
+        val loggedMedicines = realm.where<Event>()
             .between("time", currentDay.time, currentDayLastSec.time)
-            .`in`("name", medicines)
+            .oneOf("name", registeredMedicines)
             .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
-            .findAll() ?: return
+            .findAll()
 
-        takenMedicines.forEach { event ->
-            val activity = realm.createObject<Activity>()
+        //foldの初期値になるアクティビティインスタンスの用意
+        if( loggedMedicines != null) {
+            val initialActivity = realm.createObject<Activity>()
+            loggedMedicines.fold(initialActivity, { acc, event ->
+                when (acc.startTime) {
+                    null -> {
+                        acc.name = "TookMedicine"
+                        acc.startTime = event.time
+                        val medicine = realm.createObject<TakenMedicine>().apply {
+                            name = event.name
+                            quantity = event.quantity
+                        }
+                        acc.medicines = RealmList<TakenMedicine>().apply{ add(medicine)}
 
-            activity.name = event.name
-            activity.startTime = event.time
+                        activities.add(acc)
 
-            activities.add(activity)
+                        return@fold activities.last()!!
+                    }
+                    event.time -> {
+                        val medicine = realm.createObject<TakenMedicine>().apply {
+                            name = event.name
+                            quantity = event.quantity
+                        }
+                        activities.last()?.medicines?.add(medicine)
+                        return@fold acc
+                    }
+                    else -> {
+                        val activity = prepareMedicineActivity(
+                            event.name!!,
+                            event.time!!,
+                            event.quantity!!
+                        )
+                        activities.add(activity)
+                        return@fold  activities.last()!!
+                    }
+                }
+            })
         }
 
         targetDay?.activityStack = activities
@@ -161,18 +193,30 @@ open class DailyActivity(
         realm.close()
     }
 
+    private fun prepareMedicineActivity( argName: String?, argTime: Date?, argQuantity: Double?): Activity{
+        val realm = Realm.getDefaultInstance()
+        val medicine = realm.createObject<TakenMedicine>().apply {
+                name = argName
+                quantity = argQuantity
+            }
+
+        val takenMedicines = RealmList<TakenMedicine>().apply { add(medicine) }
+
+        return realm.createObject<Activity>().apply{
+            name = "TookMedicine"
+            startTime = argTime
+            medicines = takenMedicines
+        }
+    }
+
     private fun findActivityName(action: String): String? {
         //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
-        var activityName: String?
-
-        when (action) {
-            "Sleep" -> activityName = "Awake"
-            "Awake" -> activityName = "Sleep"
-            "起床" -> activityName = "睡眠"
-            "入眠" -> activityName = "覚醒"
-            else -> activityName = null
+        return when (action) {
+            "Sleep" ->  "Awake"
+            "Awake" ->  "Sleep"
+            "起床" ->  "睡眠"
+            "入眠" ->  "覚醒"
+            else ->  null
         }
-
-        return activityName
     }
 }
