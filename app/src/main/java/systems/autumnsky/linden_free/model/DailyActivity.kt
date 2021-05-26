@@ -123,7 +123,7 @@ open class DailyActivity(
                     })
                 }
             }
-            if (index == events.size - 1 && event.name == "Sleep") {
+            if (index == events.lastIndex && event.name == "Sleep") {
                 val nextDay = Calendar.getInstance().apply { time = currentDay.time }
                 nextDay.add(Calendar.DAY_OF_MONTH, 1)
 

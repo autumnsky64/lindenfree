@@ -209,23 +209,16 @@ class ChartActivity : AppCompatActivity() {
                 isAntiAlias = true
             }
 
-            val sleepActivities = activityStack?.filter { activity ->
-                    arrayOf("Sleep", "睡眠", "入眠").contains(activity.name)
-                }
-            sleepActivities?.forEachIndexed{ index, activity ->
-                    if ( sleepActivities.size > 1 && index == sleepActivities.lastIndex) {
-                        canvas.drawRect(bar(activity, canvas, isLastOfDay = true), barPaint)
-                    } else {
-                        canvas.drawRect(bar(activity, canvas), barPaint)
-                    }
+            activityStack?.filter {
+                it.length != null
+            }?.forEach{
+                canvas.drawRect(bar(it, canvas), barPaint)
             }
 
-            val medicineActivities = activityStack?.filter { activity ->
-                activity.medicines!!.isNotEmpty()
-            }
-
-            medicineActivities?.forEach { medicine ->
-                val timing: Float = ((medicine.startTime!!.time - day!!.time) / 1000).toFloat()
+            activityStack?.filter {
+                it.medicines!!.isNotEmpty()
+            }?.forEach {
+                val timing: Float = (( it.startTime!!.time - day!!.time) / 1000).toFloat()
                 val x: Float = ratioOfDay(timing) * bounds.right
                 val y: Float = bounds.exactCenterY()
                 val r: Float = (bounds.height() * 0.2).toFloat()
