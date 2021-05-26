@@ -166,7 +166,8 @@ class MainActivity : AppCompatActivity() {
             dailyEventView.apply {
                 layoutManager =
                     GridLayoutManager(applicationContext, 1, GridLayoutManager.VERTICAL, false)
-                adapter = EventAdapter(it as OrderedRealmCollection<Activity>, currentDay)
+                val activities = it as OrderedRealmCollection<Activity>
+                adapter = EventAdapter(activities.sort("endTime", Sort.ASCENDING), currentDay)
             }
         }
 
@@ -392,15 +393,23 @@ class MainActivity : AppCompatActivity() {
             time = day
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
+        }.time
+
+        val lastSec: Date? = Calendar.getInstance().apply {
+            time = day
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
         }.time
 
         override fun getItemViewType(position: Int): Int {
             val activity = todaysActivities[position]
-            return if ( activity.length != null && activity.startTime != midnight ){
-                2
-            } else {
+            return if ( activity.length == null || activity.startTime == midnight || activity.endTime == lastSec ){
                 1
+            } else {
+                2
             }
         }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -423,11 +432,12 @@ class MainActivity : AppCompatActivity() {
             val activity = todaysActivities[position]
             when ( getItemViewType(position) ) {
                 1 -> {
+                    val name = if( position == 0 && activity.name == "Sleep" ){ findEventName( activity.name!! )} else { activity.name }
                     val card = holder as SingleRowCard
                     val time = if( activity.startTime == midnight ) activity.endTime else activity.startTime
                     card.run{
                         timeCell.text = DateFormat.format("HH:mm", time) as String
-                        nameCell.text = activity.name
+                        nameCell.text = name
                     }
                 }
                 2 -> {
@@ -442,6 +452,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        private fun findEventName(action: String): String? {
+            //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
+            return when (action) {
+                "Sleep" ->  "Awake"
+                "Awake" ->  "Sleep"
+                "起床" ->  "睡眠"
+                "入眠" ->  "起床"
+                else ->  null
+            }
+        }
         override fun getItemCount(): Int {
             return todaysActivities.size
         }

@@ -101,27 +101,29 @@ open class DailyActivity(
         var activities = RealmList<Activity>()
 
         events.forEachIndexed { index, event ->
-            val activity = realm.createObject<Activity>()
-
-            activity.name = findActivityName(event.name as String)
-
             if (index == 0) {
-                activity.length = event.time!!.time - currentDay.timeInMillis
-                activity.startTime = currentDay.time
-                activity.endTime = event.time!!
+                if (event.name == "Awake" || event.name == "起床") {
+                    activities.add(
+                        realm.createObject<Activity>().apply {
+                            name = findActivityName(event.name as String)
+                            length = event.time!!.time - currentDay.timeInMillis
+                            startTime = currentDay.time
+                            endTime = event.time!!
+                        })
+                }
             } else {
-                val prevTime = events[index - 1]?.time!!
-                activity.length = event.time!!.time - prevTime.time
-                activity.startTime = prevTime
-                activity.endTime = event.time!!
+                val preventEvent = events[index - 1]?.name
+                if ( ( preventEvent == "Awake" ) xor ( event.name == "Sleep")) {
+                    activities.add(
+                        realm.createObject<Activity>().apply {
+                            name = findActivityName(event.name as String)
+                            length = event.time!!.time - events[index - 1]?.time!!.time
+                            startTime = events[index - 1]?.time
+                            endTime = event.time
+                    })
+                }
             }
-
-            if( activity.name == "Medicine" ){
-
-            }
-            activities.add(activity)
-
-            if (index == events.lastIndex) {
+            if (index == events.size - 1 && event.name == "Sleep") {
                 val nextDay = Calendar.getInstance().apply { time = currentDay.time }
                 nextDay.add(Calendar.DAY_OF_MONTH, 1)
 
@@ -130,10 +132,9 @@ open class DailyActivity(
                     name = event.name as String
                     length = nextDay.timeInMillis - event.time!!.time
                     startTime = event.time
+                    endTime = currentDayLastSec.time
                 }
-
                 activities.add(lastAct)
-
             }
         }
 
@@ -148,7 +149,6 @@ open class DailyActivity(
             .sort(arrayOf("time", "id"), arrayOf(Sort.ASCENDING, Sort.ASCENDING))
             .findAll()
 
-        //foldの初期値になるアクティビティインスタンスの用意
         if( loggedMedicines != null) {
             val initialActivity = realm.createObject<Activity>()
             loggedMedicines.fold(initialActivity, { acc, event ->
@@ -156,6 +156,7 @@ open class DailyActivity(
                     null -> {
                         acc.name = "TookMedicine"
                         acc.startTime = event.time
+                        acc.endTime =event.time
                         val medicine = realm.createObject<TakenMedicine>().apply {
                             name = event.name
                             quantity = event.quantity
@@ -205,6 +206,7 @@ open class DailyActivity(
         return realm.createObject<Activity>().apply{
             name = "TookMedicine"
             startTime = argTime
+            endTime = argTime
             medicines = takenMedicines
         }
     }
