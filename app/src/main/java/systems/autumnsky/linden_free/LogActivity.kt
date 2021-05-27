@@ -227,7 +227,7 @@ class LogActivity : AppCompatActivity() {
                                 set(Calendar.HOUR_OF_DAY, hour)
                                 set(Calendar.MINUTE, min)
                             }
-                            val actionList = BottomSheetActionList(actions, isDatePicker = false, isTimePicker = false, day = cal.time)
+                            val actionList = BottomSheetActionList(isDatePicker = false, isTimePicker = false, day = cal.time)
                             actionList.show(supportFragmentManager, actionList.tag)
                         },
                         cal.get(Calendar.HOUR_OF_DAY),

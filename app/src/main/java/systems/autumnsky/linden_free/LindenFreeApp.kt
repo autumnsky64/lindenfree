@@ -67,12 +67,17 @@ class LindenFreeApp : Application() {
                  realm.where<Action>().equalTo("name", getString(R.string.in_bed)).findFirst()?.deleteFromRealm()
             }
         }
+        //
+        if( version > 9L ){
+            realm.executeTransaction {
+                realm.where<Action>().equalTo("name", getString(R.string.dose)).findFirst()?.deleteFromRealm()
+            }
+        }
     }
 
     private fun insertDefaultActions() {
         val defaultEvents = mutableListOf(
             getString(R.string.awake),
-            getString(R.string.dose),
             getString(R.string.sleep)
         )
 

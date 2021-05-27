@@ -239,14 +239,11 @@ class MainActivity : AppCompatActivity() {
 
         //FAB
         findViewById<View>(R.id.daily_insert_event).setOnClickListener {
-            val stringArray = arrayOf(getString(R.string.dose))
-
             if (isTodayDaily) {
-                val actionList = BottomSheetActionList(actions, isDatePicker = false)
+                val actionList = BottomSheetActionList(isDatePicker = false)
                 actionList.show(supportFragmentManager, actionList.tag)
             } else {
                 val actionList = BottomSheetActionList(
-                    actions,
                     isDatePicker = false,
                     isTimePicker = true,
                     day = currentDay

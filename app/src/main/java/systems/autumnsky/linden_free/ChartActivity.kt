@@ -20,7 +20,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import io.realm.*
 import io.realm.kotlin.where
-import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Activity
 import systems.autumnsky.linden_free.model.DailyActivity
 import java.util.*
@@ -112,9 +111,6 @@ class ChartActivity : AppCompatActivity() {
 
         //FAB
         findViewById<View>(R.id.insert_event).setOnClickListener {
-            val actions = Realm.getDefaultInstance().where<Action>()
-                .notEqualTo("name", getString(R.string.dose)).findAll()
-
             val cal = Calendar.getInstance()
             DatePickerDialog(
                 this,
@@ -131,7 +127,7 @@ class ChartActivity : AppCompatActivity() {
                                 set(Calendar.HOUR_OF_DAY, hour)
                                 set(Calendar.MINUTE, min)
                             }
-                            val actionList = BottomSheetActionList(actions, isDatePicker = false, isTimePicker = false, day = cal.time)
+                            val actionList = BottomSheetActionList(isDatePicker = false, isTimePicker = false, day = cal.time)
                             actionList.show(supportFragmentManager, actionList.tag)
                         },
                         cal.get(Calendar.HOUR_OF_DAY),

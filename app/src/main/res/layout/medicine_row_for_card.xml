@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/medicine_with_spinner"
+    android:id="@+id/medicine_row_for_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -10,14 +10,14 @@
         android:id="@+id/medicine_quantity_inner_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
+        android:layout_marginStart="16dp"
         android:text="TextView"
         android:textAlignment="textEnd"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textSize="14sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/medicine_name_inner_card"
-        app:layout_constraintEnd_toStartOf="@+id/medicine_unit_label_inner_card"
+        app:layout_constraintStart_toEndOf="@+id/medicine_name_inner_card"
         app:layout_constraintTop_toTopOf="@+id/medicine_name_inner_card" />
 
     <TextView
@@ -46,12 +46,11 @@
         android:id="@+id/medicine_unit_label_inner_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:text="mg"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textSize="14sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/medicine_name_inner_card"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/medicine_quantity_inner_card"
         app:layout_constraintTop_toTopOf="@+id/medicine_name_inner_card" />
 </androidx.constraintlayout.widget.ConstraintLayout>

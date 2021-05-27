@@ -177,9 +177,9 @@ open class DailyActivity(
                     }
                     else -> {
                         val activity = prepareMedicineActivity(
-                            event.name!!,
-                            event.time!!,
-                            event.quantity!!
+                            event.name,
+                            event.time,
+                            event.quantity
                         )
                         activities.add(activity)
                         return@fold  activities.last()!!
