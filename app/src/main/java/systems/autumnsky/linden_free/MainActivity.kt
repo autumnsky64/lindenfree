@@ -240,14 +240,6 @@ class MainActivity : AppCompatActivity() {
         //FAB
         findViewById<View>(R.id.daily_insert_event).setOnClickListener {
             val stringArray = arrayOf(getString(R.string.dose))
-            val actions = realm.where<Action>()
-                .not().`in`("name", stringArray)
-                .beginGroup()
-                    .isNull("medicine")
-                        .or()
-                    .equalTo("medicine.is_use_as_needed", true)
-                .endGroup()
-                .findAll()
 
             if (isTodayDaily) {
                 val actionList = BottomSheetActionList(actions, isDatePicker = false)
@@ -406,7 +398,9 @@ class MainActivity : AppCompatActivity() {
 
         override fun getItemViewType(position: Int): Int {
             val activity = todaysActivities[position]
-            return if ( activity.length == null || activity.startTime == midnight || activity.endTime == lastSec ){
+            return if ( activity.medicines!!.isNotEmpty() ){
+                3
+            } else if ( activity.length == null || activity.startTime == midnight || activity.endTime == lastSec ){
                 1
             } else {
                 2
@@ -421,6 +415,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 2 -> {
                     WithLengthCard(inflater.inflate(R.layout.card_activity_has_length, parent, false))
+                }
+                3-> {
+                    TakenMedicineCard(inflater.inflate(R.layout.card_activity_medicines, parent, false))
                 }
                 else -> {
                     error("No activity type")
@@ -447,7 +444,16 @@ class MainActivity : AppCompatActivity() {
                         endTimeCell.text = activity.endTime?.let { DateFormat.format("HH:mm", it) as String }
                         nameCell.text = activity.name
                     }
-
+                }
+                3 -> {
+                    val card = holder as TakenMedicineCard
+                    card.run {
+                        timeCell.text = DateFormat.format("HH:mm", activity.startTime) as String
+                        medicines.apply {
+                            layoutManager = GridLayoutManager( applicationContext, 1 )
+                            adapter = TakenMedicinesAdapter( activity.medicines as OrderedRealmCollection<TakenMedicine> )
+                        }
+                    }
                 }
             }
         }
@@ -478,6 +484,43 @@ class MainActivity : AppCompatActivity() {
         val nameCell: TextView = itemView.findViewById(R.id.card_with_length_name)
         val startTimeCell: TextView = itemView.findViewById(R.id.card_with_length_start_time)
         val endTimeCell: TextView = itemView.findViewById(R.id.card_with_length_end_time)
+    }
+
+    private inner class TakenMedicineCard(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val timeCell: TextView = itemView.findViewById(R.id.card_medicine_time)
+        val medicines: RecyclerView = itemView.findViewById(R.id.card_medicines)
+    }
+
+    // Medicineカード内のリサイクラービュー
+    private inner class TakenMedicinesAdapter( private val takenMedicines : OrderedRealmCollection<TakenMedicine>):
+        RealmRecyclerViewAdapter<TakenMedicine, MedicineInnerCard>(takenMedicines, true){
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineInnerCard {
+            return MedicineInnerCard(LayoutInflater.from(parent.context).inflate(R.layout.medicine_row_for_card, parent,false))
+        }
+
+        override fun onBindViewHolder(holder: MedicineInnerCard, position: Int) {
+            val medicine = takenMedicines[position]
+            holder.apply{
+                name.text = medicine.name as String
+                medicine.quantity?.let {
+                    unitLabel.visibility = View.VISIBLE
+                    quantity.visibility = View.VISIBLE
+                    quantity.text = medicine.quantity.toString()
+                }
+            }
+        }
+
+        override fun getItemCount(): Int {
+            return takenMedicines.size
+        }
+
+    }
+
+    private inner class MedicineInnerCard(itemView: View) : RecyclerView.ViewHolder(itemView){
+        val name: TextView = itemView.findViewById(R.id.medicine_name_inner_card)
+        val quantity: TextView = itemView.findViewById(R.id.medicine_quantity_inner_card)
+        val unitLabel: TextView = itemView.findViewById(R.id.medicine_unit_label_inner_card)
     }
 
     //buttonのIDから、初期のラベルを取得
