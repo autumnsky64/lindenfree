@@ -287,17 +287,20 @@ class LogActivity : AppCompatActivity() {
                 }
             }
 
-            val quantity = record.quantity
-            if (quantity != null) {
-                holder.quantity.setOnClickListener {
-                    EditRecordedQuantityFragment().run {
-                        arguments = Bundle().apply {
-                            putString("Id", record.id!!.toString())
-                            putString("MedicineName", record.name)
-                            putString("Quantity", quantity.toString())
-                        }
-                        show(supportFragmentManager, "EditQuantity")
+            val quantity = if( record.quantity != null ) {
+                record.quantity
+            } else {
+                ""
+            }
+
+            holder.quantity.setOnClickListener {
+                EditRecordedQuantityFragment().run {
+                    arguments = Bundle().apply {
+                        putString("Id", record.id!!.toString())
+                        putString("MedicineName", record.name)
+                        putString("Quantity", quantity.toString())
                     }
+                    show(supportFragmentManager, "EditQuantity")
                 }
             }
         }
