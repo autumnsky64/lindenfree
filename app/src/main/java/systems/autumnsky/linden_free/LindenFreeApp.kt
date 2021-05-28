@@ -1,6 +1,7 @@
 package systems.autumnsky.linden_free
 
 import android.app.Application
+import android.content.Context
 import androidx.core.app.AppLaunchChecker
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -72,6 +73,31 @@ class LindenFreeApp : Application() {
             realm.executeTransaction {
                 realm.where<Action>().equalTo("name", getString(R.string.dose)).findFirst()?.deleteFromRealm()
             }
+            val pref = getSharedPreferences("systems.autumnsky.linden_free.settings", Context.MODE_PRIVATE)
+
+            // 古いデイリースタックがあるとクラッシュするので更新しておく
+            if ( ! ( pref.getBoolean( "isRebuildDailyStack", false))) {
+
+                val oldest = realm.where<DailyActivity>().minimumDate("day")
+                val latest = realm.where<DailyActivity>().maximumDate("day")
+
+                if( oldest != null && latest != null ) {
+
+                    var day = Calendar.getInstance().apply { time = oldest }
+                    val endDay = Calendar.getInstance().apply{ time = latest }
+
+                    while( day.time <= endDay.time ){
+                        DailyActivity().refreshDailyStack( day )
+                        day.add(Calendar.DAY_OF_MONTH, +1)
+                    }
+                }
+
+                pref.edit().apply {
+                    putBoolean("isRebuildDailyStack", true)
+                    commit()
+                }
+            }
+
         }
     }
 
