@@ -116,7 +116,7 @@ open class DailyActivity(
                 if ( ( preventEvent == "Awake" ) xor ( event.name == "Sleep")) {
                     activities.add(
                         realm.createObject<Activity>().apply {
-                            name = findActivityName(event.name as String)
+                            name = "Sleep"
                             length = event.time!!.time - events[index - 1]?.time!!.time
                             startTime = events[index - 1]?.time
                             endTime = event.time

@@ -100,7 +100,7 @@ class ChartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chart)
 
-        findViewById<RecyclerView>(R.id.cycle_chart).apply {
+        findViewById<RecyclerView>(R.id.activity_chart).apply {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = RealmAdapter(
                 Realm.getDefaultInstance().where<DailyActivity>().findAll()
@@ -129,6 +129,7 @@ class ChartActivity : AppCompatActivity() {
                             }
                             val actionList = BottomSheetActionList(isDatePicker = false, isTimePicker = false, day = cal.time)
                             actionList.show(supportFragmentManager, actionList.tag)
+
                         },
                         cal.get(Calendar.HOUR_OF_DAY),
                         cal.get(Calendar.MINUTE),
@@ -161,7 +162,7 @@ class ChartActivity : AppCompatActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Element {
             return Element(
                 LayoutInflater.from(applicationContext)
-                    .inflate(R.layout.cycle_chart_element, parent, false)
+                    .inflate(R.layout.activity_chart_element, parent, false)
             )
         }
 

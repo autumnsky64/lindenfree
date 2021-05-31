@@ -34,8 +34,8 @@ class LindenFreeApp : Application() {
             insertDefaultActions()
         }
 
-        //既存のイベントデータから、DailyCycleテーブルに日ごとのデータを入れる
-        //マイグレーション直後はDailyCycleにデータがなく、Eventだけにデータのある状態のはず
+        //既存のイベントデータから、DailyActivityテーブルに日ごとのデータを入れる
+        //マイグレーション直後はDailyActivityにデータがなく、Eventだけにデータのある状態のはず
         val realm = Realm.getDefaultInstance()
         if (realm.where<DailyActivity>().findAll().count() == 0
             && realm.where<Event>().findAll().count() > 0
@@ -97,7 +97,6 @@ class LindenFreeApp : Application() {
                     commit()
                 }
             }
-
         }
     }
 
