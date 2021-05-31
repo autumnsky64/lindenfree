@@ -118,7 +118,7 @@ class BottomSheetActionList(
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
             val row = LayoutInflater.from(context)
-                .inflate(R.layout.medicine_row_for_card, parent, false)
+                .inflate(R.layout.card_medicine_row, parent, false)
             return MedicineListHolder(row)
         }
 

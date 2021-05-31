@@ -493,7 +493,7 @@ class MainActivity : AppCompatActivity() {
         RealmRecyclerViewAdapter<TakenMedicine, MedicineInnerCard>(takenMedicines, true){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineInnerCard {
-            return MedicineInnerCard(LayoutInflater.from(parent.context).inflate(R.layout.medicine_row_for_card, parent,false))
+            return MedicineInnerCard(LayoutInflater.from(parent.context).inflate(R.layout.card_medicine_row, parent,false))
         }
 
         override fun onBindViewHolder(holder: MedicineInnerCard, position: Int) {

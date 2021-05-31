@@ -18,7 +18,7 @@ class InSleepFragment : DialogFragment() {
         return activity?.let {
 
             val builder = AlertDialog.Builder(it)
-            val body = requireActivity().layoutInflater.inflate(R.layout.in_sleep_dialog, null)
+            val body = requireActivity().layoutInflater.inflate(R.layout.dialog_in_sleep, null)
 
             builder.setView(body)
             //入眠時刻を表示

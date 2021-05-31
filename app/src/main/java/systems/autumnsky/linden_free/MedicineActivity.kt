@@ -180,7 +180,7 @@ class MedicineActivity : AppCompatActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineListHolder {
 
             val row = LayoutInflater.from(applicationContext)
-                .inflate(R.layout.medicine_row, parent, false)
+                .inflate(R.layout.activity_medicine_row, parent, false)
             return MedicineListHolder(row)
         }
 

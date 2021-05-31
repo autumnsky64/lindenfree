@@ -25,7 +25,6 @@ import io.realm.Realm
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
-import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Event
 import java.io.BufferedOutputStream
 import java.text.DecimalFormat
@@ -145,7 +144,7 @@ class LogActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_logview)
+        setContentView(R.layout.activity_event)
 
         val layout = LinearLayoutManager(applicationContext)
         val key = arrayOf("time", "id")
@@ -208,9 +207,6 @@ class LogActivity : AppCompatActivity() {
 
         //FAB
         findViewById<View>(R.id.insert_event).setOnClickListener {
-            val actions = Realm.getDefaultInstance().where<Action>()
-                .notEqualTo("name", getString(R.string.dose)).findAll()
-
             val cal = Calendar.getInstance()
             DatePickerDialog(
                 this,
@@ -263,7 +259,7 @@ class LogActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogHolder {
             val row =
-                LayoutInflater.from(applicationContext).inflate(R.layout.log_row, parent, false)
+                LayoutInflater.from(applicationContext).inflate(R.layout.event_row, parent, false)
             return LogHolder(row)
         }
 
