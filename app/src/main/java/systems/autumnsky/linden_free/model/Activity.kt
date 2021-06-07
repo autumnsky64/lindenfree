@@ -9,6 +9,10 @@ open class Activity(
     open var length: Long? = null,
     open var startTime: Date? = null,
     open var endTime: Date? = null,
+
+    open var startEvent: Event? = null,
+    open var endEvent: Event? = null,
+
     open var medicines: RealmList<TakenMedicine>? = null
 ) : RealmObject()
 

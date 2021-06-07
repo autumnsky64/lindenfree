@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.AppLaunchChecker
 import androidx.recyclerview.widget.*
@@ -183,18 +182,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val timeString = viewHolder.itemView.findViewById<TextView>(R.id.time_cell).text.toString()
-                val eventName = viewHolder.itemView.findViewById<TextView>(R.id.event_cell).text.toString()
-                val quantityString = viewHolder.itemView.findViewById<TextView>(R.id.qty_cell).text.toString()
 
+                DailyActivity().deleteActivity(currentDay, viewHolder.adapterPosition )
+                /*
                 AlertDialog.Builder(this@MainActivity)
                     .setTitle(getText(R.string.title_delete_record))
                     .setMessage("$timeString \n$eventName $quantityString")
                     .setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
 
-                        viewHolder.itemView.findViewById<TextView>(R.id.id_cell).text?.toString()?.toLong()?.let {
-                            Event().delete(it)
-                        }
+                        DailyActivity().deleteActivity(currentDay, viewHolder.adapterPosition )
                     }
                     .setNegativeButton(getText(R.string.dialog_cancel)) { _, _ ->
                         //スワイプで行表示が消えたままになるので何も変わってないが再描画
@@ -204,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                         dailyEventView.adapter?.notifyDataSetChanged()
                     }
                     .show()
-
+                 */
             }
         })
         helper.attachToRecyclerView(dailyEventView)
@@ -426,7 +422,7 @@ class MainActivity : AppCompatActivity() {
             val activity = todaysActivities[position]
             when ( getItemViewType(position) ) {
                 1 -> {
-                    val name = if( position == 0 && activity.name == "Sleep" ){ findEventName( activity.name!! )} else { activity.name }
+                    val name = if( position == 0 && activity.startEvent == null ){ findEventName( activity.name!! )} else { activity.name }
                     val card = holder as SingleRowCard
                     val time = if( activity.startTime == midnight ) activity.endTime else activity.startTime
                     card.run{
