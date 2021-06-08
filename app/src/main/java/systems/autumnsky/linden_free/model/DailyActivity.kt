@@ -1,5 +1,6 @@
 package systems.autumnsky.linden_free.model
 
+import android.content.res.Resources
 import io.realm.Realm
 import io.realm.RealmList
 import io.realm.RealmObject
@@ -7,6 +8,8 @@ import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.oneOf
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.MainActivity
+import systems.autumnsky.linden_free.R
 import java.util.*
 
 open class DailyActivity(
@@ -90,9 +93,13 @@ open class DailyActivity(
             )
 
         //sleep/awake イベント時刻を取得 イベントがなければここで終了
+        val awake = MainActivity.instance.getString(R.string.awake)
+        val sleep = MainActivity.instance.getString(R.string.sleep)
+
+        val actionNames = arrayOf<String>( awake, sleep )
         val events = realm.where<Event>()
             .between("time", currentDay.time, currentDayLastSec.time)
-            .oneOf("name", arrayOf("Sleep", "Awake", "起床", "入眠"))
+            .oneOf("name", actionNames)
             .sort("time", Sort.ASCENDING)
             .findAll() ?: return
 
@@ -102,10 +109,10 @@ open class DailyActivity(
 
         events.forEachIndexed { index, event ->
             if (index == 0) {
-                if (event.name == "Awake" || event.name == "起床") {
+                if (event.name == awake ) {
                     activities.add(
                         realm.createObject<Activity>().apply {
-                            name = findActivityName(event.name as String)
+                            name = sleep
                             length = event.time!!.time - currentDay.timeInMillis
                             startTime = currentDay.time
                             endTime = event.time!!
@@ -114,10 +121,10 @@ open class DailyActivity(
                 }
             } else {
                 val preventEvent = events[index - 1]
-                if ( ( preventEvent?.name != "Awake" ) or ( event.name != "Sleep")) {
+                if ( ( preventEvent?.name != awake ) or ( event.name != sleep )) {
                     activities.add(
                         realm.createObject<Activity>().apply {
-                            name = "Sleep"
+                            name = sleep
                             length = event.time!!.time - events[index - 1]?.time!!.time
                             startTime = events[index - 1]?.time
                             endTime = event.time
@@ -126,7 +133,7 @@ open class DailyActivity(
                     })
                 }
             }
-            if (index == events.lastIndex && event.name == "Sleep") {
+            if (index == events.lastIndex && event.name == sleep) {
                 val nextDay = Calendar.getInstance().apply { time = currentDay.time }
                 nextDay.add(Calendar.DAY_OF_MONTH, 1)
 
@@ -158,7 +165,7 @@ open class DailyActivity(
             loggedMedicines.fold(initialActivity, { acc, event ->
                 when (acc.startTime) {
                     null -> {
-                        acc.name = "TookMedicine"
+                        acc.name = MainActivity.instance.getString(R.string.dose)
                         acc.startTime = event.time
                         acc.endTime =event.time
                         val medicine = realm.createObject<TakenMedicine>().apply {
@@ -222,21 +229,10 @@ open class DailyActivity(
         val takenMedicines = RealmList<TakenMedicine>().apply { add(medicine) }
 
         return realm.createObject<Activity>().apply{
-            name = "TookMedicine"
+            name = Resources.getSystem().getString(R.string.dose)
             startTime = event.time
             endTime = event.time
             medicines = takenMedicines
-        }
-    }
-
-    private fun findActivityName(action: String): String? {
-        //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
-        return when (action) {
-            "Sleep" ->  "Awake"
-            "Awake" ->  "Sleep"
-            "起床" ->  "睡眠"
-            "入眠" ->  "覚醒"
-            else ->  null
         }
     }
 }

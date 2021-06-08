@@ -24,6 +24,12 @@ import java.text.DecimalFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    // for getString from Realm model.
+    companion object {
+        lateinit var instance: AppCompatActivity private set
+    }
+
     private val onNavigationItemSelectedListener =
         BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -48,6 +54,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         setContentView(R.layout.activity_main)
         AppLaunchChecker.onActivityCreate(this)
 
@@ -421,7 +428,7 @@ class MainActivity : AppCompatActivity() {
             val activity = todaysActivities[position]
             when ( getItemViewType(position) ) {
                 1 -> {
-                    val name = if( position == 0 && activity.startEvent == null ){ findEventName( activity.name!! )} else { activity.name }
+                    val name = if( position == 0 && activity.startEvent == null ){ getString(R.string.awake) } else { activity.name }
                     val card = holder as SingleRowCard
                     val time = if( activity.startTime == midnight ) activity.endTime else activity.startTime
                     card.run{
@@ -505,20 +512,10 @@ class MainActivity : AppCompatActivity() {
                 true
             ).show()
         }
-        private fun findEventName(action: String): String? {
-            //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
-            return when (action) {
-                "Sleep" ->  "Awake"
-                "Awake" ->  "Sleep"
-                "起床" ->  "睡眠"
-                "入眠" ->  "起床"
-                else ->  null
-            }
-        }
+
         override fun getItemCount(): Int {
             return todaysActivities.size
         }
-
     }
 
     private inner class SingleRowCard(itemView: View) : RecyclerView.ViewHolder(itemView) {
