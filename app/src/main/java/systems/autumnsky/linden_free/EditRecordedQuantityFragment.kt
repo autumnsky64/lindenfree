@@ -9,7 +9,9 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.DailyActivity
 import systems.autumnsky.linden_free.model.Event
+import java.util.*
 
 class EditRecordedQuantityFragment : DialogFragment() {
     @SuppressLint("InflateParams")
@@ -35,7 +37,10 @@ class EditRecordedQuantityFragment : DialogFragment() {
                                 .toDouble()
                     }
 
+                    val cal = Calendar.getInstance()
+                    cal.time = logRecord!!.time
                     realm.close()
+                    DailyActivity().refreshDailyStack(cal)
                 }
 
                 setNegativeButton("CANCEL") { _, _ ->

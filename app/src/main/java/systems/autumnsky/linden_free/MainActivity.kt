@@ -1,5 +1,7 @@
 package systems.autumnsky.linden_free
 
+import android.app.AlertDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
@@ -183,11 +185,8 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
-                DailyActivity().deleteActivity(currentDay, viewHolder.adapterPosition )
-                /*
                 AlertDialog.Builder(this@MainActivity)
                     .setTitle(getText(R.string.title_delete_record))
-                    .setMessage("$timeString \n$eventName $quantityString")
                     .setPositiveButton(getText(R.string.dialog_delete)) { _, _ ->
 
                         DailyActivity().deleteActivity(currentDay, viewHolder.adapterPosition )
@@ -200,7 +199,6 @@ class MainActivity : AppCompatActivity() {
                         dailyEventView.adapter?.notifyDataSetChanged()
                     }
                     .show()
-                 */
             }
         })
         helper.attachToRecyclerView(dailyEventView)
@@ -428,29 +426,84 @@ class MainActivity : AppCompatActivity() {
                     card.run{
                         timeCell.text = DateFormat.format("HH:mm", time) as String
                         nameCell.text = name
+                        timeCell.setOnClickListener { updateEventTime(activity.endEvent!!) }
                     }
                 }
                 2 -> {
                     val card = holder as WithLengthCard
                     card.run{
-                        startTimeCell.text = DateFormat.format("HH:mm", activity.startTime) as String
-                        endTimeCell.text = activity.endTime?.let { DateFormat.format("HH:mm", it) as String }
+                        startTimeCell.run {
+                            text = DateFormat.format("HH:mm", activity.startTime) as String
+                            setOnClickListener { updateEventTime( activity.startEvent!! ) }
+                        }
+                        endTimeCell.run {
+                            text = activity.endTime?.let { DateFormat.format("HH:mm", it) as String }
+                            setOnClickListener { updateEventTime( activity.endEvent!! ) }
+                        }
                         nameCell.text = activity.name
                     }
                 }
                 3 -> {
                     val card = holder as TakenMedicineCard
                     card.run {
-                        timeCell.text = DateFormat.format("HH:mm", activity.startTime) as String
-                        medicines.apply {
-                            layoutManager = GridLayoutManager( applicationContext, 1 )
-                            adapter = TakenMedicinesAdapter( activity.medicines as OrderedRealmCollection<TakenMedicine> )
+                        timeCell.run {
+                            text = DateFormat.format("HH:mm", activity.startTime) as String
+                            setOnClickListener {
+                                val cal = Calendar.getInstance()
+                                cal.time = activity.startTime
+
+                                TimePickerDialog(
+                                    this@MainActivity,
+                                    TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                                        cal.apply {
+                                            set(Calendar.HOUR_OF_DAY, hour)
+                                            set(Calendar.MINUTE, min)
+                                        }
+                                        Realm.getDefaultInstance().executeTransaction {
+                                            activity.medicines!!.forEach{
+                                                it.medicineEvent!!.time = cal.time
+                                            }
+                                        }
+                                        DailyActivity().refreshDailyStack(cal)
+                                    },
+                                    cal.get(Calendar.HOUR_OF_DAY),
+                                    cal.get(Calendar.MINUTE),
+                                    true
+                                ).show()
+                            }
+
+                            medicines.apply {
+                                layoutManager = GridLayoutManager( applicationContext, 1 )
+                                adapter = TakenMedicinesAdapter( activity.medicines as OrderedRealmCollection<TakenMedicine> )
+                            }
                         }
                     }
                 }
             }
-        }
 
+    }
+
+        private fun updateEventTime(event: Event) {
+            val cal = Calendar.getInstance()
+            cal.time = event.time
+
+            TimePickerDialog(
+                this@MainActivity,
+                TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                    cal.apply {
+                        set(Calendar.HOUR_OF_DAY, hour)
+                        set(Calendar.MINUTE, min)
+                    }
+                    Realm.getDefaultInstance().executeTransaction {
+                        event.time = cal.time
+                    }
+                    DailyActivity().refreshDailyStack(cal)
+                },
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                true
+            ).show()
+        }
         private fun findEventName(action: String): String? {
             //getStringが使えないのと、4パターンしかないのでWhen構文にしている。汎用性に欠けるが。
             return when (action) {
@@ -494,20 +547,25 @@ class MainActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: MedicineInnerCard, position: Int) {
             val medicine = takenMedicines[position]
-            holder.apply{
+            holder.apply {
                 name.text = medicine.name as String
                 medicine.quantity?.let {
                     unitLabel.visibility = View.VISIBLE
                     quantity.visibility = View.VISIBLE
                     quantity.text = medicine.quantity.toString()
                 }
+                quantity.setOnClickListener {
+                    EditRecordedQuantityFragment().run {
+                        arguments = Bundle().apply {
+                            putString("Id", medicine.medicineEvent!!.id!!.toString())
+                            putString("MedicineName", medicine.name as String)
+                            putString("Quantity", medicine.quantity.toString())
+                        }
+                        show(supportFragmentManager, "EditQuantity")
+                    }
+                }
             }
         }
-
-        override fun getItemCount(): Int {
-            return takenMedicines.size
-        }
-
     }
 
     private inner class MedicineInnerCard(itemView: View) : RecyclerView.ViewHolder(itemView){
