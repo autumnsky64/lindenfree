@@ -20,6 +20,7 @@ import io.realm.RealmRecyclerViewAdapter
 import io.realm.Sort
 import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.*
+import java.text.DecimalFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -552,7 +553,7 @@ class MainActivity : AppCompatActivity() {
                 medicine.quantity?.let {
                     unitLabel.visibility = View.VISIBLE
                     quantity.visibility = View.VISIBLE
-                    quantity.text = medicine.quantity.toString()
+                    quantity.text = DecimalFormat("#.##").format(medicine.quantity)
                 }
                 quantity.setOnClickListener {
                     EditRecordedQuantityFragment().run {

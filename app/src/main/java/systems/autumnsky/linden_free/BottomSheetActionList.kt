@@ -15,6 +15,7 @@ import io.realm.kotlin.where
 import systems.autumnsky.linden_free.model.Action
 import systems.autumnsky.linden_free.model.Event
 import systems.autumnsky.linden_free.model.Medicine
+import java.text.DecimalFormat
 import java.util.*
 
 class BottomSheetActionList(
@@ -141,7 +142,7 @@ class BottomSheetActionList(
                 holder.apply {
                     unitLabel.visibility = View.VISIBLE
                     quantity.visibility = View.VISIBLE
-                    quantity.text = it.toString()
+                    quantity.text = DecimalFormat("#.##").format(it)
                 }
             }
 
