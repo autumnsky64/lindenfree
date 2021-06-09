@@ -35,22 +35,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/use_as_need_label_bottomsheet"
+        app:layout_constraintTop_toBottomOf="@+id/use_as_need_label_bottomsheet"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/use_as_need_label_bottomsheet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/label_use_as_needed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider" />
+        app:layout_constraintTop_toBottomOf="@+id/divider_actionsheet" />
 
     <View
-        android:id="@+id/divider"
+        android:id="@+id/divider_actionsheet"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#51000000"

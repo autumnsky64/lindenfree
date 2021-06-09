@@ -29,8 +29,8 @@ class BottomSheetActionList(
     val date = day
 
     val realm: Realm= Realm.getDefaultInstance()
-    val actions = realm.where<Action>().isNull("medicine").findAll()
-    val medicine = realm.where<Medicine>().equalTo("is_use_as_needed", true).findAll()
+    private val actions = realm.where<Action>().isNull("medicine").findAll()
+    private val medicines = realm.where<Medicine>().equalTo("is_use_as_needed", true).findAll()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,9 +46,18 @@ class BottomSheetActionList(
             adapter = ActionListAdapter(actions)
             layoutManager = GridLayoutManager(activity, 2)
         }
-        view.findViewById<RecyclerView>(R.id.use_as_need_medicine_list).run {
-            adapter = MedicineListAdapter(medicine)
-            layoutManager = GridLayoutManager(activity, 1)
+
+        if( medicines.isNotEmpty() ){
+            view.findViewById<RecyclerView>(R.id.use_as_need_medicine_list).run {
+                adapter = MedicineListAdapter(medicines)
+                layoutManager = GridLayoutManager(activity, 1)
+            }
+        } else {
+            view.apply {
+                findViewById<View>(R.id.divider_actionsheet).visibility = View.GONE
+                findViewById<TextView>(R.id.use_as_need_label_bottomsheet).visibility = View.GONE
+                findViewById<RecyclerView>(R.id.use_as_need_medicine_list).visibility = View.GONE
+            }
         }
     }
 
