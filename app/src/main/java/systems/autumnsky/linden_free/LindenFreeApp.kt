@@ -19,8 +19,15 @@ class LindenFreeApp : Application() {
 
     var isFirstLaunch: Boolean = false
 
+    // for getString from Realm model.
+    companion object {
+        lateinit var appInstance: Application private set
+    }
+
     override fun onCreate() {
         super.onCreate()
+
+        appInstance = this
 
         isFirstLaunch = !AppLaunchChecker.hasStartedFromLauncher(applicationContext)
 

@@ -8,7 +8,7 @@ import io.realm.Sort
 import io.realm.kotlin.createObject
 import io.realm.kotlin.oneOf
 import io.realm.kotlin.where
-import systems.autumnsky.linden_free.MainActivity
+import systems.autumnsky.linden_free.LindenFreeApp.Companion.appInstance
 import systems.autumnsky.linden_free.R
 import java.util.*
 
@@ -93,8 +93,8 @@ open class DailyActivity(
             )
 
         //sleep/awake イベント時刻を取得 イベントがなければここで終了
-        val awake = MainActivity.instance.getString(R.string.awake)
-        val sleep = MainActivity.instance.getString(R.string.sleep)
+        val awake = appInstance.getString(R.string.awake)
+        val sleep = appInstance.getString(R.string.sleep)
 
         val actionNames = arrayOf<String>( awake, sleep )
         val events = realm.where<Event>()
@@ -165,7 +165,7 @@ open class DailyActivity(
             loggedMedicines.fold(initialActivity, { acc, event ->
                 when (acc.startTime) {
                     null -> {
-                        acc.name = MainActivity.instance.getString(R.string.dose)
+                        acc.name = appInstance.getString(R.string.dose)
                         acc.startTime = event.time
                         acc.endTime =event.time
                         acc.medicines = RealmList<Event>().apply{ add(event)}

@@ -25,11 +25,6 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    // for getString from Realm model.
-    companion object {
-        lateinit var instance: AppCompatActivity private set
-    }
-
     private val onNavigationItemSelectedListener =
         BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -54,7 +49,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        instance = this
         setContentView(R.layout.activity_main)
         AppLaunchChecker.onActivityCreate(this)
 
