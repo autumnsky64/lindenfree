@@ -39,8 +39,8 @@ class Migration : RealmMigration {
             scheme.apply{
                 get("Activity")?.apply {
                     addField("endTime", Date::class.java)
-                    addField("startEvent", Event::class.java)
-                    addField("endEvent", Event::class.java)
+                    addRealmObjectField("startEvent", scheme.get("Event"))
+                    addRealmObjectField("endEvent", scheme.get("Event"))
                     addRealmListField("medicines", get("Event")!!)
                 }
                 get("DailyActivity")?.removeField("medicineStack")
