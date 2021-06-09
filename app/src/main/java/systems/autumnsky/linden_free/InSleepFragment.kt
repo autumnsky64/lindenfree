@@ -10,6 +10,7 @@ import androidx.fragment.app.DialogFragment
 import io.realm.Realm
 import io.realm.Sort
 import io.realm.kotlin.where
+import systems.autumnsky.linden_free.model.DailyActivity
 import systems.autumnsky.linden_free.model.Event
 import java.util.*
 
@@ -43,12 +44,13 @@ class InSleepFragment : DialogFragment() {
             builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { _, _ ->
                 val key = arrayOf("time", "id")
                 val sort = arrayOf(Sort.DESCENDING, Sort.DESCENDING)
-                Realm.getDefaultInstance().apply {
-                    executeTransaction {
-                        where<Event>().equalTo("name", getString(R.string.sleep)).sort(key, sort)
-                            .findFirst()?.deleteFromRealm()
+                val realm = Realm.getDefaultInstance()
+                val lastSleep = realm.where<Event>().equalTo("name", getString(R.string.sleep)).sort(key, sort).findFirst()
+                val day = lastSleep?.time
+                realm.executeTransaction {
+                        lastSleep?.deleteFromRealm()
                     }
-                }.also { it.close() }
+                DailyActivity().refreshDailyStack(Calendar.getInstance().apply { time = day } )
             })
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
