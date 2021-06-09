@@ -82,23 +82,11 @@ class BottomSheetActionList(
                     isDatePicker -> {
                         Event().insertByDatePicker(name, view.context, cal)
                     }
-                    isTimePicker -> {
+                    else -> {
                         Event().insertByTimePicker(name, view.context, cal)
                     }
-                    else -> {
-                        Event().insert(name, cal)
-                    }
                 }
-
                 dismiss()
-            }
-
-            if (!isDatePicker) {
-                holder.action.setOnLongClickListener { view ->
-                    Event().insertByTimePicker(name, view.context, cal)
-                    dismiss()
-                    return@setOnLongClickListener false
-                }
             }
         }
 
@@ -147,28 +135,16 @@ class BottomSheetActionList(
             }
 
             holder.action.setOnClickListener { view ->
-
                 when {
                     isDatePicker -> {
                         Event().insertByDatePicker(name, view.context, cal, qty )
                     }
-                    isTimePicker -> {
-                        Event().insertByTimePicker(name, view.context, cal, qty)
-                    }
                     else -> {
-                        Event().insert(name, cal, qty)
+                        Event().insertByTimePicker(name, view.context, cal, qty)
                     }
                 }
 
                 dismiss()
-            }
-
-            if (!isDatePicker) {
-                holder.action.setOnLongClickListener { view ->
-                    Event().insertByTimePicker(name, view.context, cal, qty)
-                    dismiss()
-                    return@setOnLongClickListener false
-                }
             }
         }
 
