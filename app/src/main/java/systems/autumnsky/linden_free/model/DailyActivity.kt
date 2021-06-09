@@ -168,24 +168,14 @@ open class DailyActivity(
                         acc.name = MainActivity.instance.getString(R.string.dose)
                         acc.startTime = event.time
                         acc.endTime =event.time
-                        val medicine = realm.createObject<TakenMedicine>().apply {
-                            name = event.name
-                            quantity = event.quantity
-                            medicineEvent = event
-                        }
-                        acc.medicines = RealmList<TakenMedicine>().apply{ add(medicine)}
+                        acc.medicines = RealmList<Event>().apply{ add(event)}
 
                         activities.add(acc)
 
                         return@fold activities.last()!!
                     }
                     event.time -> {
-                        val medicine = realm.createObject<TakenMedicine>().apply {
-                            name = event.name
-                            quantity = event.quantity
-                            medicineEvent = event
-                        }
-                        activities.last()?.medicines?.add(medicine)
+                        activities.last()?.medicines?.add(event)
                         return@fold acc
                     }
                     else -> {
@@ -206,12 +196,10 @@ open class DailyActivity(
         val realm = Realm.getDefaultInstance()
         val targetActivity = realm.where<DailyActivity>().equalTo("day", targetDay).findFirst()?.activityStack!![position]
         realm.executeTransaction {
-            targetActivity?.startEvent?.let{ it.deleteFromRealm() }
-            targetActivity?.endEvent?.let{ it.deleteFromRealm() }
-            if ( targetActivity?.medicines!!.isNotEmpty() ){
-                targetActivity?.medicines!!.forEach(){
-                   it.medicineEvent?.deleteFromRealm()
-                }
+            targetActivity?.apply{
+                medicines?.let { it.deleteAllFromRealm() }
+                startEvent?.let{ it.deleteFromRealm() }
+                endEvent?.let{ it.deleteFromRealm() }
             }
         }
         realm.close()
@@ -220,13 +208,7 @@ open class DailyActivity(
 
     private fun prepareMedicineActivity( event: Event): Activity{
         val realm = Realm.getDefaultInstance()
-        val medicine = realm.createObject<TakenMedicine>().apply {
-                name = event.name
-                quantity = event.quantity
-                medicineEvent = event
-            }
-
-        val takenMedicines = RealmList<TakenMedicine>().apply { add(medicine) }
+        val takenMedicines = RealmList<Event>().apply { add( event ) }
 
         return realm.createObject<Activity>().apply{
             name = Resources.getSystem().getString(R.string.dose)

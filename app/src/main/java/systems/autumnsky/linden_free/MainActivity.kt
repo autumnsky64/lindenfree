@@ -469,7 +469,7 @@ class MainActivity : AppCompatActivity() {
                                         }
                                         Realm.getDefaultInstance().executeTransaction {
                                             activity.medicines!!.forEach{
-                                                it.medicineEvent!!.time = cal.time
+                                                it.time = cal.time
                                             }
                                         }
                                         DailyActivity().refreshDailyStack(cal)
@@ -482,7 +482,7 @@ class MainActivity : AppCompatActivity() {
 
                             medicines.apply {
                                 layoutManager = GridLayoutManager( applicationContext, 1 )
-                                adapter = TakenMedicinesAdapter( activity.medicines as OrderedRealmCollection<TakenMedicine> )
+                                adapter = TakenMedicinesAdapter( activity.medicines as OrderedRealmCollection<Event> )
                             }
                         }
                     }
@@ -536,8 +536,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Medicineカード内のリサイクラービュー
-    private inner class TakenMedicinesAdapter( private val takenMedicines : OrderedRealmCollection<TakenMedicine>):
-        RealmRecyclerViewAdapter<TakenMedicine, MedicineInnerCard>(takenMedicines, true){
+    private inner class TakenMedicinesAdapter( private val takenMedicines: OrderedRealmCollection<Event>):
+        RealmRecyclerViewAdapter<Event, MedicineInnerCard>(takenMedicines, true){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicineInnerCard {
             return MedicineInnerCard(LayoutInflater.from(parent.context).inflate(R.layout.card_medicine_row, parent,false))
@@ -555,7 +555,7 @@ class MainActivity : AppCompatActivity() {
                 quantity.setOnClickListener {
                     EditRecordedQuantityFragment().run {
                         arguments = Bundle().apply {
-                            putString("Id", medicine.medicineEvent!!.id!!.toString())
+                            putString("Id", medicine.id!!.toString())
                             putString("MedicineName", medicine.name as String)
                             putString("Quantity", medicine.quantity.toString())
                         }

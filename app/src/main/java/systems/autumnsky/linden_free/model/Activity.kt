@@ -13,6 +13,6 @@ open class Activity(
     open var startEvent: Event? = null,
     open var endEvent: Event? = null,
 
-    open var medicines: RealmList<TakenMedicine>? = null
+    open var medicines: RealmList<Event>? = null
 ) : RealmObject()
 
