@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class Log_Fab_test {
+class LogFabTest {
 
     @Rule
     @JvmField

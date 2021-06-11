@@ -5,7 +5,7 @@
     android:id="@+id/edit_log_medicine_quantity"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="#DCEDC8"
+    android:background="@color/paleGreen"
     tools:context=".EditMedicineFragment">
 
     <Button
