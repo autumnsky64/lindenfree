@@ -7,13 +7,13 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId 'systems.autumnsky.linden_free'
         minSdkVersion 29
-        targetSdkVersion 29
-        versionCode 10
+        targetSdkVersion 30
+        versionCode 11
         versionName '0.4'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
