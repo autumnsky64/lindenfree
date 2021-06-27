@@ -1,6 +1,5 @@
 package systems.autumnsky.linden_free.model
 
-import android.content.res.Resources
 import io.realm.Realm
 import io.realm.RealmList
 import io.realm.RealmObject
@@ -211,7 +210,7 @@ open class DailyActivity(
         val takenMedicines = RealmList<Event>().apply { add( event ) }
 
         return realm.createObject<Activity>().apply{
-            name = Resources.getSystem().getString(R.string.dose)
+            name = appInstance.getString(R.string.dose)
             startTime = event.time
             endTime = event.time
             medicines = takenMedicines
