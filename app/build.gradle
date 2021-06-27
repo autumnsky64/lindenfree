@@ -13,8 +13,8 @@ android {
         applicationId 'systems.autumnsky.linden_free'
         minSdkVersion 29
         targetSdkVersion 30
-        versionCode 11
-        versionName '0.4'
+        versionCode 12
+        versionName '0.4.1'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
